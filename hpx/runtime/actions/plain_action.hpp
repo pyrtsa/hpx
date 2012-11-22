@@ -40,18 +40,21 @@ namespace hpx { namespace actions
     ///////////////////////////////////////////////////////////////////////////
 
     // zero argument version
-    template <typename Result, Result (*F)(), typename Derived>
-    class plain_base_result_action0
+    template <typename Result, Result (*F)(), typename Derived = detail::this_type>
+    class plain_result_action0
       : public action<
             components::server::plain_function<Derived>,
-            Result, hpx::util::tuple0<>, Derived>
+            Result, hpx::util::tuple0<>, typename detail::action_type<plain_result_action0<Result, F, Derived>, Derived>::type>
     {
     public:
         typedef Result result_type;
         typedef hpx::util::tuple0<> arguments_type;
+        typedef typename detail::action_type<
+            plain_result_action0, Derived
+        >::type derived_type;
         typedef action<
             components::server::plain_function<Derived>,
-            result_type, arguments_type, Derived
+            result_type, arguments_type, derived_type
         > base_type;
 
     protected:
@@ -65,7 +68,7 @@ namespace hpx { namespace actions
         {
             try {
                 LTM_(debug) << "Executing plain action("
-                            << detail::get_action_name<Derived>()
+                            << detail::get_action_name<derived_type>()
                             << ").";
                 F();      // call the function, ignoring the return value
             }
@@ -73,7 +76,7 @@ namespace hpx { namespace actions
                 if (e.get_error() != hpx::thread_interrupted) {
                     LTM_(error)
                         << "Unhandled exception while executing plain action("
-                        << detail::get_action_name<Derived>()
+                        << detail::get_action_name<derived_type>()
                         << "): " << e.what();
 
                     // report this error to the console in any case
@@ -102,9 +105,9 @@ namespace hpx { namespace actions
             // we need to assign the address of the thread function to a
             // variable to  help the compiler to deduce the function type
             threads::thread_state_enum (*f)(threads::thread_state_ex_enum) =
-                &Derived::template thread_function<threads::thread_state_ex_enum>;
+                &derived_type::template thread_function<threads::thread_state_ex_enum>;
 
-            return boost::move(Derived::decorate_action(f, lva));
+            return boost::move(derived_type::decorate_action(f, lva));
         }
 
         /// \brief This static \a construct_thread_function allows to construct
@@ -116,57 +119,17 @@ namespace hpx { namespace actions
         construct_thread_function(continuation_type& cont,
             naming::address::address_type lva, BOOST_FWD_REF(Arguments) args)
         {
-            return boost::move(Derived::decorate_action(
+            return boost::move(derived_type::decorate_action(
                 base_type::construct_continuation_thread_function(
                     cont, F, boost::forward<Arguments>(args)), lva));
         }
-    };
-
-    ///////////////////////////////////////////////////////////////////////////
-    template <typename Result, Result (*F)(),
-        typename Derived = detail::this_type>
-    struct plain_result_action0
-      : plain_base_result_action0<Result, F,
-            typename detail::action_type<
-                plain_result_action0<Result, F>, Derived
-            >::type>
-    {
-        typedef typename detail::action_type<
-            plain_result_action0, Derived
-        >::type derived_type;
-
-        typedef boost::mpl::false_ direct_execution;
-    };
-
-    template <typename Result, Result (*F)(), typename Derived>
-    struct make_action<Result (*)(), F, Derived, boost::mpl::false_>
-      : plain_result_action0<Result, F, Derived> 
-    {
-        typedef plain_result_action0<Result, F, Derived> type;
-    };
-
-    ///////////////////////////////////////////////////////////////////////////
-    template <typename Result, Result (*F)(),
-        typename Derived = detail::this_type>
-    struct plain_direct_result_action0
-      : plain_base_result_action0<Result, F,
-            typename detail::action_type<
-                plain_direct_result_action0<Result, F>, Derived
-            >::type>
-    {
-        typedef typename detail::action_type<
-            plain_direct_result_action0, Derived
-        >::type derived_type;
-
-        typedef boost::mpl::true_ direct_execution;
 
         template <typename Arguments>
         BOOST_FORCEINLINE static Result
-        execute_function(naming::address::address_type,
-            BOOST_FWD_REF(Arguments) /*args*/)
+        execute_function(naming::address::address_type, BOOST_FWD_REF(Arguments) /*args*/)
         {
             LTM_(debug)
-                << "plain_direct_result_action0::execute_function: name("
+                << "plain_base_direct_result_action0::execute_function: name("
                 << detail::get_action_name<derived_type>()
                 << ")";
             return F();
@@ -174,27 +137,33 @@ namespace hpx { namespace actions
     };
 
     template <typename Result, Result (*F)(), typename Derived>
-    struct make_action<Result (*)(), F, Derived, boost::mpl::true_>
-      : plain_direct_result_action0<Result, F, Derived>
+    struct make_action<Result (*)(), F, Derived>
+      : plain_result_action0<Result, F, Derived> 
     {
-        typedef plain_direct_result_action0<Result, F, Derived> type;
+        typedef plain_result_action0<Result, F, Derived> type;
     };
 
     ///////////////////////////////////////////////////////////////////////////
     //  zero parameter version, no result value
-    template <void (*F)(), typename Derived>
-    class plain_base_action0
+    template <void (*F)(), typename Derived = detail::this_type>
+    class plain_action0
       : public action<
             components::server::plain_function<Derived>,
             util::unused_type, hpx::util::tuple0<>,
-            Derived>
+            typename detail::action_type<
+                plain_action0<F, Derived>, Derived
+            >::type
+        >
     {
     public:
         typedef util::unused_type result_type;
         typedef hpx::util::tuple0<> arguments_type;
+        typedef typename detail::action_type<
+            plain_action0, Derived
+        >::type derived_type;
         typedef action<
             components::server::plain_function<Derived>,
-            result_type, arguments_type, Derived
+            result_type, arguments_type, derived_type
         > base_type;
 
     protected:
@@ -208,7 +177,7 @@ namespace hpx { namespace actions
         {
             try {
                 LTM_(debug) << "Executing plain action("
-                            << detail::get_action_name<Derived>()
+                            << detail::get_action_name<derived_type>()
                             << ").";
                 F();      // call the function, ignoring the return value
             }
@@ -216,7 +185,7 @@ namespace hpx { namespace actions
                 if (e.get_error() != hpx::thread_interrupted) {
                     LTM_(error)
                         << "Unhandled exception while executing plain action("
-                        << detail::get_action_name<Derived>()
+                        << detail::get_action_name<derived_type>()
                         << "): " << e.what();
 
                     // report this error to the console in any case
@@ -244,9 +213,9 @@ namespace hpx { namespace actions
             // we need to assign the address of the thread function to a
             // variable to  help the compiler to deduce the function type
             threads::thread_state_enum (*f)(threads::thread_state_ex_enum) =
-                &Derived::template thread_function<threads::thread_state_ex_enum>;
+                &derived_type::template thread_function<threads::thread_state_ex_enum>;
 
-            return boost::move(Derived::decorate_action(f, lva));
+            return boost::move(derived_type::decorate_action(f, lva));
         }
 
         /// \brief This static \a construct_thread_function allows to construct
@@ -258,47 +227,11 @@ namespace hpx { namespace actions
         construct_thread_function(continuation_type& cont,
             naming::address::address_type lva, BOOST_FWD_REF(Arguments) args)
         {
-            return boost::move(Derived::decorate_action(
+            return boost::move(derived_type::decorate_action(
                 base_type::construct_continuation_thread_function_void(
                     cont, F, boost::forward<Arguments>(args)), lva));
         }
-    };
-
-    ///////////////////////////////////////////////////////////////////////////
-    template <void (*F)(),
-        typename Derived = detail::this_type>
-    struct plain_action0
-      : plain_base_action0<
-            F, typename detail::action_type<plain_action0<F>, Derived>::type>
-    {
-        typedef typename detail::action_type<
-            plain_action0, Derived
-        >::type derived_type;
-
-        typedef boost::mpl::false_ direct_execution;
-    };
-
-    template <void (*F)(), typename Derived>
-    struct make_action<void (*)(), F, Derived, boost::mpl::false_>
-      : plain_action0<F, Derived> 
-    {
-        typedef plain_action0<F, Derived> type;
-    };
-
-    ///////////////////////////////////////////////////////////////////////////
-    template <void (*F)(), typename Derived = detail::this_type>
-    struct plain_direct_action0
-      : plain_base_action0<F,
-            typename detail::action_type<
-                plain_direct_action0<F>, Derived
-            >::type>
-    {
-        typedef typename detail::action_type<
-            plain_direct_action0, Derived
-        >::type derived_type;
-
-        typedef boost::mpl::true_ direct_execution;
-
+        
         template <typename Arguments>
         BOOST_FORCEINLINE static util::unused_type
         execute_function(naming::address::address_type lva,
@@ -311,20 +244,13 @@ namespace hpx { namespace actions
             F();
             return util::unused;
         }
-
-        /// The function \a get_action_type returns whether this action needs
-        /// to be executed in a new thread or directly.
-        static base_action::action_type get_action_type()
-        {
-            return base_action::direct_action;
-        }
     };
 
     template <void (*F)(), typename Derived>
-    struct make_action<void(*)(), F, Derived, boost::mpl::true_>
-      : plain_direct_action0<F, Derived>
+    struct make_action<void (*)(), F, Derived>
+      : plain_action0<F, Derived> 
     {
-        typedef plain_direct_action0<F, Derived> type;
+        typedef plain_action0<F, Derived> type;
     };
 
     ///////////////////////////////////////////////////////////////////////////
@@ -349,24 +275,10 @@ namespace hpx { namespace traits
       : boost::mpl::false_
     {};
 
-    template <void (*F)(), typename Derived, typename Enable>
-    struct needs_guid_initialization<
-            hpx::actions::transfer_action<
-                hpx::actions::plain_direct_action0<F, Derived> > , Enable>
-      : boost::mpl::false_
-    {};
-
     template <typename R, R(*F)(), typename Derived, typename Enable>
     struct needs_guid_initialization<
             hpx::actions::transfer_action<
                 hpx::actions::plain_result_action0<R, F, Derived> > , Enable>
-      : boost::mpl::false_
-    {};
-
-    template <typename R, R(*F)(), typename Derived, typename Enable>
-    struct needs_guid_initialization<
-            hpx::actions::transfer_action<
-                hpx::actions::plain_direct_result_action0<R, F, Derived> >, Enable>
       : boost::mpl::false_
     {};
     /// \endcond

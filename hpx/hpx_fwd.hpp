@@ -33,6 +33,7 @@
 #include <hpx/config.hpp>
 #include <hpx/config/function.hpp>
 #include <hpx/traits.hpp>
+#include <hpx/traits/direct_action.hpp>
 #include <hpx/util/unused.hpp>
 #include <hpx/util/coroutine/coroutine.hpp>
 #include <hpx/runtime/threads/detail/tagged_thread_state.hpp>
@@ -547,13 +548,13 @@ namespace hpx
         template <typename Action,
             typename Result = typename traits::promise_local_result<
                 typename Action::result_type>::type,
-            typename DirectExecute = typename Action::direct_execution>
+            typename DirectExecute = typename hpx::traits::direct_action<Action>::type>
         class packaged_action;
 
         template <typename Action,
             typename Result = typename traits::promise_local_result<
                 typename Action::result_type>::type,
-            typename DirectExecute = typename Action::direct_execution>
+            typename DirectExecute = typename hpx::traits::direct_action<Action>::type>
         class deferred_packaged_task;
 
         template <typename Result>

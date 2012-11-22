@@ -64,21 +64,33 @@ namespace hpx { namespace actions
     template <
         typename Result,
         BOOST_PP_ENUM_PARAMS(N, typename T),
-        Result (*F)(BOOST_PP_ENUM_PARAMS(N, T)), typename Derived>
-    class BOOST_PP_CAT(plain_base_result_action, N)
+        Result (*F)(BOOST_PP_ENUM_PARAMS(N, T)), typename Derived = detail::this_type>
+    class BOOST_PP_CAT(plain_result_action, N)
       : public action<
             components::server::plain_function<Derived>,
             Result,
             BOOST_PP_CAT(hpx::util::tuple, N)<BOOST_PP_REPEAT(N, HPX_REMOVE_QUALIFIERS, _)>,
-            Derived>
+            typename detail::action_type<
+                BOOST_PP_CAT(plain_result_action, N)<
+                    Result,
+                    BOOST_PP_ENUM_PARAMS(N, T),
+                    F,
+                    Derived
+                >
+              , Derived
+            >::type
+        >
     {
     public:
         typedef Result result_type;
         typedef BOOST_PP_CAT(hpx::util::tuple, N)<
             BOOST_PP_REPEAT(N, HPX_REMOVE_QUALIFIERS, _)> arguments_type;
+        typedef typename detail::action_type<
+            BOOST_PP_CAT(plain_result_action, N), Derived
+        >::type derived_type;
         typedef action<
             components::server::plain_function<Derived>, result_type,
-            arguments_type, Derived> base_type;
+            arguments_type, derived_type> base_type;
 
     protected:
         /// The \a thread_function will be registered as the thread
@@ -94,7 +106,7 @@ namespace hpx { namespace actions
             {
                 try {
                     LTM_(debug) << "Executing plain action("
-                                << detail::get_action_name<Derived>()
+                                << detail::get_action_name<derived_type>()
                                 << ").";
 
                     // The arguments are moved here. This function is called from a
@@ -109,7 +121,7 @@ namespace hpx { namespace actions
                     if (e.get_error() != hpx::thread_interrupted) {
                         LTM_(error)
                             << "Unhandled exception while executing plain action("
-                            << detail::get_action_name<Derived>()
+                            << detail::get_action_name<derived_type>()
                             << "): " << e.what();
 
                         // report this error to the console in any case
@@ -135,8 +147,8 @@ namespace hpx { namespace actions
         construct_thread_function(naming::address::address_type lva,
             BOOST_FWD_REF(Arguments) args)
         {
-            return boost::move(Derived::decorate_action(
-                HPX_STD_BIND(typename Derived::thread_function(),
+            return boost::move(derived_type::decorate_action(
+                HPX_STD_BIND(typename derived_type::thread_function(),
                     BOOST_PP_REPEAT(N, HPX_ACTION_DIRECT_ARGUMENT, args)), lva));
         }
 
@@ -149,63 +161,10 @@ namespace hpx { namespace actions
         construct_thread_function(continuation_type& cont,
             naming::address::address_type lva, BOOST_FWD_REF(Arguments) args)
         {
-            return boost::move(Derived::decorate_action(
+            return boost::move(derived_type::decorate_action(
                 base_type::construct_continuation_thread_function(
                     cont, F, boost::forward<Arguments>(args)), lva));
         }
-    };
-
-    ///////////////////////////////////////////////////////////////////////////
-    //  N parameter version, direct execution with result
-    template <
-        typename Result, BOOST_PP_ENUM_PARAMS(N, typename T),
-        Result (*F)(BOOST_PP_ENUM_PARAMS(N, T)),
-        typename Derived = detail::this_type>
-    struct BOOST_PP_CAT(plain_result_action, N)
-      : BOOST_PP_CAT(plain_base_result_action, N)<Result,
-          BOOST_PP_ENUM_PARAMS(N, T), F,
-          typename detail::action_type<
-              BOOST_PP_CAT(plain_result_action, N)<
-                  Result, BOOST_PP_ENUM_PARAMS(N, T), F>, Derived
-          >::type>
-    {
-        typedef typename detail::action_type<
-            BOOST_PP_CAT(plain_result_action, N), Derived
-        >::type derived_type;
-
-        typedef boost::mpl::false_ direct_execution;
-    };
-
-    template <typename Result, BOOST_PP_ENUM_PARAMS(N, typename T),
-        Result (*F)(BOOST_PP_ENUM_PARAMS(N, T)), typename Derived>
-    struct make_action<Result (*)(BOOST_PP_ENUM_PARAMS(N, T)), F, Derived, boost::mpl::false_>
-      : BOOST_PP_CAT(plain_result_action, N)<
-            Result, BOOST_PP_ENUM_PARAMS(N, T), F, Derived>
-    {
-        typedef BOOST_PP_CAT(plain_result_action, N)<
-            Result, BOOST_PP_ENUM_PARAMS(N, T), F, Derived
-        > type;
-    };
-
-    ///////////////////////////////////////////////////////////////////////////
-    //  N parameter version, direct execution with result
-    template <
-        typename Result, BOOST_PP_ENUM_PARAMS(N, typename T),
-        Result (*F)(BOOST_PP_ENUM_PARAMS(N, T)),
-        typename Derived = detail::this_type>
-    struct BOOST_PP_CAT(plain_direct_result_action, N)
-      : BOOST_PP_CAT(plain_base_result_action, N)<Result,
-          BOOST_PP_ENUM_PARAMS(N, T), F,
-          typename detail::action_type<
-              BOOST_PP_CAT(plain_direct_result_action, N)<
-                  Result, BOOST_PP_ENUM_PARAMS(N, T), F>, Derived
-          >::type>
-    {
-        typedef typename detail::action_type<
-            BOOST_PP_CAT(plain_direct_result_action, N), Derived
-        >::type derived_type;
-
-        typedef boost::mpl::true_ direct_execution;
 
         template <typename Arguments>
         BOOST_FORCEINLINE static Result
@@ -219,22 +178,15 @@ namespace hpx { namespace actions
 
             return F(BOOST_PP_REPEAT(N, HPX_ACTION_DIRECT_ARGUMENT, args));
         }
-
-        /// The function \a get_action_type returns whether this action needs
-        /// to be executed in a new thread or directly.
-        static base_action::action_type get_action_type()
-        {
-            return base_action::direct_action;
-        }
     };
 
     template <typename Result, BOOST_PP_ENUM_PARAMS(N, typename T),
         Result (*F)(BOOST_PP_ENUM_PARAMS(N, T)), typename Derived>
-    struct make_action<Result (*)(BOOST_PP_ENUM_PARAMS(N, T)), F, Derived, boost::mpl::true_>
-      : BOOST_PP_CAT(plain_direct_result_action, N)<
+    struct make_action<Result (*)(BOOST_PP_ENUM_PARAMS(N, T)), F, Derived>
+      : BOOST_PP_CAT(plain_result_action, N)<
             Result, BOOST_PP_ENUM_PARAMS(N, T), F, Derived>
     {
-        typedef BOOST_PP_CAT(plain_direct_result_action, N)<
+        typedef BOOST_PP_CAT(plain_result_action, N)<
             Result, BOOST_PP_ENUM_PARAMS(N, T), F, Derived
         > type;
     };
@@ -243,22 +195,33 @@ namespace hpx { namespace actions
     //  N parameter version, no result type
     template <
         BOOST_PP_ENUM_PARAMS(N, typename T),
-        void (*F)(BOOST_PP_ENUM_PARAMS(N, T)), typename Derived>
-    class BOOST_PP_CAT(plain_base_action, N)
+        void (*F)(BOOST_PP_ENUM_PARAMS(N, T)), typename Derived = detail::this_type>
+    class BOOST_PP_CAT(plain_action, N)
       : public action<
             components::server::plain_function<Derived>,
             util::unused_type,
             BOOST_PP_CAT(hpx::util::tuple, N)<BOOST_PP_REPEAT(N, HPX_REMOVE_QUALIFIERS, _)>,
-            Derived>
+            typename detail::action_type<
+                BOOST_PP_CAT(plain_action, N)<
+                    BOOST_PP_ENUM_PARAMS(N, T),
+                    F,
+                    Derived
+                >
+              , Derived
+            >::type
+        >
     {
     public:
         typedef util::unused_type result_type;
         typedef
             BOOST_PP_CAT(hpx::util::tuple, N)<BOOST_PP_REPEAT(N, HPX_REMOVE_QUALIFIERS, _)>
         arguments_type;
+        typedef typename detail::action_type<
+            BOOST_PP_CAT(plain_action, N), Derived
+        >::type derived_type;
         typedef action<
             components::server::plain_function<Derived>, result_type,
-            arguments_type, Derived> base_type;
+            arguments_type, derived_type> base_type;
 
     protected:
         /// The \a thread_function will be registered as the thread
@@ -274,7 +237,7 @@ namespace hpx { namespace actions
             {
                 try {
                     LTM_(debug) << "Executing plain action("
-                                << detail::get_action_name<Derived>()
+                                << detail::get_action_name<derived_type>()
                                 << ").";
 
                     // The arguments are moved here. This function is called from a
@@ -289,7 +252,7 @@ namespace hpx { namespace actions
                     if (e.get_error() != hpx::thread_interrupted) {
                         LTM_(error)
                             << "Unhandled exception while executing plain action("
-                            << detail::get_action_name<Derived>()
+                            << detail::get_action_name<derived_type>()
                             << "): " << e.what();
 
                         // report this error to the console in any case
@@ -315,8 +278,8 @@ namespace hpx { namespace actions
         construct_thread_function(naming::address::address_type lva,
             BOOST_FWD_REF(Arguments) args)
         {
-            return boost::move(Derived::decorate_action(
-                HPX_STD_BIND(typename Derived::thread_function(),
+            return boost::move(derived_type::decorate_action(
+                HPX_STD_BIND(typename derived_type::thread_function(),
                     BOOST_PP_REPEAT(N, HPX_ACTION_DIRECT_ARGUMENT, args)), lva));
         }
 
@@ -329,61 +292,10 @@ namespace hpx { namespace actions
         construct_thread_function(continuation_type& cont,
             naming::address::address_type lva, BOOST_FWD_REF(Arguments) args)
         {
-            return boost::move(Derived::decorate_action(
+            return boost::move(derived_type::decorate_action(
                 base_type::construct_continuation_thread_function_void(
                     cont, F, boost::forward<Arguments>(args)), lva));
         }
-    };
-
-    ///////////////////////////////////////////////////////////////////////////
-    template <
-        BOOST_PP_ENUM_PARAMS(N, typename T),
-        void (*F)(BOOST_PP_ENUM_PARAMS(N, T)),
-        typename Derived = detail::this_type>
-    struct BOOST_PP_CAT(plain_action, N)
-      : BOOST_PP_CAT(plain_base_action, N)<
-            BOOST_PP_ENUM_PARAMS(N, T), F,
-            typename detail::action_type<
-                BOOST_PP_CAT(plain_action, N)<
-                    BOOST_PP_ENUM_PARAMS(N, T), F>, Derived
-            >::type>
-    {
-        typedef typename detail::action_type<
-            BOOST_PP_CAT(plain_action, N), Derived
-        >::type derived_type;
-
-        typedef boost::mpl::false_ direct_execution;
-    };
-
-    template <BOOST_PP_ENUM_PARAMS(N, typename T),
-        void (*F)(BOOST_PP_ENUM_PARAMS(N, T)), typename Derived>
-    struct make_action<void (*)(BOOST_PP_ENUM_PARAMS(N, T)), F, Derived, boost::mpl::false_>
-      : BOOST_PP_CAT(plain_action, N)<
-            BOOST_PP_ENUM_PARAMS(N, T), F, Derived>
-    {
-        typedef BOOST_PP_CAT(plain_action, N)<
-            BOOST_PP_ENUM_PARAMS(N, T), F, Derived
-        > type;
-    };
-
-    ///////////////////////////////////////////////////////////////////////////
-    template <
-        BOOST_PP_ENUM_PARAMS(N, typename T),
-        void (*F)(BOOST_PP_ENUM_PARAMS(N, T)),
-        typename Derived = detail::this_type>
-    struct BOOST_PP_CAT(plain_direct_action, N)
-      : BOOST_PP_CAT(plain_base_action, N)<
-            BOOST_PP_ENUM_PARAMS(N, T), F,
-            typename detail::action_type<
-                BOOST_PP_CAT(plain_direct_action, N)<
-                    BOOST_PP_ENUM_PARAMS(N, T), F>, Derived
-            >::type>
-    {
-        typedef typename detail::action_type<
-            BOOST_PP_CAT(plain_direct_action, N), Derived
-        >::type derived_type;
-
-        typedef boost::mpl::true_ direct_execution;
 
         template <typename Arguments>
         BOOST_FORCEINLINE static util::unused_type
@@ -398,22 +310,15 @@ namespace hpx { namespace actions
             F(BOOST_PP_REPEAT(N, HPX_ACTION_DIRECT_ARGUMENT, args));
             return util::unused;
         }
-
-        /// The function \a get_action_type returns whether this action needs
-        /// to be executed in a new thread or directly.
-        static base_action::action_type get_action_type()
-        {
-            return base_action::direct_action;
-        }
     };
 
     template <BOOST_PP_ENUM_PARAMS(N, typename T),
         void (*F)(BOOST_PP_ENUM_PARAMS(N, T)), typename Derived>
-    struct make_action<void (*)(BOOST_PP_ENUM_PARAMS(N, T)), F, Derived, boost::mpl::true_>
-      : BOOST_PP_CAT(plain_direct_action, N)<
+    struct make_action<void (*)(BOOST_PP_ENUM_PARAMS(N, T)), F, Derived>
+      : BOOST_PP_CAT(plain_action, N)<
             BOOST_PP_ENUM_PARAMS(N, T), F, Derived>
     {
-        typedef BOOST_PP_CAT(plain_direct_action, N)<
+        typedef BOOST_PP_CAT(plain_action, N)<
             BOOST_PP_ENUM_PARAMS(N, T), F, Derived
         > type;
     };
@@ -443,31 +348,12 @@ namespace hpx { namespace traits
       : boost::mpl::false_
     {};
 
-    template <BOOST_PP_ENUM_PARAMS(N, typename Arg),
-        void (*F)(BOOST_PP_ENUM_PARAMS(N, Arg)), typename Derived,
-        typename Enable>
-    struct needs_guid_initialization<
-            hpx::actions::transfer_action<
-                BOOST_PP_CAT(hpx::actions::plain_direct_action, N)<
-                    BOOST_PP_ENUM_PARAMS(N, Arg), F, Derived> >, Enable>
-      : boost::mpl::false_
-    {};
-
     template <typename R, BOOST_PP_ENUM_PARAMS(N, typename Arg),
         R(*F)(BOOST_PP_ENUM_PARAMS(N, Arg)), typename Derived, 
         typename Enable>
     struct needs_guid_initialization<
             hpx::actions::transfer_action<
                 BOOST_PP_CAT(hpx::actions::plain_result_action, N)<
-                    R, BOOST_PP_ENUM_PARAMS(N, Arg), F, Derived> >, Enable>
-      : boost::mpl::false_
-    {};
-
-    template <typename R, BOOST_PP_ENUM_PARAMS(N, typename Arg),
-        R(*F)(BOOST_PP_ENUM_PARAMS(N, Arg)), typename Derived, typename Enable>
-    struct needs_guid_initialization<
-            hpx::actions::transfer_action<
-                BOOST_PP_CAT(hpx::actions::plain_direct_result_action, N)<
                     R, BOOST_PP_ENUM_PARAMS(N, Arg), F, Derived> >, Enable>
       : boost::mpl::false_
     {};

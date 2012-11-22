@@ -93,25 +93,11 @@ namespace hpx { namespace lcos
         ///
         /// \param RemoteResult [in] The type of the result to be transferred
         ///               back to this LCO instance.
-
-        // FIXME: gcc complains when the macro is used
-//         HPX_COMPONENT_DIRECT_ACTION_TPL(base_lco_with_value, set_value_nonvirt,
-//             set_value_action);
-        typedef hpx::actions::direct_action1<
-            base_lco_with_value, BOOST_RV_REF(RemoteResult),
-            &base_lco_with_value::set_value_nonvirt
-        > set_value_action;
+        HPX_DEFINE_COMPONENT_ACTION_TPL(base_lco_with_value, set_value_nonvirt, set_value_action);
 
         /// The \a get_value_action may be used to query the value this LCO
         /// instance exposes as its 'result' value.
-
-        // FIXME: gcc complains when the macro is used
-//         HPX_COMPONENT_DIRECT_ACTION_TPL(base_lco_with_value, get_value_nonvirt,
-//             get_value_action);
-        typedef hpx::actions::direct_result_action0<
-            base_lco_with_value, Result,
-            &base_lco_with_value::get_value_nonvirt
-        > get_value_action;
+        HPX_DEFINE_COMPONENT_ACTION_TPL(base_lco_with_value, get_value_nonvirt, get_value_action);
     };
 
     /// The base_lco<void> specialization is used whenever the set_event action
@@ -135,6 +121,25 @@ namespace hpx { namespace lcos
         typedef base_lco_with_value base_type_holder;
     };
 }}
+
+/*
+namespace hpx { namespace traits
+{
+    template <typename Result, typename RemoteResult>
+    struct direct_action<
+        HPX_MAKE_COMPONENT_ACTION(hpx::lcos::base_lco_with_value<Result, RemoteResult>, set_value_nonvirt)::type
+    >
+        : boost::mpl::true_
+    {};
+    
+    template <typename Result, typename RemoteResult>
+    struct direct_action<
+        HPX_MAKE_COMPONENT_ACTION(hpx::lcos::base_lco_with_value<Result, RemoteResult>, get_value_nonvirt)::type
+    >
+        : boost::mpl::true_
+    {};
+}}
+*/
 
 namespace hpx { namespace traits
 {

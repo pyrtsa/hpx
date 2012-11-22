@@ -61,6 +61,9 @@ namespace hpx { namespace traits
     template <typename Action, typename Enable = void>
     struct action_stacksize;
 
+    template <typename Action>
+    struct direct_action;
+
     ///////////////////////////////////////////////////////////////////////////
     // Customization point for type_size
     template <typename T, typename Enable = void>

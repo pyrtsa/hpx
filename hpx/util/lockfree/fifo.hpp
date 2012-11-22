@@ -9,7 +9,8 @@
 #include <boost/config.hpp>
 #include <boost/version.hpp>
 
-#if BOOST_VERSION >= 105200
+#if 1
+//BOOST_VERSION >= 105200
 #include <boost/lockfree/policies.hpp>
 #include <boost/lockfree/queue.hpp>
 

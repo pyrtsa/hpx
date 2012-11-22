@@ -15,12 +15,13 @@
 #include <hpx/runtime/applier/applier.hpp>
 #include <hpx/runtime/actions/continuation.hpp>
 #include <hpx/runtime/threads/thread_helpers.hpp>
+#include <hpx/traits/direct_action.hpp>
 
 namespace hpx { namespace applier { namespace detail
 {
     ///////////////////////////////////////////////////////////////////////
     template <typename Action,
-        typename DirectExecute = typename Action::direct_execution>
+        typename DirectExecute = typename hpx::traits::direct_action<Action>::type>
     struct apply_helper;
 
     template <typename Action>

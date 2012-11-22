@@ -17,7 +17,6 @@ namespace hpx { namespace lcos
             typename traits::promise_local_result<
                 typename Action::result_type
             >::type
-      , typename DirectExecute = typename Action::direct_execution
     >
     struct dataflow;
 }}
@@ -26,8 +25,8 @@ namespace hpx
 {
     namespace traits
     {
-        template <typename Action, typename Result, typename DirectExecute>
-        struct is_dataflow<hpx::lcos::dataflow<Action, Result, DirectExecute> >
+        template <typename Action, typename Result>
+        struct is_dataflow<hpx::lcos::dataflow<Action, Result> >
             : boost::mpl::true_
         {};
     }

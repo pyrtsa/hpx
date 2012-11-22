@@ -15,6 +15,7 @@
 #include <hpx/util/move.hpp>
 #include <hpx/traits/action_priority.hpp>
 #include <hpx/traits/action_stacksize.hpp>
+#include <hpx/traits/direct_action.hpp>
 #include <hpx/traits/type_size.hpp>
 
 #include <boost/version.hpp>
@@ -249,6 +250,24 @@ namespace hpx { namespace actions
                 return stacksize;
             }
         };
+
+        template <typename Action, typename DirectExecute = typename hpx::traits::direct_action<Action>::type>
+        struct get_action_type
+        {
+            static base_action::action_type call()
+            {
+                return base_action::plain_action;
+            }
+        };
+        
+        template <typename Action>
+        struct get_action_type<Action, boost::mpl::true_>
+        {
+            static base_action::action_type call()
+            {
+                return base_action::direct_action;
+            }
+        };
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -269,8 +288,6 @@ namespace hpx { namespace actions
         // (statically). This value might be different from the stacksize member
         // holding the runtime value an action has been created with
         enum { stacksize_value = traits::action_stacksize<Action>::value };
-
-        typedef typename Action::direct_execution direct_execution;
 
         // default constructor is needed for serialization
         transfer_action() {}
@@ -581,6 +598,26 @@ namespace hpx { namespace actions
     #include <hpx/runtime/actions/construct_continuation_function_objects.hpp>
 
     ///////////////////////////////////////////////////////////////////////////
+    namespace detail
+    {
+        // simple type allowing to distinguish whether an action is the most
+        // derived one
+        struct this_type {};
+
+        template <typename Action, typename Derived>
+        struct action_type
+        {
+            typedef Derived type;
+        };
+
+        template <typename Action>
+        struct action_type<Action, this_type>
+        {
+            typedef Action type;
+        };
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
     /// \tparam Component         component type
     /// \tparam Result            return type
     /// \tparam Arguments         arguments (fusion vector)
@@ -652,11 +689,9 @@ namespace hpx { namespace actions
             return static_cast<int>(components::get_component_type<Component>());
         }
 
-        /// The function \a get_action_type returns whether this action needs
-        /// to be executed in a new thread or directly.
         static base_action::action_type get_action_type()
         {
-            return base_action::plain_action;
+            return detail::get_action_type<derived_type>::call();
         }
 
         /// Enable hooking into the execution of all actions. This function is 
@@ -673,30 +708,11 @@ namespace hpx { namespace actions
     };
 
     ///////////////////////////////////////////////////////////////////////////
-    namespace detail
-    {
-        // simple type allowing to distinguish whether an action is the most
-        // derived one
-        struct this_type {};
-
-        template <typename Action, typename Derived>
-        struct action_type
-          : boost::mpl::if_<boost::is_same<Derived, this_type>, Action, Derived>
-        {};
-    }
-
-    ///////////////////////////////////////////////////////////////////////////
     // Base template allowing to generate a concrete action type from a function
     // pointer. It is instantiated only if the supplied pointer is not a
     // supported function pointer.
-    template <typename F, F funcptr, typename Derived = detail::this_type,
-        typename Direct = boost::mpl::false_>
-    struct make_action;
-
     template <typename F, F funcptr, typename Derived = detail::this_type>
-    struct make_direct_action
-      : make_action<F, funcptr, Derived, boost::mpl::true_>
-    {};
+    struct make_action;
 
 // older compilers require BOOST_TYPEOF, newer compilers have decltype()
 #if defined(HPX_HAVE_CXX11_DECLTYPE)
@@ -714,15 +730,9 @@ namespace hpx { namespace actions
     #define HPX_MAKE_ACTION(f)                                                \
         hpx::actions::make_action<HPX_TYPEOF(&f), &f>        /**/             \
     /**/
-    #define HPX_MAKE_DIRECT_ACTION(f)                                         \
-        hpx::actions::make_direct_action<HPX_TYPEOF(&f), &f> /**/             \
-    /**/
 
     #define HPX_MAKE_ACTION_TPL(f)                                            \
         hpx::actions::make_action<HPX_TYPEOF_TPL(&f), &f>        /**/         \
-    /**/
-    #define HPX_MAKE_DIRECT_ACTION_TPL(f)                                     \
-        hpx::actions::make_direct_action<HPX_TYPEOF_TPL(&f), &f> /**/         \
     /**/
 
 #if BOOST_WORKAROUND(BOOST_MSVC, == 1600)
@@ -731,17 +741,9 @@ namespace hpx { namespace actions
         hpx::actions::make_action<                                            \
             HPX_TYPEOF(component::f) component::*, &component::f>  /**/       \
     /**/
-    #define HPX_MAKE_DIRECT_COMPONENT_ACTION(component, f)                    \
-        hpx::actions::make_direct_action<                                     \
-            HPX_TYPEOF(component::f) component::*, &component::f>  /**/       \
-    /**/
 
     #define HPX_MAKE_COMPONENT_ACTION_TPL(component, f)                       \
         hpx::actions::make_action<                                            \
-            HPX_TYPEOF_TPL(component::f) component::*, &component::f>  /**/   \
-    /**/
-    #define HPX_MAKE_DIRECT_COMPONENT_ACTION_TPL(component, f)                \
-        hpx::actions::make_direct_action<                                     \
             HPX_TYPEOF_TPL(component::f) component::*, &component::f>  /**/   \
     /**/
 
@@ -761,25 +763,9 @@ namespace hpx { namespace actions
                 )                                                             \
             >::type, &component::f>  /**/                                     \
     /**/
-    #define HPX_MAKE_CONST_DIRECT_COMPONENT_ACTION(component, f)              \
-        hpx::actions::make_direct_action<                                     \
-            hpx::actions::detail::synthesize_const_mf<                        \
-                component, HPX_TYPEOF(                                        \
-                    hpx::actions::detail::replicate_type(&component::f)       \
-                )                                                             \
-            >::type, &component::f>  /**/                                     \
-    /**/
 
     #define HPX_MAKE_CONST_COMPONENT_ACTION_TPL(component, f)                 \
         hpx::actions::make_action<                                            \
-            typename hpx::actions::detail::synthesize_const_mf<               \
-                component, HPX_TYPEOF_TPL(                                    \
-                    hpx::actions::detail::replicate_type(&component::f)       \
-                )                                                             \
-            >::type, &component::f>  /**/                                     \
-    /**/
-    #define HPX_MAKE_CONST_DIRECT_COMPONENT_ACTION_TPL(component, f)          \
-        hpx::actions::make_direct_action<                                     \
             typename hpx::actions::detail::synthesize_const_mf<               \
                 component, HPX_TYPEOF_TPL(                                    \
                     hpx::actions::detail::replicate_type(&component::f)       \
@@ -804,14 +790,8 @@ namespace hpx { namespace actions
     #define HPX_MAKE_COMPONENT_ACTION_TPL(component, f)                       \
         HPX_MAKE_ACTION_TPL(component::f)                                     \
     /**/
-    #define HPX_MAKE_DIRECT_COMPONENT_ACTION_TPL(component, f)                \
-        HPX_MAKE_DIRECT_ACTION_TPL(component::f)                              \
-    /**/
     #define HPX_MAKE_CONST_COMPONENT_ACTION_TPL(component, f)                 \
         HPX_MAKE_ACTION_TPL(component::f)                                     \
-    /**/
-    #define HPX_MAKE_CONST_DIRECT_COMPONENT_ACTION_TPL(component, f)          \
-        HPX_MAKE_DIRECT_ACTION_TPL(component::f)                              \
     /**/
 #endif
 
@@ -1002,6 +982,17 @@ namespace hpx { namespace actions
 /**/
 #define HPX_ACTION_HAS_CRITICAL_PRIORITY(action)                              \
     HPX_ACTION_HAS_PRIORITY(action, threads::thread_priority_critical)        \
+/**/
+
+///////////////////////////////////////////////////////////////////////////////
+#define HPX_ACTION_DIRECT_EXECUTION(action)                                   \
+    namespace hpx { namespace traits                                          \
+    {                                                                         \
+        template <>                                                           \
+        struct direct_action<action>                                          \
+            : boost::mpl::true_                                               \
+        {};                                                                   \
+    }}                                                                        \
 /**/
 
 /// \endcond

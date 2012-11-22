@@ -181,10 +181,7 @@ namespace hpx { namespace components { namespace server
         // directly to avoid a deadlock condition inside the thread manager
         // waiting for this thread to finish, which waits for the thread
         // manager to exit
-        typedef hpx::actions::direct_result_action0<
-            runtime_support, util::section,
-            &runtime_support::get_config
-        > get_config_action;
+        HPX_DEFINE_COMPONENT_ACTION(runtime_support, get_config);
         
         HPX_DEFINE_COMPONENT_ACTION(runtime_support, insert_agas_cache_entry);
         HPX_DEFINE_COMPONENT_ACTION(runtime_support, garbage_collect);
@@ -356,6 +353,8 @@ namespace hpx { namespace components { namespace server
 
 #endif // !defined(HPX_USE_PREPROCESSOR_LIMIT_EXPANSION)
 
+HPX_ACTION_DIRECT_EXECUTION(hpx::components::server::runtime_support::get_config_action);
+
 HPX_REGISTER_ACTION_DECLARATION(
     hpx::components::server::runtime_support::factory_properties_action,
     factory_properties_action)
@@ -483,19 +482,6 @@ namespace hpx { namespace components { namespace server
                 Component
               BOOST_PP_COMMA_IF(N) BOOST_PP_ENUM_PARAMS(N, A)>
           , BOOST_PP_CAT(create_component_action, N)<
-                Component BOOST_PP_COMMA_IF(N) BOOST_PP_ENUM_PARAMS(N, A)> >
-    {};
-
-    template <typename Component
-      BOOST_PP_COMMA_IF(N) BOOST_PP_ENUM_PARAMS(N, typename A)>
-    struct BOOST_PP_CAT(create_component_direct_action, N)
-      : BOOST_PP_CAT( ::hpx::actions::direct_result_action, N)<
-            runtime_support
-          , naming::gid_type
-          BOOST_PP_COMMA_IF(N) BOOST_PP_ENUM_PARAMS(N, A)
-          , &runtime_support::BOOST_PP_CAT(create_component, N)<
-                Component BOOST_PP_COMMA_IF(N) BOOST_PP_ENUM_PARAMS(N, A)>
-          , BOOST_PP_CAT(create_component_direct_action, N)<
                 Component BOOST_PP_COMMA_IF(N) BOOST_PP_ENUM_PARAMS(N, A)> >
     {};
 }}}

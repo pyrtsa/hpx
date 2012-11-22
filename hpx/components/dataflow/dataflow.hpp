@@ -33,7 +33,6 @@ namespace hpx { namespace lcos
     template <
         typename Action
       , typename Result
-      , typename DirectExecute
     >
     struct dataflow
         : dataflow_base<Result, typename Action::result_type>
@@ -134,38 +133,10 @@ namespace hpx { namespace lcos
         static inline lcos::future<naming::id_type>
         create_component(naming::id_type const & target
           , HPX_ENUM_FWD_ARGS(N, A, a)
-          , boost::mpl::false_
         )
         {
             typedef BOOST_PP_CAT(
                     components::server::create_component_action
-                  , BOOST_PP_ADD(N, 2)
-                )<
-                    server::dataflow
-                  , detail::action_wrapper<Action> const &
-                  , naming::id_type const &
-                  , BOOST_PP_REPEAT(N, HPX_A, _)
-                > create_component_action;
-
-            return
-                async<create_component_action>(
-                    naming::get_locality_from_id(target)
-                  , detail::action_wrapper<Action>()
-                  , target
-                  , HPX_ENUM_FORWARD_ARGS(N, A, a)
-                );
-        }
-
-        template <BOOST_PP_ENUM_PARAMS(N, typename A)>
-        static inline lcos::future<naming::id_type>
-        create_component(naming::id_type const & target
-          , HPX_ENUM_FWD_ARGS(N, A, a)
-          , boost::mpl::true_
-        )
-        {
-            typedef
-                BOOST_PP_CAT(
-                    components::server::create_component_direct_action
                   , BOOST_PP_ADD(N, 2)
                 )<
                     server::dataflow
@@ -191,7 +162,6 @@ namespace hpx { namespace lcos
             : base_type(
                 create_component(target
                   , HPX_ENUM_FORWARD_ARGS(N, A, a)
-                  , typename Action::direct_execution()
                 )
             )
         {

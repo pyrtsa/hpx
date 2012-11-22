@@ -48,11 +48,11 @@ namespace hpx { namespace components { namespace server
     // serialization support instances
     template <typename Dummy = void>
     class console_logging_action
-      : public actions::plain_direct_action1<messages_type const&,
+      : public actions::plain_action1<messages_type const&,
         console_logging, console_logging_action<Dummy> >
     {
     private:
-        typedef actions::plain_direct_action1<
+        typedef actions::plain_action1<
             messages_type const&, console_logging, console_logging_action>
         base_type;
 
@@ -105,6 +105,9 @@ namespace hpx { namespace components { namespace server
     };
 }}}
 
+HPX_ACTION_DIRECT_EXECUTION(
+    hpx::components::server::console_logging_action<>
+)
 HPX_REGISTER_PLAIN_ACTION_DECLARATION(
     hpx::components::server::console_logging_action<>
 )
