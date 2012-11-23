@@ -101,29 +101,21 @@ namespace hpx { namespace actions
 {
     ///////////////////////////////////////////////////////////////////////////
     //  N parameter version, with result
-    template <
-        typename Component, typename Result,
-        BOOST_PP_ENUM_PARAMS(N, typename T),
-        Result (Component::*F)(BOOST_PP_ENUM_PARAMS(N, T)), typename Derived = detail::this_type>
+    template <typename F, F funcptr, typename Derived = detail::this_type>
     struct BOOST_PP_CAT(result_action, N)
       : public action<
-            Component, Result,
-            BOOST_PP_CAT(hpx::util::tuple, N)<BOOST_PP_REPEAT(N, HPX_REMOVE_QUALIFIERS, _)>,
             typename detail::action_type<
-                BOOST_PP_CAT(result_action, N)<Component, Result, BOOST_PP_ENUM_PARAMS(N, T), F, Derived>
+                BOOST_PP_CAT(result_action, N)<F, funcptr, Derived>
               , Derived
-            >::type>
+            >::type
+        >
     {
     public:
-        typedef Result result_type;
-        typedef BOOST_PP_CAT(hpx::util::tuple, N)<
-            BOOST_PP_REPEAT(N, HPX_REMOVE_QUALIFIERS, _)> arguments_type;
-        typedef
-            typename detail::action_type<
-                BOOST_PP_CAT(result_action, N), Derived
-            >::type derived_type;
-        typedef action<Component, result_type, arguments_type, derived_type>
-            base_type;
+        typedef detail::action_traits<BOOST_PP_CAT(result_action, N)> action_traits;
+        typedef typename action_traits::derived_type derived_type;
+        typedef typename action_traits::result_type result_type;
+        typedef typename action_traits::component_type component_type;
+        typedef action<derived_type> base_type;
 
     protected:
         /// The \a thread_function will be registered as the thread
@@ -142,12 +134,12 @@ namespace hpx { namespace actions
                     LTM_(debug) << "Executing component action("
                                 << detail::get_action_name<derived_type>()
                                 << ") lva(" << reinterpret_cast<void const*>
-                                    (get_lva<Component>::call(lva)) << ")";
+                                    (get_lva<component_type>::call(lva)) << ")";
                     // The arguments are moved here. This function is called from a
                     // bound functor. In order to do true perfect forwarding in an
                     // asynchronous operation. These bound variables must be moved
                     // out of the bound object.
-                    (get_lva<Component>::call(lva)->*F)(
+                    (get_lva<component_type>::call(lva)->*funcptr)(
                         HPX_ENUM_MOVE_ARGS(N, arg));
                 }
                 catch (hpx::exception const& e) {
@@ -156,7 +148,7 @@ namespace hpx { namespace actions
                             << "Unhandled exception while executing component action("
                             << detail::get_action_name<derived_type>()
                             << ") lva(" << reinterpret_cast<void const*>
-                                (get_lva<Component>::call(lva)) << "): " << e.what();
+                                (get_lva<component_type>::call(lva)) << "): " << e.what();
 
                         // report this error to the console in any case
                         hpx::report_error(boost::current_exception());
@@ -197,12 +189,12 @@ namespace hpx { namespace actions
         {
             return boost::move(derived_type::decorate_action(
                     base_type::construct_continuation_thread_object_function(
-                        cont, F, get_lva<Component>::call(lva),
+                        cont, funcptr, get_lva<component_type>::call(lva),
                         boost::forward<Arguments>(args)), lva));
         }
 
         template <typename Arguments>
-        BOOST_FORCEINLINE static Result
+        BOOST_FORCEINLINE static result_type
         execute_function(naming::address::address_type lva,
             BOOST_FWD_REF(Arguments) args)
         {
@@ -211,12 +203,69 @@ namespace hpx { namespace actions
                 << "::execute_function name("
                 << detail::get_action_name<derived_type>()
                 << ") lva(" << reinterpret_cast<void const*>(
-                    get_lva<Component>::call(lva)) << ")";
+                    get_lva<component_type>::call(lva)) << ")";
 
-            return (get_lva<Component>::call(lva)->*F)(
+            return (get_lva<component_type>::call(lva)->*funcptr)(
                 BOOST_PP_REPEAT(N, HPX_ACTION_DIRECT_ARGUMENT, args));
         }
     };
+
+    namespace detail
+    {
+        template <typename Component, typename Result,
+            BOOST_PP_ENUM_PARAMS(N, typename T),
+            Result (Component::*F)(BOOST_PP_ENUM_PARAMS(N, T)), typename Derived>
+        struct action_traits<
+            BOOST_PP_CAT(result_action, N)<
+                Result (Component::*)(BOOST_PP_ENUM_PARAMS(N, T)),
+                F,
+                Derived
+            >
+        >
+        {
+            typedef Component component_type;
+            typedef Result result_type;
+            typedef BOOST_PP_CAT(hpx::util::tuple, N)<
+                BOOST_PP_REPEAT(N, HPX_REMOVE_QUALIFIERS, _)> arguments_type;
+            typedef
+                typename detail::action_type<
+                    BOOST_PP_CAT(result_action, N)<
+                        Result (Component::*)(BOOST_PP_ENUM_PARAMS(N, T))
+                      , F
+                      , Derived
+                    >, Derived
+                >::type
+                derived_type;
+            typedef action<derived_type> base_type;
+        };
+        
+        template <typename Component, typename Result,
+            BOOST_PP_ENUM_PARAMS(N, typename T),
+            Result (Component::*F)(BOOST_PP_ENUM_PARAMS(N, T)) const, typename Derived>
+        struct action_traits<
+            BOOST_PP_CAT(result_action, N)<
+                Result (Component::*)(BOOST_PP_ENUM_PARAMS(N, T)),
+                F,
+                Derived
+            >
+        >
+        {
+            typedef Component const component_type;
+            typedef Result result_type;
+            typedef BOOST_PP_CAT(hpx::util::tuple, N)<
+                BOOST_PP_REPEAT(N, HPX_REMOVE_QUALIFIERS, _)> arguments_type;
+            typedef
+                typename detail::action_type<
+                    BOOST_PP_CAT(result_action, N)<
+                        Result (Component::*)(BOOST_PP_ENUM_PARAMS(N, T))
+                      , F
+                      , Derived
+                    >, Derived
+                >::type
+                derived_type;
+            typedef action<derived_type> base_type;
+        };
+    }
 
     template <typename Component, typename Result,
         BOOST_PP_ENUM_PARAMS(N, typename T),
@@ -224,13 +273,13 @@ namespace hpx { namespace actions
     struct make_action<Result (Component::*)(BOOST_PP_ENUM_PARAMS(N, T)),
             F, Derived>
       : BOOST_PP_CAT(result_action, N)<
-            Component, Result,
-            BOOST_PP_ENUM_PARAMS(N, T), F, Derived>
+            Result (Component::*)(BOOST_PP_ENUM_PARAMS(N, T)),
+            F, Derived>
     {
         typedef BOOST_PP_CAT(result_action, N)<
-            Component, Result,
-            BOOST_PP_ENUM_PARAMS(N, T), F, Derived
-        > type;
+            Result (Component::*)(BOOST_PP_ENUM_PARAMS(N, T)),
+            F, Derived
+            > type;
     };
 
     template <typename Component, typename Result,
@@ -239,35 +288,31 @@ namespace hpx { namespace actions
     struct make_action<Result (Component::*)(BOOST_PP_ENUM_PARAMS(N, T)) const,
             F, Derived>
       : BOOST_PP_CAT(result_action, N)<
-            Component const, Result,
-            BOOST_PP_ENUM_PARAMS(N, T), F, Derived>
+            Result (Component::*)(BOOST_PP_ENUM_PARAMS(N, T)) const,
+            F, Derived>
     {
         typedef BOOST_PP_CAT(result_action, N)<
-            Component const, Result,
-            BOOST_PP_ENUM_PARAMS(N, T), F, Derived
-        > type;
+            Result (Component::*)(BOOST_PP_ENUM_PARAMS(N, T)) const,
+            F, Derived
+            > type;
     };
 
     ///////////////////////////////////////////////////////////////////////////
     //  N parameter version, no result type
-    template <
-        typename Component, BOOST_PP_ENUM_PARAMS(N, typename T),
-        void (Component::*F)(BOOST_PP_ENUM_PARAMS(N, T)), typename Derived = detail::this_type>
+    template <typename F, F funcptr, typename Derived = detail::this_type>
     class BOOST_PP_CAT(action, N)
       : public action<
-            Component, util::unused_type,
-            BOOST_PP_CAT(hpx::util::tuple, N)<BOOST_PP_REPEAT(N, HPX_REMOVE_QUALIFIERS, _)>,
-            typename detail::action_type<BOOST_PP_CAT(action, N)<Component, BOOST_PP_ENUM_PARAMS(N, T), F, Derived>, Derived>::type>
+            typename detail::action_type<
+                BOOST_PP_CAT(action, N)<F, funcptr, Derived>, Derived
+            >::type
+        >
     {
     public:
-        typedef util::unused_type result_type;
-        typedef BOOST_PP_CAT(hpx::util::tuple, N)<
-            BOOST_PP_REPEAT(N, HPX_REMOVE_QUALIFIERS, _)> arguments_type;
-        typedef typename detail::action_type<
-            BOOST_PP_CAT(action, N), Derived
-        >::type derived_type;
-        typedef action<Component, result_type, arguments_type, derived_type> 
-            base_type;
+        typedef detail::action_traits<BOOST_PP_CAT(action, N)> action_traits;
+        typedef typename action_traits::derived_type derived_type;
+        typedef typename action_traits::result_type result_type;
+        typedef typename action_traits::component_type component_type;
+        typedef action<derived_type> base_type;
 
     protected:
         /// The \a thread_function will be registered as the thread
@@ -286,12 +331,12 @@ namespace hpx { namespace actions
                     LTM_(debug) << "Executing component action("
                                 << detail::get_action_name<derived_type>()
                                 << ") lva(" << reinterpret_cast<void const*>
-                                    (get_lva<Component>::call(lva)) << ")";
+                                    (get_lva<component_type>::call(lva)) << ")";
                     // The arguments are moved here. This function is called from a
                     // bound functor. In order to do true perfect forwarding in an
                     // asynchronous operation. These bound variables must be moved
                     // out of the bound object.
-                    (get_lva<Component>::call(lva)->*F)(
+                    (get_lva<component_type>::call(lva)->*funcptr)(
                         HPX_ENUM_MOVE_ARGS(N, arg));
                 }
                 catch (hpx::exception const& e) {
@@ -300,7 +345,7 @@ namespace hpx { namespace actions
                             << "Unhandled exception while executing component action("
                             << detail::get_action_name<derived_type>()
                             << ") lva(" << reinterpret_cast<void const*>
-                                (get_lva<Component>::call(lva)) << "): " << e.what();
+                                (get_lva<component_type>::call(lva)) << "): " << e.what();
 
                         // report this error to the console in any case
                         hpx::report_error(boost::current_exception());
@@ -343,7 +388,7 @@ namespace hpx { namespace actions
         {
             return boost::move(derived_type::decorate_action(
                     base_type::construct_continuation_thread_object_function_void(
-                        cont, F, get_lva<Component>::call(lva),
+                        cont, funcptr, get_lva<component_type>::call(lva),
                         boost::forward<Arguments>(args)), lva));
         }
 
@@ -357,26 +402,63 @@ namespace hpx { namespace actions
                 << "::execute_function name("
                 << detail::get_action_name<derived_type>()
                 << ") lva(" << reinterpret_cast<void const*>(
-                    get_lva<Component>::call(lva)) << ")";
+                    get_lva<component_type>::call(lva)) << ")";
 
-            (get_lva<Component>::call(lva)->*F)(
+            (get_lva<component_type>::call(lva)->*funcptr)(
                 BOOST_PP_REPEAT(N, HPX_ACTION_DIRECT_ARGUMENT, args));
             return util::unused;
         }
     };
+    
+    namespace detail
+    {
+        template <typename Component, BOOST_PP_ENUM_PARAMS(N, typename T),
+            void (Component::*F)(BOOST_PP_ENUM_PARAMS(N, T)), typename Derived>
+        struct action_traits<
+            BOOST_PP_CAT(action, N)<void (Component::*)(BOOST_PP_ENUM_PARAMS(N, T)), F, Derived>
+        >
+        {
+            typedef Component component_type;
+            typedef util::unused_type result_type;
+            typedef BOOST_PP_CAT(hpx::util::tuple, N)<
+                BOOST_PP_REPEAT(N, HPX_REMOVE_QUALIFIERS, _)> arguments_type;
+            typedef
+                typename detail::action_type<
+                    BOOST_PP_CAT(action, N)<void (Component::*)(BOOST_PP_ENUM_PARAMS(N, T)), F, Derived>, Derived
+                >::type
+                derived_type;
+            typedef action<derived_type> base_type;
+        };
+        
+        template <typename Component, BOOST_PP_ENUM_PARAMS(N, typename T),
+            void (Component::*F)(BOOST_PP_ENUM_PARAMS(N, T)) const, typename Derived>
+        struct action_traits<
+            BOOST_PP_CAT(action, N)<void (Component::*)(BOOST_PP_ENUM_PARAMS(N, T)) const, F, Derived>
+        >
+        {
+            typedef Component const component_type;
+            typedef util::unused_type result_type;
+            typedef BOOST_PP_CAT(hpx::util::tuple, N)<
+                BOOST_PP_REPEAT(N, HPX_REMOVE_QUALIFIERS, _)> arguments_type;
+            typedef
+                typename detail::action_type<
+                    BOOST_PP_CAT(action, N)<void (Component::*)(BOOST_PP_ENUM_PARAMS(N, T)) const, F, Derived>, Derived
+                >::type
+                derived_type;
+            typedef action<derived_type> base_type;
+        };
+    }
 
     template <typename Component, BOOST_PP_ENUM_PARAMS(N, typename T),
         void (Component::*F)(BOOST_PP_ENUM_PARAMS(N, T)), typename Derived>
     struct make_action<void (Component::*)(BOOST_PP_ENUM_PARAMS(N, T)),
             F, Derived>
       : BOOST_PP_CAT(action, N)<
-            Component,
-            BOOST_PP_ENUM_PARAMS(N, T), F, Derived>
+            void (Component::*)(BOOST_PP_ENUM_PARAMS(N, T)), F, Derived>
     {
         typedef BOOST_PP_CAT(action, N)<
-            Component,
-            BOOST_PP_ENUM_PARAMS(N, T), F, Derived
-        > type;
+            void (Component::*)(BOOST_PP_ENUM_PARAMS(N, T)), F, Derived>
+            type;
     };
 
     template <typename Component, BOOST_PP_ENUM_PARAMS(N, typename T),
@@ -384,13 +466,11 @@ namespace hpx { namespace actions
     struct make_action<void (Component::*)(BOOST_PP_ENUM_PARAMS(N, T)) const,
             F, Derived>
       : BOOST_PP_CAT(action, N)<
-            Component const,
-            BOOST_PP_ENUM_PARAMS(N, T), F, Derived>
+            void (Component::*)(BOOST_PP_ENUM_PARAMS(N, T)) const, F, Derived>
     {
         typedef BOOST_PP_CAT(action, N)<
-            Component const,
-            BOOST_PP_ENUM_PARAMS(N, T), F, Derived
-        > type;
+            void (Component::*)(BOOST_PP_ENUM_PARAMS(N, T)) const, F, Derived>
+            type;
     };
 
     ///////////////////////////////////////////////////////////////////////////
@@ -400,10 +480,8 @@ namespace hpx { namespace actions
         BOOST_PP_ENUM_PARAMS(N, typename T),
         void (Component::*F)(BOOST_PP_ENUM_PARAMS(N, T)),
         typename Derived>
-    struct BOOST_PP_CAT(result_action, N)<Component, void,
-            BOOST_PP_ENUM_PARAMS(N, T), F, Derived>
-      : BOOST_PP_CAT(action, N)<Component,
-            BOOST_PP_ENUM_PARAMS(N, T), F, Derived>
+    struct BOOST_PP_CAT(result_action, N)<void (Component::*)(BOOST_PP_ENUM_PARAMS(N, T)), F, Derived>
+      : BOOST_PP_CAT(action, N)<void (Component::*)(BOOST_PP_ENUM_PARAMS(N, T)), F, Derived>
     {};
 }}
 

@@ -105,6 +105,24 @@ namespace hpx { namespace components { namespace server
     };
 }}}
 
+namespace hpx { namespace actions { namespace detail {
+    template <typename Dummy>
+    struct action_traits<hpx::components::server::console_logging_action<Dummy> >
+    {
+        typedef
+            hpx::components::server::console_logging_action<Dummy>
+            derived_type;
+        typedef
+            components::server::plain_function<derived_type>
+            component_type;
+            typedef hpx::util::unused_type result_type;
+            typedef
+                hpx::util::tuple1<hpx::components::messages_type>
+                arguments_type;
+            typedef action<derived_type> base_type;
+    };
+}}}
+
 HPX_ACTION_DIRECT_EXECUTION(
     hpx::components::server::console_logging_action<>
 )

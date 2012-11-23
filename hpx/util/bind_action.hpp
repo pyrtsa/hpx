@@ -366,8 +366,7 @@ namespace hpx { namespace util
     }
 
     ///////////////////////////////////////////////////////////////////////////
-    template <typename Component, typename Result,
-        typename Arguments, typename Derived
+    template <typename Derived
       BOOST_PP_COMMA_IF(N) BOOST_PP_ENUM_PARAMS(N, typename A)
     >
     BOOST_PP_CAT(detail::bound_action, N)<
@@ -375,9 +374,7 @@ namespace hpx { namespace util
       BOOST_PP_COMMA_IF(N) BOOST_PP_ENUM(N, HPX_UTIL_BIND_REMOVE_REFERENCE, A)
     >
     bind(
-        hpx::actions::action<
-            Component, Result, Arguments, Derived
-        > /*act*/
+        hpx::actions::action<Derived> /*act*/
       BOOST_PP_COMMA_IF(N) HPX_ENUM_FWD_ARGS(N, A, a)
     )
     {

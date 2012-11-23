@@ -48,9 +48,13 @@
     BOOST_FORCEINLINE typename boost::enable_if<
         boost::mpl::and_<
             boost::mpl::bool_<
-                boost::fusion::result_of::size<arguments_type>::value == N>,
+                boost::fusion::result_of::size<
+                    typename detail::action_traits<Derived>::arguments_type
+                >::value == N>,
             boost::is_same<IdType, naming::id_type> >,
-        typename traits::promise_local_result<Result>::type
+        typename traits::promise_local_result<
+            typename detail::action_traits<Derived>::result_type
+        >::type
     >::type
     operator()(IdType const& id, HPX_ENUM_FWD_ARGS(N, Arg, arg),
         error_code& ec = throws) const

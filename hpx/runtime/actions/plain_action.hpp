@@ -43,19 +43,22 @@ namespace hpx { namespace actions
     template <typename Result, Result (*F)(), typename Derived = detail::this_type>
     class plain_result_action0
       : public action<
-            components::server::plain_function<Derived>,
-            Result, hpx::util::tuple0<>, typename detail::action_type<plain_result_action0<Result, F, Derived>, Derived>::type>
+            typename detail::action_type<
+                plain_result_action0<Result, F, Derived>, Derived
+            >::type
+        >
     {
     public:
+        typedef
+            typename detail::action_type<
+                plain_result_action0, Derived
+            >::type derived_type;
+        typedef
+            components::server::plain_function<derived_type>
+            component_type;
         typedef Result result_type;
         typedef hpx::util::tuple0<> arguments_type;
-        typedef typename detail::action_type<
-            plain_result_action0, Derived
-        >::type derived_type;
-        typedef action<
-            components::server::plain_function<Derived>,
-            result_type, arguments_type, derived_type
-        > base_type;
+        typedef action<derived_type> base_type;
 
     protected:
         /// The \a thread_function will be registered as the thread
@@ -136,6 +139,24 @@ namespace hpx { namespace actions
         }
     };
 
+    namespace detail
+    {
+        template <typename Result, Result (*F)(), typename Derived>
+        struct action_traits<plain_result_action0<Result, F, Derived> >
+        {
+            typedef
+                typename detail::action_type<
+                    plain_result_action0<Result, F, Derived>, Derived
+                >::type derived_type;
+            typedef
+                components::server::plain_function<derived_type>
+                component_type;
+            typedef Result result_type;
+            typedef hpx::util::tuple0<> arguments_type;
+            typedef action<derived_type> base_type;
+        };
+    }
+
     template <typename Result, Result (*F)(), typename Derived>
     struct make_action<Result (*)(), F, Derived>
       : plain_result_action0<Result, F, Derived> 
@@ -148,23 +169,20 @@ namespace hpx { namespace actions
     template <void (*F)(), typename Derived = detail::this_type>
     class plain_action0
       : public action<
-            components::server::plain_function<Derived>,
-            util::unused_type, hpx::util::tuple0<>,
             typename detail::action_type<
                 plain_action0<F, Derived>, Derived
             >::type
         >
     {
     public:
+        typedef
+            typename detail::action_type<
+                plain_action0, Derived
+            >::type derived_type;
+        typedef components::server::plain_function<derived_type> component_type;
         typedef util::unused_type result_type;
         typedef hpx::util::tuple0<> arguments_type;
-        typedef typename detail::action_type<
-            plain_action0, Derived
-        >::type derived_type;
-        typedef action<
-            components::server::plain_function<Derived>,
-            result_type, arguments_type, derived_type
-        > base_type;
+        typedef action<derived_type> base_type;
 
     protected:
         /// The \a continuation_thread_function will be registered as the thread
@@ -245,6 +263,24 @@ namespace hpx { namespace actions
             return util::unused;
         }
     };
+
+    namespace detail
+    {
+        template <void (*F)(), typename Derived>
+        struct action_traits<plain_action0<F, Derived> >
+        {
+            typedef
+                typename detail::action_type<
+                    plain_action0<F, Derived>, Derived
+                >::type derived_type;
+            typedef
+                components::server::plain_function<derived_type>
+                component_type;
+            typedef util::unused_type result_type;
+            typedef hpx::util::tuple0<> arguments_type;
+            typedef action<derived_type> base_type;
+        };
+    }
 
     template <void (*F)(), typename Derived>
     struct make_action<void (*)(), F, Derived>

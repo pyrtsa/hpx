@@ -474,16 +474,54 @@ namespace hpx { namespace components { namespace server
     template <typename Component
       BOOST_PP_COMMA_IF(N) BOOST_PP_ENUM_PARAMS(N, typename A)>
     struct BOOST_PP_CAT(create_component_action, N)
-      : BOOST_PP_CAT( ::hpx::actions::result_action, N)<
+      : HPX_MAKE_COMPONENT_ACTION_DERIVED_TPL(
             runtime_support
-          , naming::gid_type
-          BOOST_PP_COMMA_IF(N) BOOST_PP_ENUM_PARAMS(N, A)
-          , &runtime_support::BOOST_PP_CAT(create_component, N)<
+          , (BOOST_PP_CAT(create_component, N)<
                 Component
-              BOOST_PP_COMMA_IF(N) BOOST_PP_ENUM_PARAMS(N, A)>
-          , BOOST_PP_CAT(create_component_action, N)<
-                Component BOOST_PP_COMMA_IF(N) BOOST_PP_ENUM_PARAMS(N, A)> >
-    {};
+                BOOST_PP_COMMA_IF(N) BOOST_PP_ENUM_PARAMS(N, A)
+            >)
+          , (BOOST_PP_CAT(create_component_action, N)<
+                Component BOOST_PP_COMMA_IF(N) BOOST_PP_ENUM_PARAMS(N, A)>)
+        )::type
+    {
+        typedef typename
+            HPX_MAKE_COMPONENT_ACTION_DERIVED_TPL(
+                runtime_support
+              , (BOOST_PP_CAT(create_component, N)<
+                    Component
+                    BOOST_PP_COMMA_IF(N) BOOST_PP_ENUM_PARAMS(N, A)
+                >)
+              , (BOOST_PP_CAT(create_component_action, N)<
+                    Component BOOST_PP_COMMA_IF(N) BOOST_PP_ENUM_PARAMS(N, A)>)
+            )::type
+            base_type;
+    };
+}}}
+
+namespace hpx { namespace actions { namespace detail {
+    template <typename Component
+      BOOST_PP_COMMA_IF(N) BOOST_PP_ENUM_PARAMS(N, typename A)>
+    struct action_traits<
+        BOOST_PP_CAT(hpx::components::server::create_component_action, N)<
+            Component
+            BOOST_PP_COMMA_IF(N) BOOST_PP_ENUM_PARAMS(N, A)
+        >
+    >
+    {
+        typedef hpx::components::server::runtime_support component_type;
+        typedef hpx::naming::gid_type result_type;
+        typedef
+            BOOST_PP_CAT(hpx::util::tuple, N)<
+                BOOST_PP_ENUM_PARAMS(N, A)>
+            arguments_type;
+        typedef
+            BOOST_PP_CAT(hpx::components::server::create_component_action, N)<
+                Component
+                BOOST_PP_COMMA_IF(N) BOOST_PP_ENUM_PARAMS(N, A)
+            >
+            derived_type;
+        //typedef typename derived_type::base_type base_type;
+    };
 }}}
 
 ///////////////////////////////////////////////////////////////////////////////

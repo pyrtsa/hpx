@@ -132,6 +132,15 @@ class fixed_component_base : public detail::fixed_component_tag
         return factory_none;
     }
 
+    /// This is the default hook implementation for decorate_action which 
+    /// does no hooking at all.
+    static HPX_STD_FUNCTION<threads::thread_function_type> 
+    wrap_action(HPX_STD_FUNCTION<threads::thread_function_type> f,
+        naming::address::address_type)
+    {
+        return boost::move(f);
+    }
+
   private:
     mutable naming::gid_type gid_;
 };

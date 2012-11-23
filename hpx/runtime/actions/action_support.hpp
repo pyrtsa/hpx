@@ -268,16 +268,20 @@ namespace hpx { namespace actions
                 return base_action::direct_action;
             }
         };
+
+        template <typename Action>
+        struct action_traits;
     }
 
     ///////////////////////////////////////////////////////////////////////////
     template <typename Action>
     struct transfer_action : base_action
     {
-        typedef typename Action::component_type component_type;
-        typedef typename Action::derived_type derived_type;
-        typedef typename Action::result_type result_type;
-        typedef typename Action::arguments_type arguments_type;
+        typedef detail::action_traits<Action> action_traits;
+        typedef typename action_traits::component_type component_type;
+        typedef typename action_traits::derived_type derived_type;
+        typedef typename action_traits::result_type result_type;
+        typedef typename action_traits::arguments_type arguments_type;
 
         // This is the priority value this action has been instantiated with
         // (statically). This value might be different from the priority member
@@ -622,42 +626,38 @@ namespace hpx { namespace actions
     /// \tparam Result            return type
     /// \tparam Arguments         arguments (fusion vector)
     /// \tparam Derived           derived action class
-    template <typename Component, typename Result,
-        typename Arguments, typename Derived>
+    template <typename Derived>
     struct action
     {
-        typedef Component component_type;
         typedef Derived derived_type;
-        typedef Result result_type;
-        typedef Arguments arguments_type;
 
         typedef void action_tag;
 
         ///////////////////////////////////////////////////////////////////////
-        template <typename Func, typename Arguments_>
+        template <typename Func, typename Arguments>
         static HPX_STD_FUNCTION<threads::thread_function_type>
         construct_continuation_thread_function_void(
             continuation_type cont, BOOST_FWD_REF(Func) func,
-            BOOST_FWD_REF(Arguments_) args)
+            BOOST_FWD_REF(Arguments) args)
         {
-            typedef typename boost::remove_reference<Arguments_>::type arguments_type;
+            typedef typename boost::remove_reference<Arguments>::type arguments_type;
             return detail::construct_continuation_thread_function_voidN<
                     derived_type,
                     boost::fusion::result_of::size<arguments_type>::value>::call(
-                cont, boost::forward<Func>(func), boost::forward<Arguments_>(args));
+                cont, boost::forward<Func>(func), boost::forward<Arguments>(args));
         }
 
-        template <typename Func, typename Arguments_>
+        template <typename Func, typename Arguments>
         static HPX_STD_FUNCTION<threads::thread_function_type>
         construct_continuation_thread_function(
             continuation_type cont, BOOST_FWD_REF(Func) func,
-            BOOST_FWD_REF(Arguments_) args)
+            BOOST_FWD_REF(Arguments) args)
         {
-            typedef typename boost::remove_reference<Arguments_>::type arguments_type;
+            typedef typename boost::remove_reference<Arguments>::type arguments_type;
             return detail::construct_continuation_thread_functionN<
                     derived_type,
                     boost::fusion::result_of::size<arguments_type>::value>::call(
-                cont, boost::forward<Func>(func), boost::forward<Arguments_>(args));
+                cont, boost::forward<Func>(func), boost::forward<Arguments>(args));
         }
 
         // bring in all overloads for
@@ -672,9 +672,13 @@ namespace hpx { namespace actions
         BOOST_FORCEINLINE typename boost::enable_if<
             boost::mpl::and_<
                 boost::mpl::bool_<
-                    boost::fusion::result_of::size<arguments_type>::value == 0>,
+                    boost::fusion::result_of::size<
+                        typename detail::action_traits<Derived>::arguments_type
+                    >::value == 0>,
                 boost::is_same<IdType, naming::id_type> >,
-            typename traits::promise_local_result<Result>::type
+            typename traits::promise_local_result<
+                typename detail::action_traits<Derived>::result_type
+            >::type
         >::type
         operator()(IdType const& id, error_code& ec = throws) const
         {
@@ -686,7 +690,9 @@ namespace hpx { namespace actions
         /// retrieve component type
         static int get_component_type()
         {
-            return static_cast<int>(components::get_component_type<Component>());
+            return
+                static_cast<int>(
+                    components::get_component_type<typename detail::action_traits<Derived>::component_type>());
         }
 
         static base_action::action_type get_action_type()
@@ -703,7 +709,13 @@ namespace hpx { namespace actions
         decorate_action(HPX_STD_FUNCTION<threads::thread_function_type> f,
             naming::address::address_type lva)
         {
-            return boost::move(Component::wrap_action(boost::move(f), lva));
+            typedef
+                typename detail::action_traits<Derived>::component_type
+                component_type;
+            return
+                boost::move(
+                    component_type::wrap_action(
+                        boost::move(f), lva));
         }
     };
 
@@ -728,23 +740,41 @@ namespace hpx { namespace actions
 
     // Macros usable to refer to an action given the function to expose
     #define HPX_MAKE_ACTION(f)                                                \
-        hpx::actions::make_action<HPX_TYPEOF(&f), &f>        /**/             \
+        hpx::actions::make_action<HPX_TYPEOF(&HPX_UTIL_STRIP(f)), &HPX_UTIL_STRIP(f)>        /**/             \
     /**/
 
     #define HPX_MAKE_ACTION_TPL(f)                                            \
-        hpx::actions::make_action<HPX_TYPEOF_TPL(&f), &f>        /**/         \
+        hpx::actions::make_action<HPX_TYPEOF_TPL(&HPX_UTIL_STRIP(f)), &HPX_UTIL_STRIP(f)>        /**/         \
+    /**/
+    
+    #define HPX_MAKE_ACTION_DERIVED(f, derived)                               \
+        hpx::actions::make_action<HPX_TYPEOF(&HPX_UTIL_STRIP(f)), &HPX_UTIL_STRIP(f), HPX_UTIL_STRIP(derived)>                \
+    /**/
+
+    #define HPX_MAKE_ACTION_DERIVED_TPL(f, derived)                           \
+        hpx::actions::make_action<HPX_TYPEOF_TPL(&HPX_UTIL_STRIP(f)), &HPX_UTIL_STRIP(f), HPX_UTIL_STRIP(derived)>            \
     /**/
 
 #if BOOST_WORKAROUND(BOOST_MSVC, == 1600)
     // workarounds for VC2010
     #define HPX_MAKE_COMPONENT_ACTION(component, f)                           \
         hpx::actions::make_action<                                            \
-            HPX_TYPEOF(component::f) component::*, &component::f>  /**/       \
+            HPX_TYPEOF(HPX_UTIL_STRIP(component)::HPX_UTIL_STRIP(f)) HPX_UTIL_STRIP(component)::*, &HPX_UTIL_STRIP(component)::HPX_UTIL_STRIP(f)>  /**/       \
     /**/
 
     #define HPX_MAKE_COMPONENT_ACTION_TPL(component, f)                       \
         hpx::actions::make_action<                                            \
-            HPX_TYPEOF_TPL(component::f) component::*, &component::f>  /**/   \
+            HPX_TYPEOF_TPL(HPX_UTIL_STRIP(component)::HPX_UTIL_STRIP(f)) HPX_UTIL_STRIP(component)::*, &HPX_UTIL_STRIP(component)::HPX_UTIL_STRIP(f)>  /**/   \
+    /**/
+    
+    #define HPX_MAKE_COMPONENT_ACTION_DERIVED(HPX_UTIL_STRIP(component), HPX_UTIL_STRIP(f), HPX_UTIL_STRIP(derived))          \
+        hpx::actions::make_action<                                            \
+            HPX_TYPEOF(HPX_UTIL_STRIP(component)::HPX_UTIL_STRIP(f)) HPX_UTIL_STRIP(component)::*, &HPX_UTIL_STRIP(component)::HPX_UTIL_STRIP(f), HPX_UTIL_STRIP(derived)>    \
+    /**/
+
+    #define HPX_MAKE_COMPONENT_ACTION_DERIVED_TPL(component, f, derived)      \
+        hpx::actions::make_action<                                            \
+            HPX_TYPEOF_TPL(HPX_UTIL_STRIP(component)::HPX_UTIL_STRIP(f)) HPX_UTIL_STRIP(component)::*, &HPX_UTIL_STRIP(component)::HPX_UTIL_STRIP(f), HPX_UTIL_STRIP(derived)>\
     /**/
 
     namespace detail
@@ -758,40 +788,66 @@ namespace hpx { namespace actions
     #define HPX_MAKE_CONST_COMPONENT_ACTION(component, f)                     \
         hpx::actions::make_action<                                            \
             hpx::actions::detail::synthesize_const_mf<                        \
-                component, HPX_TYPEOF(                                        \
-                    hpx::actions::detail::replicate_type(&component::f)       \
+                HPX_UTIL_STRIP(component), HPX_TYPEOF(                                        \
+                    hpx::actions::detail::replicate_type(&HPX_UTIL_STRIP(component)::HPX_UTIL_STRIP(f))       \
                 )                                                             \
-            >::type, &component::f>  /**/                                     \
+            >::type, &HPX_UTIL_STRIP(component)::HPX_UTIL_STRIP(f)>  /**/                                     \
     /**/
 
     #define HPX_MAKE_CONST_COMPONENT_ACTION_TPL(component, f)                 \
         hpx::actions::make_action<                                            \
             typename hpx::actions::detail::synthesize_const_mf<               \
-                component, HPX_TYPEOF_TPL(                                    \
-                    hpx::actions::detail::replicate_type(&component::f)       \
+                HPX_UTIL_STRIP(component), HPX_TYPEOF_TPL(                                    \
+                    hpx::actions::detail::replicate_type(&HPX_UTIL_STRIP(component)::HPX_UTIL_STRIP(f))       \
                 )                                                             \
-            >::type, &component::f>  /**/                                     \
+            >::type, &HPX_UTIL_STRIP(component)::HPX_UTIL_STRIP(f)>  /**/                                     \
+    /**/
+
+    #define HPX_MAKE_CONST_COMPONENT_ACTION_DERIVED(component, f, derived)    \
+        hpx::actions::make_action<                                            \
+            hpx::actions::detail::synthesize_const_mf<                        \
+                HPX_UTIL_STRIP(component), HPX_TYPEOF(                                        \
+                    hpx::actions::detail::replicate_type(&HPX_UTIL_STRIP(component)::HPX_UTIL_STRIP(f))       \
+                )                                                             \
+            >::type, &HPX_UTIL_STRIP(component)::HPX_UTIL_STRIP(f), HPX_UTIL_STRIP(derived)>  /**/                            \
+    /**/
+
+    #define HPX_MAKE_CONST_COMPONENT_ACTION_DERIVED_TPL(component, f, derived)\
+        hpx::actions::make_action<                                            \
+            typename hpx::actions::detail::synthesize_const_mf<               \
+                HPX_UTIL_STRIP(component), HPX_TYPEOF_TPL(                                    \
+                    hpx::actions::detail::replicate_type(&HPX_UTIL_STRIP(component)::HPX_UTIL_STRIP(f))       \
+                )                                                             \
+            >::type, &HPX_UTIL_STRIP(component)::HPX_UTIL_STRIP(f), HPX_UTIL_STRIP(derived)>  /**/                            \
     /**/
 #else
     // the implementation on conforming compilers is almost trivial
     #define HPX_MAKE_COMPONENT_ACTION(component, f)                           \
-        HPX_MAKE_ACTION(component::f)                                         \
-    /**/
-    #define HPX_MAKE_DIRECT_COMPONENT_ACTION(component, f)                    \
-        HPX_MAKE_DIRECT_ACTION(component::f)                                  \
+        HPX_MAKE_ACTION((HPX_UTIL_STRIP(component)::HPX_UTIL_STRIP(f)))                                         \
     /**/
     #define HPX_MAKE_CONST_COMPONENT_ACTION(component, f)                     \
-        HPX_MAKE_ACTION(component::f)                                         \
-    /**/
-    #define HPX_MAKE_CONST_DIRECT_COMPONENT_ACTION(component, f)              \
-        HPX_MAKE_DIRECT_ACTION(component::f)                                  \
+        HPX_MAKE_ACTION((HPX_UTIL_STRIP(component)::HPX_UTIL_STRIP(f)))                                         \
     /**/
 
     #define HPX_MAKE_COMPONENT_ACTION_TPL(component, f)                       \
-        HPX_MAKE_ACTION_TPL(component::f)                                     \
+        HPX_MAKE_ACTION_TPL((HPX_UTIL_STRIP(component)::HPX_UTIL_STRIP(f)))                                     \
     /**/
     #define HPX_MAKE_CONST_COMPONENT_ACTION_TPL(component, f)                 \
-        HPX_MAKE_ACTION_TPL(component::f)                                     \
+        HPX_MAKE_ACTION_TPL((HPX_UTIL_STRIP(component)::HPX_UTIL_STRIP(f)))                                     \
+    /**/
+    
+    #define HPX_MAKE_COMPONENT_ACTION_DERIVED(component, f, derived)          \
+        HPX_MAKE_ACTION_DERIVED((HPX_UTIL_STRIP(component)::HPX_UTIL_STRIP(f)), derived)                        \
+    /**/
+    #define HPX_MAKE_CONST_COMPONENT_ACTION_DERIVED(component, f, derived)    \
+        HPX_MAKE_ACTION_DERIVED((HPX_UTIL_STRIP(component)::HPX_UTIL_STRIP(f)), derived)                        \
+    /**/
+
+    #define HPX_MAKE_COMPONENT_ACTION_DERIVED_TPL(component, f, derived)      \
+        HPX_MAKE_ACTION_DERIVED_TPL((HPX_UTIL_STRIP(component)::HPX_UTIL_STRIP(f)), derived)                    \
+    /**/
+    #define HPX_MAKE_CONST_COMPONENT_ACTION_DERIVED_TPL(component, f, derived)\
+        HPX_MAKE_ACTION_DERIVED_TPL((HPX_UTIL_STRIP(component)::HPX_UTIL_STRIP(f)), derived)                    \
     /**/
 #endif
 

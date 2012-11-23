@@ -67,9 +67,6 @@ namespace hpx { namespace actions
         Result (*F)(BOOST_PP_ENUM_PARAMS(N, T)), typename Derived = detail::this_type>
     class BOOST_PP_CAT(plain_result_action, N)
       : public action<
-            components::server::plain_function<Derived>,
-            Result,
-            BOOST_PP_CAT(hpx::util::tuple, N)<BOOST_PP_REPEAT(N, HPX_REMOVE_QUALIFIERS, _)>,
             typename detail::action_type<
                 BOOST_PP_CAT(plain_result_action, N)<
                     Result,
@@ -82,15 +79,15 @@ namespace hpx { namespace actions
         >
     {
     public:
+        typedef
+            typename detail::action_type<
+                BOOST_PP_CAT(plain_result_action, N), Derived
+            >::type derived_type;
+        typedef components::server::plain_function<derived_type> component_type;
         typedef Result result_type;
         typedef BOOST_PP_CAT(hpx::util::tuple, N)<
             BOOST_PP_REPEAT(N, HPX_REMOVE_QUALIFIERS, _)> arguments_type;
-        typedef typename detail::action_type<
-            BOOST_PP_CAT(plain_result_action, N), Derived
-        >::type derived_type;
-        typedef action<
-            components::server::plain_function<Derived>, result_type,
-            arguments_type, derived_type> base_type;
+        typedef action<derived_type> base_type;
 
     protected:
         /// The \a thread_function will be registered as the thread
@@ -180,6 +177,34 @@ namespace hpx { namespace actions
         }
     };
 
+    namespace detail
+    {
+        template <
+            typename Result,
+            BOOST_PP_ENUM_PARAMS(N, typename T),
+            void (*F)(BOOST_PP_ENUM_PARAMS(N, T)), typename Derived>
+        struct action_traits<
+            BOOST_PP_CAT(plain_result_action, N)<Result, BOOST_PP_ENUM_PARAMS(N, T), F, Derived> 
+        >
+        {
+            typedef
+                typename detail::action_type<
+                    BOOST_PP_CAT(plain_result_action, N)<
+                        Result,
+                        BOOST_PP_ENUM_PARAMS(N, T), F, Derived
+                    >, Derived
+                >::type derived_type;
+            typedef
+                components::server::plain_function<derived_type>
+                component_type;
+            typedef Result result_type;
+            typedef
+                BOOST_PP_CAT(hpx::util::tuple, N)<BOOST_PP_REPEAT(N, HPX_REMOVE_QUALIFIERS, _)>
+                arguments_type;
+            typedef action<derived_type> base_type;
+        };
+    }
+
     template <typename Result, BOOST_PP_ENUM_PARAMS(N, typename T),
         Result (*F)(BOOST_PP_ENUM_PARAMS(N, T)), typename Derived>
     struct make_action<Result (*)(BOOST_PP_ENUM_PARAMS(N, T)), F, Derived>
@@ -198,9 +223,6 @@ namespace hpx { namespace actions
         void (*F)(BOOST_PP_ENUM_PARAMS(N, T)), typename Derived = detail::this_type>
     class BOOST_PP_CAT(plain_action, N)
       : public action<
-            components::server::plain_function<Derived>,
-            util::unused_type,
-            BOOST_PP_CAT(hpx::util::tuple, N)<BOOST_PP_REPEAT(N, HPX_REMOVE_QUALIFIERS, _)>,
             typename detail::action_type<
                 BOOST_PP_CAT(plain_action, N)<
                     BOOST_PP_ENUM_PARAMS(N, T),
@@ -212,16 +234,16 @@ namespace hpx { namespace actions
         >
     {
     public:
+        typedef
+            typename detail::action_type<
+                BOOST_PP_CAT(plain_action, N), Derived
+            >::type derived_type;
+        typedef components::server::plain_function<derived_type> component_type;
         typedef util::unused_type result_type;
         typedef
             BOOST_PP_CAT(hpx::util::tuple, N)<BOOST_PP_REPEAT(N, HPX_REMOVE_QUALIFIERS, _)>
         arguments_type;
-        typedef typename detail::action_type<
-            BOOST_PP_CAT(plain_action, N), Derived
-        >::type derived_type;
-        typedef action<
-            components::server::plain_function<Derived>, result_type,
-            arguments_type, derived_type> base_type;
+        typedef action<derived_type> base_type;
 
     protected:
         /// The \a thread_function will be registered as the thread
@@ -311,6 +333,32 @@ namespace hpx { namespace actions
             return util::unused;
         }
     };
+
+    namespace detail
+    {
+        template <
+            BOOST_PP_ENUM_PARAMS(N, typename T),
+            void (*F)(BOOST_PP_ENUM_PARAMS(N, T)), typename Derived>
+        struct action_traits<
+            BOOST_PP_CAT(plain_action, N)<BOOST_PP_ENUM_PARAMS(N, T), F, Derived> 
+        >
+        {
+            typedef
+                typename detail::action_type<
+                    BOOST_PP_CAT(plain_action, N)<
+                        BOOST_PP_ENUM_PARAMS(N, T), F, Derived
+                    >, Derived
+                >::type derived_type;
+            typedef
+                components::server::plain_function<derived_type>
+                component_type;
+            typedef util::unused_type result_type;
+            typedef
+                BOOST_PP_CAT(hpx::util::tuple, N)<BOOST_PP_REPEAT(N, HPX_REMOVE_QUALIFIERS, _)>
+                arguments_type;
+            typedef action<derived_type> base_type;
+        };
+    }
 
     template <BOOST_PP_ENUM_PARAMS(N, typename T),
         void (*F)(BOOST_PP_ENUM_PARAMS(N, T)), typename Derived>

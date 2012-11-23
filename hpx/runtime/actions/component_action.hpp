@@ -1,5 +1,6 @@
 //  Copyright (c) 2007-2012 Hartmut Kaiser
 //  Copyright (c) 2011      Bryce Lelbach
+//  Copyright (c) 2011-2012 Thomas Heller
 //
 //  Distributed under the Boost Software License, Version 1.0. (See accompanying
 //  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -39,20 +40,20 @@ namespace hpx { namespace actions
     ///////////////////////////////////////////////////////////////////////////
 
     // zero argument version
-    template <
-        typename Component, typename Result,
-        Result (Component::*F)(), typename Derived = detail::this_type>
+    template <typename F, F funcptr, typename Derived = detail::this_type>
     struct result_action0
-      : public action<Component, Result, hpx::util::tuple0<>, typename detail::action_type<result_action0<Component, Result, F, Derived>, Derived>::type>
+      : public action<
+            typename detail::action_type<
+                result_action0<F, funcptr, Derived>, Derived
+            >::type
+        >
     {
     public:
-        typedef Result result_type;
-        typedef hpx::util::tuple0<> arguments_type;
-        typedef typename detail::action_type<
-            result_action0, Derived
-        >::type derived_type;
-        typedef action<Component, result_type, arguments_type, Derived>
-            base_type;
+        typedef detail::action_traits<result_action0> action_traits;
+        typedef typename action_traits::derived_type derived_type;
+        typedef typename action_traits::result_type result_type;
+        typedef typename action_traits::component_type component_type;
+        typedef action<derived_type> base_type;
 
     protected:
         /// The \a continuation_thread_function will be registered as the thread
@@ -67,8 +68,8 @@ namespace hpx { namespace actions
                 LTM_(debug) << "Executing component action("
                             << detail::get_action_name<derived_type>()
                             << ") lva(" << reinterpret_cast<void const*>
-                                (get_lva<Component>::call(lva)) << ")";
-                (get_lva<Component>::call(lva)->*F)();      // just call the function
+                                (get_lva<component_type>::call(lva)) << ")";
+                (get_lva<component_type>::call(lva)->*funcptr)();  // just call the function
             }
             catch (hpx::exception const& e) {
                 if (e.get_error() != hpx::thread_interrupted) {
@@ -76,7 +77,7 @@ namespace hpx { namespace actions
                         << "Unhandled exception while executing component action("
                         << detail::get_action_name<derived_type>()
                         << ") lva(" << reinterpret_cast<void const*>
-                            (get_lva<Component>::call(lva)) << "): " << e.what();
+                            (get_lva<component_type>::call(lva)) << "): " << e.what();
 
                     // report this error to the console in any case
                     hpx::report_error(boost::current_exception());
@@ -118,12 +119,12 @@ namespace hpx { namespace actions
         {
             return boost::move(derived_type::decorate_action(
                     base_type::construct_continuation_thread_object_function(
-                        cont, F, get_lva<Component>::call(lva),
+                        cont, funcptr, get_lva<component_type>::call(lva),
                         boost::forward<Arguments>(args)), lva));
         }
 
         template <typename Arguments>
-        BOOST_FORCEINLINE static Result
+        BOOST_FORCEINLINE static result_type
         execute_function(naming::address::address_type lva,
             BOOST_FWD_REF(Arguments))
         {
@@ -131,11 +132,46 @@ namespace hpx { namespace actions
                 << "direct_result_action0::execute_function: name("
                 << detail::get_action_name<derived_type>()
                 << ") lva(" << reinterpret_cast<void const*>(
-                    get_lva<Component>::call(lva)) << ")";
+                    get_lva<component_type>::call(lva)) << ")";
 
-            return (get_lva<Component>::call(lva)->*F)();
+            return (get_lva<component_type>::call(lva)->*funcptr)();
         }
     };
+
+    namespace detail
+    {
+        template <typename Component, typename Result,
+            Result (Component::*F)(), typename Derived>
+        struct action_traits<result_action0<Result (Component::*)(), F, Derived> >
+        {
+            typedef Component component_type;
+            typedef Result result_type;
+            typedef hpx::util::tuple0<> arguments_type;
+            typedef
+                typename detail::action_type<
+                    result_action0<Result (Component::*)(), F, Derived>,
+                    Derived
+                >::type
+                derived_type;
+            typedef action<derived_type> base_type;
+        };
+        
+        template <typename Component, typename Result,
+            Result (Component::*F)() const, typename Derived>
+        struct action_traits<result_action0<Result (Component::*)() const, F, Derived> >
+        {
+            typedef Component const component_type;
+            typedef Result result_type;
+            typedef hpx::util::tuple0<> arguments_type;
+            typedef
+                typename detail::action_type<
+                    result_action0<Result (Component::*)() const, F, Derived>,
+                    Derived
+                >::type
+                derived_type;
+            typedef action<derived_type> base_type;
+        };
+    }
 
 #if BOOST_WORKAROUND(BOOST_MSVC, == 1600)
     namespace detail
@@ -161,39 +197,39 @@ namespace hpx { namespace actions
     template <typename Component, typename Result,
         Result (Component::*F)(), typename Derived>
     struct make_action<Result (Component::*)(), F, Derived>
-      : result_action0<Component, Result, F, Derived>
+      : result_action0<Result(Component::*)(), F, Derived>
     {
         typedef result_action0<
-            Component, Result, F, Derived
+            Result(Component::*)(), F, Derived
         > type;
     };
 
     template <typename Component, typename Result,
         Result (Component::*F)() const, typename Derived>
     struct make_action<Result (Component::*)() const, F, Derived>
-      : result_action0<Component const, Result, 
-            F, Derived> 
+      : result_action0<Result(Component::*)() const, F, Derived>
     {
         typedef result_action0<
-            Component const, Result, F, Derived
+            Result(Component::*)() const, F, Derived
         > type;
     };
 
     ///////////////////////////////////////////////////////////////////////////
     //  zero parameter version, no result value
-    template <typename Component, void (Component::*F)(), typename Derived = detail::this_type>
+    template <typename F, F funcptr, typename Derived = detail::this_type>
     struct action0
-      : public action<Component, util::unused_type, 
-        hpx::util::tuple0<>, typename detail::action_type<action0<Component, F, Derived>, Derived>::type>
+      : public action<
+            typename detail::action_type<
+                action0<F, funcptr, Derived>, Derived
+            >::type
+        >
     {
     public:
-        typedef util::unused_type result_type;
-        typedef hpx::util::tuple0<> arguments_type;
-        typedef typename detail::action_type<
-            action0, Derived
-        >::type derived_type;
-        typedef action<Component, result_type, arguments_type, derived_type>
-            base_type;
+        typedef detail::action_traits<action0> action_traits;
+        typedef typename action_traits::derived_type derived_type;
+        typedef typename action_traits::result_type result_type;
+        typedef typename action_traits::component_type component_type;
+        typedef action<derived_type> base_type;
 
     protected:
         /// The \a continuation_thread_function will be registered as the thread
@@ -208,8 +244,8 @@ namespace hpx { namespace actions
                 LTM_(debug) << "Executing component action("
                             << detail::get_action_name<derived_type>()
                             << ") lva(" << reinterpret_cast<void const*>
-                                (get_lva<Component>::call(lva)) << ")";
-                (get_lva<Component>::call(lva)->*F)();      // just call the function
+                                (get_lva<component_type>::call(lva)) << ")";
+                (get_lva<component_type>::call(lva)->*funcptr)();  // just call the function
             }
             catch (hpx::exception const& e) {
                 if (e.get_error() != hpx::thread_interrupted) {
@@ -217,7 +253,7 @@ namespace hpx { namespace actions
                         << "Unhandled exception while executing component action("
                         << detail::get_action_name<derived_type>()
                         << ") lva(" << reinterpret_cast<void const*>
-                            (get_lva<Component>::call(lva)) << "): " << e.what();
+                            (get_lva<component_type>::call(lva)) << "): " << e.what();
 
                     // report this error to the console in any case
                     hpx::report_error(boost::current_exception());
@@ -259,7 +295,7 @@ namespace hpx { namespace actions
         {
             return boost::move(derived_type::decorate_action(
                     base_type::construct_continuation_thread_object_function_void(
-                        cont, F, get_lva<Component>::call(lva),
+                        cont, funcptr, get_lva<component_type>::call(lva),
                         boost::forward<Arguments>(args)), lva));
         }
 
@@ -272,35 +308,66 @@ namespace hpx { namespace actions
                 << "direct_action0::execute_function: name("
                 << detail::get_action_name<derived_type>()
                 << ") lva(" << reinterpret_cast<void const*>(
-                    get_lva<Component>::call(lva)) << ")";
-            (get_lva<Component>::call(lva)->*F)();
+                    get_lva<component_type>::call(lva)) << ")";
+            (get_lva<component_type>::call(lva)->*funcptr)();
             return util::unused;
         }
     };
 
+    namespace detail
+    {
+        template <typename Component, void (Component::*F)(), typename Derived>
+        struct action_traits<action0<void(Component::*)(), F, Derived> >
+        {
+            typedef Component component_type;
+            typedef util::unused_type result_type;
+            typedef hpx::util::tuple0<> arguments_type;
+            typedef
+                typename detail::action_type<
+                    action0<void(Component::*)(), F, Derived>, Derived
+                >::type
+                derived_type;
+            typedef action<derived_type> base_type;
+        };
+        
+        template <typename Component, void (Component::*F)() const, typename Derived>
+        struct action_traits<action0<void(Component::*)() const, F, Derived> >
+        {
+            typedef Component const component_type;
+            typedef util::unused_type result_type;
+            typedef hpx::util::tuple0<> arguments_type;
+            typedef
+                typename detail::action_type<
+                    action0<void(Component::*)(), F, Derived>, Derived
+                >::type
+                derived_type;
+            typedef action<derived_type> base_type;
+        };
+    }
+
     template <typename Component, void (Component::*F)(), typename Derived>
     struct make_action<void (Component::*)(), F, Derived>
-      : action0<Component, F, Derived> 
+      : action0<void(Component::*)(), F, Derived> 
     {
         typedef action0<
-            Component, F, Derived
+            void(Component::*)(), F, Derived
         > type;
     };
 
     template <typename Component, void (Component::*F)() const, typename Derived>
     struct make_action<void (Component::*)() const, F, Derived>
-      : action0<Component const, F, Derived>
+      : action0<void(Component::*)() const, F, Derived>
     {
         typedef action0<
-            Component const, F, Derived
+            void(Component::*)() const, F, Derived
         > type;
     };
 
     ///////////////////////////////////////////////////////////////////////////
     // the specialization for void return type is just a template alias
     template <typename Component, void (Component::*F)(), typename Derived>
-    struct result_action0<Component, void, F, Derived>
-      : action0<Component, F, Derived>
+    struct result_action0<void (Component::*)(), F, Derived>
+      : action0<void (Component::*)(), F, Derived>
     {};
 
     /// \endcond

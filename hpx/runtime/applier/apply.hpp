@@ -215,12 +215,9 @@ namespace hpx
         return apply_p<Action>(gid, actions::action_priority<Action>());
     }
 
-    template <typename Component, typename Result,
-        typename Arguments, typename Derived, threads::thread_priority Priority>
+    template <typename Derived, threads::thread_priority Priority>
     inline bool apply (
-        hpx::actions::action<
-            Component, Result, Arguments, Derived
-        > /*act*/, naming::id_type const& gid)
+        hpx::actions::action<Derived> /*act*/, naming::id_type const& gid)
     {
         return apply_p<Derived>(gid, actions::action_priority<Derived>());
     }
@@ -269,12 +266,9 @@ namespace hpx
         return apply_p<Action>(gids, actions::action_priority<Action>());
     }
 
-    template <typename Component, typename Result,
-        typename Arguments, typename Derived>
+    template <typename Derived>
     inline bool apply (
-        hpx::actions::action<
-            Component, Result, Arguments, Derived
-        > /*act*/, std::vector<naming::id_type> const& gids)
+        hpx::actions::action<Derived> /*act*/, std::vector<naming::id_type> const& gids)
     {
         return apply_p<Derived>(gids, actions::action_priority<Derived>());
     }
@@ -431,12 +425,9 @@ namespace hpx
         return apply_p<Action>(c, gid, actions::action_priority<Action>());
     }
 
-    template <typename Component, typename Result,
-        typename Arguments, typename Derived>
+    template <typename Derived>
     inline bool apply (actions::continuation* c,
-        hpx::actions::action<
-            Component, Result, Arguments, Derived
-        > /*act*/, naming::id_type const& gid)
+        hpx::actions::action<Derived> /*act*/, naming::id_type const& gid)
     {
         return apply_p<Derived>(c, gid, actions::action_priority<Derived>());
     }
