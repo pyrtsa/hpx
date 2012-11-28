@@ -216,25 +216,10 @@ void notify_worker(notification_header const& header);
 // }}}
 
 // {{{ early action types
-typedef actions::plain_action1<
-    registration_header const&
-  , register_console
-> register_console_action;
-
-typedef actions::plain_action1<
-    notification_header const&
-  , notify_console
-> notify_console_action;
-
-typedef actions::plain_action1<
-    registration_header const&
-  , register_worker
-> register_worker_action;
-
-typedef actions::plain_action1<
-    notification_header const&
-  , notify_worker
-> notify_worker_action;
+HPX_DEFINE_PLAIN_ACTION(register_console, register_console_action);
+HPX_DEFINE_PLAIN_ACTION(notify_console, notify_console_action);
+HPX_DEFINE_PLAIN_ACTION(register_worker, register_worker_action);
+HPX_DEFINE_PLAIN_ACTION(notify_worker, notify_worker_action);
 // }}}
 
 }}

@@ -17,14 +17,13 @@
 #include <hpx/components/iostreams/standard_streams.hpp>
 
 ///////////////////////////////////////////////////////////////////////////////
-typedef hpx::actions::plain_action0<hpx::iostreams::create_cout>
-    create_cout_action;
-typedef hpx::actions::plain_action0<hpx::iostreams::create_cerr>
-    create_cerr_action;
-
-HPX_REGISTER_PLAIN_ACTION(create_cout_action, create_cout_action, 
+HPX_PLAIN_ACTION(
+    hpx::iostreams::create_cout,
+    create_cout_action,
     hpx::components::factory_enabled)
-HPX_REGISTER_PLAIN_ACTION(create_cerr_action, create_cerr_action, 
+HPX_PLAIN_ACTION(
+    hpx::iostreams::create_cerr,
+    create_cerr_action,
     hpx::components::factory_enabled)
 
 ///////////////////////////////////////////////////////////////////////////////

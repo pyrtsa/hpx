@@ -17,11 +17,6 @@ namespace hpx { namespace traits
     {
         enum { value = threads::thread_priority_default };
     };
-
-    template <typename Action>
-    struct action_priority<Action, typename Action::type>
-      : action_priority<typename Action::type>
-    {};
 }}
 
 #endif

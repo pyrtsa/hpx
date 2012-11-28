@@ -33,9 +33,9 @@ namespace hpx { namespace applier { namespace detail
             threads::thread_priority priority, BOOST_FWD_REF(Arguments) args)
         {
             hpx::applier::register_work_plain(
-                boost::move(Action::construct_thread_function(
+                boost::move(Action::impl::construct_thread_function(
                     lva, boost::forward<Arguments>(args))),
-                actions::detail::get_action_name<Action>(), lva,
+                hpx::actions::detail::get_action_name<Action>(), lva,
                 threads::pending, priority, std::size_t(-1), 
                 static_cast<threads::thread_stacksize>(
                     traits::action_stacksize<Action>::value));
@@ -47,9 +47,9 @@ namespace hpx { namespace applier { namespace detail
             threads::thread_priority priority, BOOST_FWD_REF(Arguments) args)
         {
             hpx::applier::register_work_plain(
-                boost::move(Action::construct_thread_function(c, lva,
+                boost::move(Action::impl::construct_thread_function(c, lva,
                     boost::forward<Arguments>(args))),
-                actions::detail::get_action_name<Action>(), lva,
+                hpx::actions::detail::get_action_name<Action>(), lva,
                 threads::pending, priority, std::size_t(-1), 
                 static_cast<threads::thread_stacksize>(
                     traits::action_stacksize<Action>::value));
@@ -65,7 +65,7 @@ namespace hpx { namespace applier { namespace detail
         call (naming::address::address_type lva,
             threads::thread_priority, BOOST_FWD_REF(Arguments) args)
         {
-            Action::execute_function(lva, boost::forward<Arguments>(args));
+            Action::impl::execute_function(lva, boost::forward<Arguments>(args));
         }
 
         template <typename Arguments>
@@ -74,7 +74,7 @@ namespace hpx { namespace applier { namespace detail
             threads::thread_priority, BOOST_FWD_REF(Arguments) args)
         {
             try {
-                c->trigger(boost::move(Action::execute_function(
+                c->trigger(boost::move(Action::impl::execute_function(
                     lva, boost::forward<Arguments>(args))));
             }
             catch (hpx::exception const& /*e*/) {

@@ -474,30 +474,17 @@ namespace hpx { namespace components { namespace server
     template <typename Component
       BOOST_PP_COMMA_IF(N) BOOST_PP_ENUM_PARAMS(N, typename A)>
     struct BOOST_PP_CAT(create_component_action, N)
-      : HPX_MAKE_COMPONENT_ACTION_DERIVED_TPL(
+      : HPX_MAKE_ACTION_TPL(
             runtime_support
           , (BOOST_PP_CAT(create_component, N)<
                 Component
                 BOOST_PP_COMMA_IF(N) BOOST_PP_ENUM_PARAMS(N, A)
             >)
-          , (BOOST_PP_CAT(create_component_action, N)<
-                Component BOOST_PP_COMMA_IF(N) BOOST_PP_ENUM_PARAMS(N, A)>)
-        )::type
-    {
-        typedef typename
-            HPX_MAKE_COMPONENT_ACTION_DERIVED_TPL(
-                runtime_support
-              , (BOOST_PP_CAT(create_component, N)<
-                    Component
-                    BOOST_PP_COMMA_IF(N) BOOST_PP_ENUM_PARAMS(N, A)
-                >)
-              , (BOOST_PP_CAT(create_component_action, N)<
-                    Component BOOST_PP_COMMA_IF(N) BOOST_PP_ENUM_PARAMS(N, A)>)
-            )::type
-            base_type;
-    };
+        )
+    {};
 }}}
 
+/*
 namespace hpx { namespace actions { namespace detail {
     template <typename Component
       BOOST_PP_COMMA_IF(N) BOOST_PP_ENUM_PARAMS(N, typename A)>
@@ -523,14 +510,15 @@ namespace hpx { namespace actions { namespace detail {
         //typedef typename derived_type::base_type base_type;
     };
 }}}
+*/
 
 ///////////////////////////////////////////////////////////////////////////////
 // Declaration of serialization support for the runtime_support actions
 HPX_SERIALIZATION_REGISTER_TEMPLATE_ACTION(
     (template <typename Component
         BOOST_PP_COMMA_IF(N) BOOST_PP_ENUM_PARAMS(N, typename A)>)
-  , (hpx::components::server::BOOST_PP_CAT(create_component_action, N)<
-        Component BOOST_PP_COMMA_IF(N) BOOST_PP_ENUM_PARAMS(N, A)>))
+  , (hpx::components::server::runtime_support, (BOOST_PP_CAT(create_component, N)<
+        Component BOOST_PP_COMMA_IF(N) BOOST_PP_ENUM_PARAMS(N, A)>)))
 
 #undef N
 

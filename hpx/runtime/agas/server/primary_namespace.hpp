@@ -401,28 +401,6 @@ struct HPX_EXPORT primary_namespace :
         );
 
   public:
-    enum actions
-    { // {{{ action enum
-        // Actual actions
-        namespace_service                       = primary_ns_service
-      , namespace_bulk_service                  = primary_ns_bulk_service
-      , namespace_route                         = primary_ns_route
-
-        // Pseudo-actions
-      , namespace_allocate                      = primary_ns_allocate
-      , namespace_bind_gid                      = primary_ns_bind_gid
-      , namespace_resolve_gid                   = primary_ns_resolve_gid
-      , namespace_resolve_locality              = primary_ns_resolve_locality
-      , namespace_free                          = primary_ns_free
-      , namespace_unbind_gid                    = primary_ns_unbind_gid
-      , namespace_change_credit_non_blocking    = primary_ns_change_credit_non_blocking
-      , namespace_change_credit_sync            = primary_ns_change_credit_sync
-      , namespace_localities                    = primary_ns_localities
-      , namespace_num_localities                = primary_ns_num_localities
-      , namespace_num_threads                   = primary_ns_num_threads
-      , namespace_statistics_counter            = primary_ns_statistics_counter
-    }; // }}}
-
     HPX_DEFINE_COMPONENT_ACTION(primary_namespace, remote_service, service_action);
     HPX_DEFINE_COMPONENT_ACTION(primary_namespace, remote_bulk_service, bulk_service_action);
     HPX_DEFINE_COMPONENT_ACTION(primary_namespace, remote_route, route_action);

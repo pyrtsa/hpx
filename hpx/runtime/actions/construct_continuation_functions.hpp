@@ -71,7 +71,7 @@
         {
             try {
                 LTM_(debug) << "Executing action("
-                    << detail::get_action_name<derived_type>()
+                    << detail::get_action_name<action_type>()
                     << ") with continuation(" << cont->get_gid() << ")";
 
                 // The arguments are moved here. This function is called from a
@@ -94,12 +94,12 @@
         BOOST_FORCEINLINE result_type operator()(continuation_type cont,
             void (Object::* const func)(
                 BOOST_PP_ENUM_BINARY_PARAMS(N, FArg, arg)) const,
-            typename detail::action_traits<Derived>::component_type* obj
+            typename action_impl<F, funcptr>::component_type* obj
           BOOST_PP_COMMA_IF(N) HPX_ENUM_FWD_ARGS(N, Arg, arg)) const
         {
             try {
                 LTM_(debug) << "Executing action("
-                    << detail::get_action_name<derived_type>()
+                    << detail::get_action_name<action_type>()
                     << ") with continuation(" << cont->get_gid() << ")";
 
                 // The arguments are moved here. This function is called from a
@@ -138,7 +138,7 @@
     construct_continuation_thread_object_function_void(
         continuation_type cont,
         void (Object::* const func)(BOOST_PP_ENUM_PARAMS(N, FArg)) const,
-        typename detail::action_traits<Derived>::component_type* obj, BOOST_FWD_REF(Arguments) args)
+        typename action_impl<F, funcptr>::component_type* obj, BOOST_FWD_REF(Arguments) args)
     {
         return HPX_STD_BIND(
             BOOST_PP_CAT(continuation_thread_object_function_void_, N)(),
@@ -156,13 +156,13 @@
             BOOST_PP_COMMA_IF(N) BOOST_PP_ENUM_PARAMS(N, typename Arg)
             BOOST_PP_COMMA_IF(N) BOOST_PP_ENUM_PARAMS(N, typename FArg)>
         BOOST_FORCEINLINE result_type operator()(continuation_type cont,
-            typename detail::action_traits<Derived>::result_type (Object::* func)(BOOST_PP_ENUM_BINARY_PARAMS(N, FArg, arg)),
-            typename detail::action_traits<Derived>::component_type* obj
+            typename action_impl<F, funcptr>::result_type (Object::* func)(BOOST_PP_ENUM_BINARY_PARAMS(N, FArg, arg)),
+            typename action_impl<F, funcptr>::component_type* obj
           BOOST_PP_COMMA_IF(N) HPX_ENUM_FWD_ARGS(N, Arg, arg)) const
         {
             try {
                 LTM_(debug) << "Executing action("
-                    << detail::get_action_name<derived_type>()
+                    << detail::get_action_name<action>()
                     << ") with continuation(" << cont->get_gid() << ")";
 
                 // The arguments are moved here. This function is called from a
@@ -184,14 +184,14 @@
             BOOST_PP_COMMA_IF(N) BOOST_PP_ENUM_PARAMS(N, typename Arg)
             BOOST_PP_COMMA_IF(N) BOOST_PP_ENUM_PARAMS(N, typename FArg)>
         BOOST_FORCEINLINE result_type operator()(continuation_type cont,
-            typename detail::action_traits<Derived>::result_type (Object::* const func)(
+            typename action_impl<F, funcptr>::result_type (Object::* const func)(
                 BOOST_PP_ENUM_BINARY_PARAMS(N, FArg, arg)) const,
-            typename detail::action_traits<Derived>::component_type* obj
+            typename action_impl<F, funcptr>::component_type* obj
           BOOST_PP_COMMA_IF(N) HPX_ENUM_FWD_ARGS(N, Arg, arg)) const
         {
             try {
                 LTM_(debug) << "Executing action("
-                    << detail::get_action_name<derived_type>()
+                    << detail::get_action_name<action_type>()
                     << ") with continuation(" << cont->get_gid() << ")";
 
                 // The arguments are moved here. This function is called from a
@@ -215,8 +215,8 @@
     static HPX_STD_FUNCTION<threads::thread_function_type>
     construct_continuation_thread_object_function(
         continuation_type cont,
-        typename detail::action_traits<Derived>::result_type (Object::* func)(BOOST_PP_ENUM_PARAMS(N, FArg)),
-        typename detail::action_traits<Derived>::component_type* obj,
+        typename action_impl<F, funcptr>::result_type (Object::* func)(BOOST_PP_ENUM_PARAMS(N, FArg)),
+        typename action_impl<F, funcptr>::component_type* obj,
         BOOST_FWD_REF(Arguments) args)
     {
         return HPX_STD_BIND(
@@ -231,8 +231,8 @@
     static HPX_STD_FUNCTION<threads::thread_function_type>
     construct_continuation_thread_object_function(
         continuation_type cont,
-        typename detail::action_traits<Derived>::result_type (Object::* const func)(BOOST_PP_ENUM_PARAMS(N, FArg)) const,
-        typename detail::action_traits<Derived>::component_type* obj, BOOST_FWD_REF(Arguments) args)
+        typename action_impl<F, funcptr>::result_type (Object::* const func)(BOOST_PP_ENUM_PARAMS(N, FArg)) const,
+        typename action_impl<F, funcptr>::component_type* obj, BOOST_FWD_REF(Arguments) args)
     {
         return HPX_STD_BIND(
             BOOST_PP_CAT(continuation_thread_object_function_, N)(),

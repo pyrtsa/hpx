@@ -63,7 +63,8 @@
         struct BOOST_PLUGIN_EXPORTER_NAME(name, actualname, classname) {      \
             BOOST_PLUGIN_EXPORTER_NAME(name, actualname, classname)()         \
             {                                                                 \
-                static boost::plugin::concrete_factory<BaseType, ActualType > cf; \
+                static boost::plugin::concrete_factory<BaseType,              \
+                    HPX_UTIL_STRIP(ActualType) > cf;                          \
                 boost::plugin::abstract_factory<BaseType>* w = &cf;           \
                 std::string actname(BOOST_PP_STRINGIZE(actualname));          \
                 boost::algorithm::to_lower(actname);                          \

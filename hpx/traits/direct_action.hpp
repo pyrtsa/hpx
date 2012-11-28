@@ -12,7 +12,7 @@ namespace hpx { namespace traits
 {
     ///////////////////////////////////////////////////////////////////////////
     // Customization point for action stack size
-    template <typename Action>
+    template <typename Action, typename Enable>
     struct direct_action
         : boost::mpl::false_
     {};

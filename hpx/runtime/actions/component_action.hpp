@@ -19,7 +19,7 @@
 #include <hpx/exception.hpp>
 #include <hpx/runtime/naming/address.hpp>
 #include <hpx/runtime/actions/continuation.hpp>
-#include <hpx/runtime/actions/action_support.hpp>
+#include <hpx/runtime/actions/action.hpp>
 #include <hpx/runtime/components/console_error_sink.hpp>
 #include <hpx/util/unused.hpp>
 #include <hpx/util/void_cast.hpp>
@@ -33,6 +33,9 @@
 namespace hpx { namespace actions
 {
     /// \cond NOINTERNAL
+    
+    template <typename F, F funcptr>
+    struct transfer_action;
 
     ///////////////////////////////////////////////////////////////////////////
     //  Specialized generic component action types allowing to hold a different
@@ -40,20 +43,15 @@ namespace hpx { namespace actions
     ///////////////////////////////////////////////////////////////////////////
 
     // zero argument version
-    template <typename F, F funcptr, typename Derived = detail::this_type>
-    struct result_action0
-      : public action<
-            typename detail::action_type<
-                result_action0<F, funcptr, Derived>, Derived
-            >::type
-        >
+    template <typename Result, typename Component, Result (Component::*funcptr)()>
+    struct action_impl<Result (Component::*)(), funcptr>
     {
     public:
-        typedef detail::action_traits<result_action0> action_traits;
-        typedef typename action_traits::derived_type derived_type;
-        typedef typename action_traits::result_type result_type;
-        typedef typename action_traits::component_type component_type;
-        typedef action<derived_type> base_type;
+        typedef Result (Component::*funcptr_type)();
+        typedef  action<funcptr_type, funcptr> action_type;
+        typedef Result result_type;
+        typedef Component component_type;
+        typedef hpx::util::tuple0<> arguments_type;
 
     protected:
         /// The \a continuation_thread_function will be registered as the thread
@@ -66,7 +64,7 @@ namespace hpx { namespace actions
         {
             try {
                 LTM_(debug) << "Executing component action("
-                            << detail::get_action_name<derived_type>()
+                            << detail::get_action_name<action_type>()
                             << ") lva(" << reinterpret_cast<void const*>
                                 (get_lva<component_type>::call(lva)) << ")";
                 (get_lva<component_type>::call(lva)->*funcptr)();  // just call the function
@@ -75,7 +73,7 @@ namespace hpx { namespace actions
                 if (e.get_error() != hpx::thread_interrupted) {
                     LTM_(error)
                         << "Unhandled exception while executing component action("
-                        << detail::get_action_name<derived_type>()
+                        << detail::get_action_name<action_type>()
                         << ") lva(" << reinterpret_cast<void const*>
                             (get_lva<component_type>::call(lva)) << "): " << e.what();
 
@@ -102,9 +100,9 @@ namespace hpx { namespace actions
             BOOST_FWD_REF(Arguments) /*args*/)
         {
             threads::thread_state_enum (*f)(naming::address::address_type) =
-                &derived_type::template thread_function<naming::address::address_type>;
+                &thread_function<naming::address::address_type>;
 
-            return boost::move(derived_type::decorate_action(
+            return boost::move(decorate_action<funcptr_type, funcptr>::call(
                 HPX_STD_BIND(f, lva), lva));
         }
 
@@ -117,8 +115,8 @@ namespace hpx { namespace actions
         construct_thread_function(continuation_type& cont,
             naming::address::address_type lva, BOOST_FWD_REF(Arguments) args)
         {
-            return boost::move(derived_type::decorate_action(
-                    base_type::construct_continuation_thread_object_function(
+            return boost::move(decorate_action<funcptr_type, funcptr>::call(
+                    action<funcptr_type, funcptr>::construct_continuation_thread_object_function(
                         cont, funcptr, get_lva<component_type>::call(lva),
                         boost::forward<Arguments>(args)), lva));
         }
@@ -129,49 +127,24 @@ namespace hpx { namespace actions
             BOOST_FWD_REF(Arguments))
         {
             LTM_(debug)
-                << "direct_result_action0::execute_function: name("
-                << detail::get_action_name<derived_type>()
+                << "action_impl::execute_function: name("
+                << detail::get_action_name<action_type>()
                 << ") lva(" << reinterpret_cast<void const*>(
                     get_lva<component_type>::call(lva)) << ")";
 
             return (get_lva<component_type>::call(lva)->*funcptr)();
         }
     };
-
-    namespace detail
+    
+    template <typename Result, typename Component, Result (Component::*funcptr)() const>
+    struct action_impl<Result (Component::*)() const, funcptr>
+        : action_impl<Result (Component::*)(), funcptr>
     {
-        template <typename Component, typename Result,
-            Result (Component::*F)(), typename Derived>
-        struct action_traits<result_action0<Result (Component::*)(), F, Derived> >
-        {
-            typedef Component component_type;
-            typedef Result result_type;
-            typedef hpx::util::tuple0<> arguments_type;
-            typedef
-                typename detail::action_type<
-                    result_action0<Result (Component::*)(), F, Derived>,
-                    Derived
-                >::type
-                derived_type;
-            typedef action<derived_type> base_type;
-        };
-        
-        template <typename Component, typename Result,
-            Result (Component::*F)() const, typename Derived>
-        struct action_traits<result_action0<Result (Component::*)() const, F, Derived> >
-        {
-            typedef Component const component_type;
-            typedef Result result_type;
-            typedef hpx::util::tuple0<> arguments_type;
-            typedef
-                typename detail::action_type<
-                    result_action0<Result (Component::*)() const, F, Derived>,
-                    Derived
-                >::type
-                derived_type;
-            typedef action<derived_type> base_type;
-        };
-    }
+        typedef Result (Component::*funcptr_type)() const;
+        typedef Result result_type;
+        typedef Component const component_type;
+        typedef hpx::util::tuple0<> arguments_type;
+    };
 
 #if BOOST_WORKAROUND(BOOST_MSVC, == 1600)
     namespace detail
@@ -194,42 +167,17 @@ namespace hpx { namespace actions
     }
 #endif
 
-    template <typename Component, typename Result,
-        Result (Component::*F)(), typename Derived>
-    struct make_action<Result (Component::*)(), F, Derived>
-      : result_action0<Result(Component::*)(), F, Derived>
-    {
-        typedef result_action0<
-            Result(Component::*)(), F, Derived
-        > type;
-    };
-
-    template <typename Component, typename Result,
-        Result (Component::*F)() const, typename Derived>
-    struct make_action<Result (Component::*)() const, F, Derived>
-      : result_action0<Result(Component::*)() const, F, Derived>
-    {
-        typedef result_action0<
-            Result(Component::*)() const, F, Derived
-        > type;
-    };
-
     ///////////////////////////////////////////////////////////////////////////
     //  zero parameter version, no result value
-    template <typename F, F funcptr, typename Derived = detail::this_type>
-    struct action0
-      : public action<
-            typename detail::action_type<
-                action0<F, funcptr, Derived>, Derived
-            >::type
-        >
+    template <typename Component, void (Component::*funcptr)()>
+    struct action_impl<void (Component::*)(), funcptr>
     {
     public:
-        typedef detail::action_traits<action0> action_traits;
-        typedef typename action_traits::derived_type derived_type;
-        typedef typename action_traits::result_type result_type;
-        typedef typename action_traits::component_type component_type;
-        typedef action<derived_type> base_type;
+        typedef void (Component::*funcptr_type)();
+        typedef action<funcptr_type, funcptr> action_type;
+        typedef hpx::util::unused_type result_type;
+        typedef Component component_type;
+        typedef hpx::util::tuple0<> arguments_type;
 
     protected:
         /// The \a continuation_thread_function will be registered as the thread
@@ -242,7 +190,7 @@ namespace hpx { namespace actions
         {
             try {
                 LTM_(debug) << "Executing component action("
-                            << detail::get_action_name<derived_type>()
+                            << detail::get_action_name<action_type>()
                             << ") lva(" << reinterpret_cast<void const*>
                                 (get_lva<component_type>::call(lva)) << ")";
                 (get_lva<component_type>::call(lva)->*funcptr)();  // just call the function
@@ -251,7 +199,7 @@ namespace hpx { namespace actions
                 if (e.get_error() != hpx::thread_interrupted) {
                     LTM_(error)
                         << "Unhandled exception while executing component action("
-                        << detail::get_action_name<derived_type>()
+                        << detail::get_action_name<action_type>()
                         << ") lva(" << reinterpret_cast<void const*>
                             (get_lva<component_type>::call(lva)) << "): " << e.what();
 
@@ -278,9 +226,9 @@ namespace hpx { namespace actions
             BOOST_FWD_REF(Arguments) /*args*/)
         {
             threads::thread_state_enum (*f)(naming::address::address_type) =
-                &derived_type::template thread_function<naming::address::address_type>;
+                thread_function<naming::address::address_type>;
 
-            return boost::move(derived_type::decorate_action(
+            return boost::move(decorate_action<funcptr_type, funcptr>::call(
                 HPX_STD_BIND(f, lva), lva));
         }
 
@@ -293,8 +241,8 @@ namespace hpx { namespace actions
         construct_thread_function(continuation_type& cont,
             naming::address::address_type lva, BOOST_FWD_REF(Arguments) args)
         {
-            return boost::move(derived_type::decorate_action(
-                    base_type::construct_continuation_thread_object_function_void(
+            return boost::move(decorate_action<funcptr_type, funcptr>::call(
+                    action<funcptr_type, funcptr>::construct_continuation_thread_object_function_void(
                         cont, funcptr, get_lva<component_type>::call(lva),
                         boost::forward<Arguments>(args)), lva));
         }
@@ -306,69 +254,23 @@ namespace hpx { namespace actions
         {
             LTM_(debug)
                 << "direct_action0::execute_function: name("
-                << detail::get_action_name<derived_type>()
+                << detail::get_action_name<action_type>()
                 << ") lva(" << reinterpret_cast<void const*>(
                     get_lva<component_type>::call(lva)) << ")";
             (get_lva<component_type>::call(lva)->*funcptr)();
             return util::unused;
         }
     };
-
-    namespace detail
+    
+    template <typename Component, void (Component::*funcptr)() const>
+    struct action_impl<void (Component::*)() const, funcptr>
+        : action_impl<void (Component::*)(), funcptr>
     {
-        template <typename Component, void (Component::*F)(), typename Derived>
-        struct action_traits<action0<void(Component::*)(), F, Derived> >
-        {
-            typedef Component component_type;
-            typedef util::unused_type result_type;
-            typedef hpx::util::tuple0<> arguments_type;
-            typedef
-                typename detail::action_type<
-                    action0<void(Component::*)(), F, Derived>, Derived
-                >::type
-                derived_type;
-            typedef action<derived_type> base_type;
-        };
-        
-        template <typename Component, void (Component::*F)() const, typename Derived>
-        struct action_traits<action0<void(Component::*)() const, F, Derived> >
-        {
-            typedef Component const component_type;
-            typedef util::unused_type result_type;
-            typedef hpx::util::tuple0<> arguments_type;
-            typedef
-                typename detail::action_type<
-                    action0<void(Component::*)(), F, Derived>, Derived
-                >::type
-                derived_type;
-            typedef action<derived_type> base_type;
-        };
-    }
-
-    template <typename Component, void (Component::*F)(), typename Derived>
-    struct make_action<void (Component::*)(), F, Derived>
-      : action0<void(Component::*)(), F, Derived> 
-    {
-        typedef action0<
-            void(Component::*)(), F, Derived
-        > type;
+        typedef void (Component::*funcptr_type)() const;
+        typedef hpx::util::unused_type result_type;
+        typedef Component const component_type;
+        typedef hpx::util::tuple0<> arguments_type;
     };
-
-    template <typename Component, void (Component::*F)() const, typename Derived>
-    struct make_action<void (Component::*)() const, F, Derived>
-      : action0<void(Component::*)() const, F, Derived>
-    {
-        typedef action0<
-            void(Component::*)() const, F, Derived
-        > type;
-    };
-
-    ///////////////////////////////////////////////////////////////////////////
-    // the specialization for void return type is just a template alias
-    template <typename Component, void (Component::*F)(), typename Derived>
-    struct result_action0<void (Component::*)(), F, Derived>
-      : action0<void (Component::*)(), F, Derived>
-    {};
 
     /// \endcond
 }}
@@ -426,11 +328,11 @@ namespace hpx { namespace actions
     )(__VA_ARGS__))                                                           \
 
 #define HPX_DEFINE_COMPONENT_ACTION_2(component, func)                        \
-    typedef HPX_MAKE_COMPONENT_ACTION(component, func)::type                  \
+    typedef HPX_MAKE_ACTION(component, func)                                  \
         BOOST_PP_CAT(func, _action)                                           \
     /**/
 #define HPX_DEFINE_COMPONENT_ACTION_3(component, func, action_type)           \
-    typedef HPX_MAKE_COMPONENT_ACTION(component, func)::type action_type      \
+    typedef HPX_MAKE_ACTION(component, func) action_type                      \
     /**/
 
 /// \def HPX_DEFINE_COMPONENT_CONST_ACTION(component, func, action_type)
@@ -486,11 +388,11 @@ namespace hpx { namespace actions
     )(__VA_ARGS__))                                                           \
 
 #define HPX_DEFINE_COMPONENT_CONST_ACTION_2(component, func)                  \
-    typedef HPX_MAKE_CONST_COMPONENT_ACTION(component, func)::type            \
+    typedef HPX_MAKE_CONST_ACTION(component, func)                            \
         BOOST_PP_CAT(func, _action)                                           \
     /**/
 #define HPX_DEFINE_COMPONENT_CONST_ACTION_3(component, func, action_type)     \
-    typedef HPX_MAKE_CONST_COMPONENT_ACTION(component, func)::type action_type\
+    typedef HPX_MAKE_CONST_ACTION(component, func) action_type                \
     /**/
 
 /// \cond NOINTERNAL
@@ -498,10 +400,10 @@ namespace hpx { namespace actions
 ///////////////////////////////////////////////////////////////////////////////
 // same as above, just for template functions
 #define HPX_DEFINE_COMPONENT_ACTION_TPL(component, func, name)                \
-    typedef typename HPX_MAKE_COMPONENT_ACTION_TPL(component, func)::type name\
+    typedef HPX_MAKE_ACTION_TPL(component, func) name                         \
     /**/
 #define HPX_DEFINE_COMPONENT_CONST_ACTION_TPL(component, func, name)          \
-    typedef HPX_MAKE_CONST_COMPONENT_ACTION_TPL(component, func)::type name   \
+    typedef HPX_MAKE_CONST_ACTION_TPL(component, func) name                   \
     /**/
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -511,7 +413,7 @@ namespace hpx { namespace actions
 ///////////////////////////////////////////////////////////////////////////////
 // Register the action templates with serialization.
 HPX_SERIALIZATION_REGISTER_TEMPLATE(
-    (template <typename Action>), (hpx::actions::transfer_action<Action>)
+    (template <typename F, F funcptr>), (hpx::actions::transfer_action<F, funcptr>)
 )
 
 /// \endcond

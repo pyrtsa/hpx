@@ -17,6 +17,7 @@
 #include <hpx/runtime/applier/apply_helper.hpp>
 #include <hpx/runtime/actions/component_action.hpp>
 #include <hpx/runtime/actions/base_lco_continuation.hpp>
+#include <hpx/runtime/actions/transfer_action.hpp>
 #include <hpx/util/remove_local_destinations.hpp>
 
 #include <boost/dynamic_bitset.hpp>
@@ -32,9 +33,8 @@ namespace hpx { namespace actions
     template <typename Action>
     threads::thread_priority action_priority()
     {
-        typedef typename hpx::actions::extract_action<Action>::type action_type;
         return static_cast<threads::thread_priority>(
-            traits::action_priority<action_type>::value);
+            traits::action_priority<Action>::value);
     }
 }}
 
@@ -45,7 +45,7 @@ namespace hpx
     // Invoked by a running HPX-thread to apply an action to any resource
     namespace applier { namespace detail
     {
-        template <typename Action>
+    template <typename Action>
         inline naming::address& complement_addr(naming::address& addr)
         {
             if (components::component_invalid == addr.type_)
@@ -67,12 +67,10 @@ namespace hpx
         apply_r_p(naming::address& addr, naming::id_type const& gid,
             threads::thread_priority priority)
         {
-            typedef typename hpx::actions::extract_action<Action>::type action_type;
-
             // If remote, create a new parcel to be sent to the destination
             // Create a new parcel with the gid, action, and arguments
-            parcelset::parcel p (gid.get_gid(), complement_addr<action_type>(addr),
-                new hpx::actions::transfer_action<action_type>(priority));
+            parcelset::parcel p (gid.get_gid(), complement_addr<Action>(addr),
+                new typename Action::transfer_action_type(priority));
 
             // Send the parcel through the parcel handler
             hpx::applier::get_applier().get_parcel_handler().put_parcel(p);
@@ -112,14 +110,12 @@ namespace hpx
             std::vector<naming::gid_type> const& gids,
             threads::thread_priority priority)
         {
-            typedef typename hpx::actions::extract_action<Action>::type action_type;
-
             // sort destinations
             std::map<naming::locality, destinations> dests;
 
             std::size_t count = gids.size();
             for (std::size_t i = 0; i < count; ++i) {
-                complement_addr<action_type>(addrs[i]);
+                complement_addr<Action>(addrs[i]);
 
                 destinations& dest = dests[addrs[i].locality_];
                 dest.gids_.push_back(gids[i]);
@@ -130,7 +126,7 @@ namespace hpx
             parcelset::parcelhandler& ph =
                 hpx::applier::get_applier().get_parcel_handler();
             actions::action_type act(
-                new hpx::actions::transfer_action<action_type>(priority));
+                new typename Action::transfer_action_type(priority));
 
             std::for_each(dests.begin(), dests.end(), send_parcel(ph, act));
 
@@ -142,12 +138,10 @@ namespace hpx
         apply_r_p_route(naming::address& addr, naming::id_type const& gid,
             threads::thread_priority priority)
         {
-            typedef typename hpx::actions::extract_action<Action>::type action_type;
-
             // Create a parcel and send it to the AGAS server
             // New parcel with the gid, action, and arguments
-            parcelset::parcel p (gid.get_gid(), complement_addr<action_type>(addr),
-                new hpx::actions::transfer_action<action_type>(priority));
+            parcelset::parcel p (gid.get_gid(), complement_addr<Action>(addr),
+                new typename Action::transfer_action_type(priority));
 
             // Send the parcel to applier to be sent to the AGAS server
             return hpx::applier::get_applier().route(p);
@@ -173,13 +167,11 @@ namespace hpx
         inline bool
         apply_l_p(naming::address const& addr, threads::thread_priority priority)
         {
-            typedef typename hpx::actions::extract_action<Action>::type action_type;
-
             BOOST_ASSERT(components::types_are_compatible(addr.type_,
                 components::get_component_type<
-                    typename action_type::component_type>()));
+                    typename Action::component_type>()));
             util::tuple0<> env;
-            apply_helper<action_type>::call(addr.address_, priority, env);
+            apply_helper<Action>::call(addr.address_, priority, env);
             return true;     // no parcel has been sent (dest is local)
         }
 
@@ -215,11 +207,12 @@ namespace hpx
         return apply_p<Action>(gid, actions::action_priority<Action>());
     }
 
-    template <typename Derived, threads::thread_priority Priority>
+    template <typename F, F funcptr, threads::thread_priority Priority>
     inline bool apply (
-        hpx::actions::action<Derived> /*act*/, naming::id_type const& gid)
+        hpx::actions::action<F, funcptr> /*act*/, naming::id_type const& gid)
     {
-        return apply_p<Derived>(gid, actions::action_priority<Derived>());
+        return apply_p<hpx::actions::action<F, funcptr> >(
+            gid, actions::action_priority<hpx::actions::action<F, funcptr> >());
     }
 
     // same for multiple destinations
@@ -266,11 +259,12 @@ namespace hpx
         return apply_p<Action>(gids, actions::action_priority<Action>());
     }
 
-    template <typename Derived>
+    template <typename F, F funcptr>
     inline bool apply (
-        hpx::actions::action<Derived> /*act*/, std::vector<naming::id_type> const& gids)
+        hpx::actions::action<F, funcptr> /*act*/, std::vector<naming::id_type> const& gids)
     {
-        return apply_p<Derived>(gids, actions::action_priority<Derived>());
+        return apply_p<hpx::actions::action<F, funcptr> >(
+            gids, actions::action_priority<hpx::actions::action<F, funcptr> >());
     }
 
     namespace applier
@@ -309,14 +303,12 @@ namespace hpx
         apply_r_p(naming::address& addr, actions::continuation* c,
             naming::id_type const& gid, threads::thread_priority priority)
         {
-            typedef typename hpx::actions::extract_action<Action>::type action_type;
-
             actions::continuation_type cont(c);
 
             // If remote, create a new parcel to be sent to the destination
             // Create a new parcel with the gid, action, and arguments
-            parcelset::parcel p (gid.get_gid(), complement_addr<action_type>(addr),
-                new hpx::actions::transfer_action<action_type>(priority), cont);
+            parcelset::parcel p (gid.get_gid(), complement_addr<Action>(addr),
+                new typename Action::transfer_action_type(priority), cont);
 
             // Send the parcel through the parcel handler
             hpx::applier::get_applier().get_parcel_handler().put_parcel(p);
@@ -328,12 +320,10 @@ namespace hpx
         apply_r_p_route(naming::address& addr, actions::continuation* c,
             naming::id_type const& gid, threads::thread_priority priority)
         {
-            typedef typename hpx::actions::extract_action<Action>::type action_type;
-
             actions::continuation_type cont(c);
 
-            parcelset::parcel p (gid.get_gid(), complement_addr<action_type>(addr),
-                new hpx::actions::transfer_action<action_type>(priority), cont);
+            parcelset::parcel p (gid.get_gid(), complement_addr<Action>(addr),
+                new typename Action::transfer_action_type(priority), cont);
 
             // send parcel to agas
             return hpx::applier::get_applier().route(p);
@@ -362,12 +352,10 @@ namespace hpx
         apply_r_sync_p(naming::address& addr, naming::id_type const& gid,
             threads::thread_priority priority)
         {
-            typedef typename hpx::actions::extract_action<Action>::type action_type;
-
             // If remote, create a new parcel to be sent to the destination
             // Create a new parcel with the gid, action, and arguments
-            parcelset::parcel p (gid.get_gid(), complement_addr<action_type>(addr),
-                new hpx::actions::transfer_action<action_type>(priority));
+            parcelset::parcel p (gid.get_gid(), complement_addr<Action>(addr),
+                new typename Action::transfer_action_type(priority));
 
             // Send the parcel through the parcel handler
             hpx::applier::get_applier().get_parcel_handler().sync_put_parcel(p);
@@ -387,14 +375,12 @@ namespace hpx
         inline bool apply_l_p(actions::continuation* c,
             naming::address const& addr, threads::thread_priority priority)
         {
-            typedef typename hpx::actions::extract_action<Action>::type action_type;
-
             BOOST_ASSERT(components::types_are_compatible(addr.type_,
                 components::get_component_type<
-                    typename action_type::component_type>()));
+                    typename Action::component_type>()));
             actions::continuation_type cont(c);
             util::tuple0<> env;
-            apply_helper<action_type>::call(cont, addr.address_, priority, env);
+            apply_helper<Action>::call(cont, addr.address_, priority, env);
             return true;     // no parcel has been sent (dest is local)
         }
 
@@ -425,11 +411,12 @@ namespace hpx
         return apply_p<Action>(c, gid, actions::action_priority<Action>());
     }
 
-    template <typename Derived>
+    template <typename F, F funcptr>
     inline bool apply (actions::continuation* c,
-        hpx::actions::action<Derived> /*act*/, naming::id_type const& gid)
+        hpx::actions::action<F, funcptr> /*act*/, naming::id_type const& gid)
     {
-        return apply_p<Derived>(c, gid, actions::action_priority<Derived>());
+        return apply_p<hpx::actions::action<F, funcptr> >(
+            c, gid, actions::action_priority<hpx::actions::action<F, funcptr> >());
     }
 
     namespace applier
@@ -463,7 +450,7 @@ namespace hpx
             naming::id_type const& gid, threads::thread_priority priority)
         {
             typedef
-                typename hpx::actions::extract_action<Action>::result_type
+                typename Action::result_type
                 result_type;
 
             return apply_r_p<Action>(addr,
@@ -477,7 +464,7 @@ namespace hpx
             naming::id_type const& gid, threads::thread_priority priority)
         {
             typedef
-                typename hpx::actions::extract_action<Action>::result_type
+                typename Action::result_type
                 result_type;
 
             return apply_r_p_route<Action>(addr,
@@ -491,7 +478,7 @@ namespace hpx
             naming::id_type const& gid)
         {
             typedef
-                typename hpx::actions::extract_action<Action>::result_type
+                typename Action::result_type
                 result_type;
 
             return apply_r<Action>(addr,
@@ -504,7 +491,7 @@ namespace hpx
             naming::id_type const& gid)
         {
             typedef
-                typename hpx::actions::extract_action<Action>::result_type
+                typename Action::result_type
                 result_type;
 
             return apply_r_route<Action>(addr,
@@ -519,7 +506,7 @@ namespace hpx
         threads::thread_priority priority)
     {
         typedef
-            typename hpx::actions::extract_action<Action>::result_type
+            typename Action::result_type
             result_type;
 
         return apply_p<Action>(
@@ -532,7 +519,7 @@ namespace hpx
     apply_c (naming::id_type const& contgid, naming::id_type const& gid)
     {
         typedef
-            typename hpx::actions::extract_action<Action>::result_type
+            typename Action::result_type
             result_type;
 
         return apply<Action>(
@@ -547,7 +534,7 @@ namespace hpx
             threads::thread_priority priority)
         {
             typedef
-                typename hpx::actions::extract_action<Action>::result_type
+                typename Action::result_type
                 result_type;
 
             return apply_p_route<Action>(
@@ -560,7 +547,7 @@ namespace hpx
         apply_c_route (naming::id_type const& contgid, naming::id_type const& gid)
         {
             typedef
-                typename hpx::actions::extract_action<Action>::result_type
+                typename Action::result_type
                 result_type;
 
             return apply_route<Action>(

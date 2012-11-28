@@ -652,21 +652,12 @@ HPX_REGISTER_BASE_LCO_WITH_VALUE_DECLARATION(
     std::vector<hpx::agas::response>,
     agas_response_vector_type)
 
-namespace hpx { namespace agas { namespace create_result_ns {
-    typedef
-        hpx::lcos::base_lco_with_value<bool, hpx::agas::response>
-        base_lco_bool_response_type;
-    typedef
-        hpx::lcos::base_lco_with_value<hpx::naming::id_type, hpx::agas::response>
-        base_lco_id_type_response_type;
-}}}
-
 HPX_REGISTER_ACTION_DECLARATION(
-    hpx::agas::create_result_ns::base_lco_bool_response_type::set_value_action,
+    (hpx::lcos::base_lco_with_value<bool, hpx::agas::response>::set_value_action),
     set_value_action_agas_bool_response_type)
 
 HPX_REGISTER_ACTION_DECLARATION(
-    hpx::agas::create_result_ns::base_lco_id_type_response_type::set_value_action,
+    (hpx::lcos::base_lco_with_value<hpx::naming::id_type, hpx::agas::response>::set_value_action),
     set_value_action_agas_id_type_response_type)
 
 #endif // HPX_FB40C7A4_33B0_4C64_A16B_2A3FEEB237ED

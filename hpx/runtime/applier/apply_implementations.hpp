@@ -56,12 +56,10 @@ namespace hpx
         apply_r_p(naming::address& addr, naming::id_type const& gid,
             threads::thread_priority priority, HPX_ENUM_FWD_ARGS(N, Arg, arg))
         {
-            typedef typename hpx::actions::extract_action<Action>::type action_type;
-
             // If remote, create a new parcel to be sent to the destination
             // Create a new parcel with the gid, action, and arguments
-            parcelset::parcel p (gid.get_gid(), complement_addr<action_type>(addr),
-                new hpx::actions::transfer_action<action_type>(
+            parcelset::parcel p (gid.get_gid(), complement_addr<Action>(addr),
+                new typename Action::transfer_action_type(
                     priority, HPX_ENUM_FORWARD_ARGS(N, Arg, arg)));
 
             // Send the parcel through the parcel handler
@@ -75,14 +73,12 @@ namespace hpx
             std::vector<naming::gid_type> const& gids,
             threads::thread_priority priority, HPX_ENUM_FWD_ARGS(N, Arg, arg))
         {
-            typedef typename hpx::actions::extract_action<Action>::type action_type;
-
             // sort destinations
             std::map<naming::locality, destinations> dests;
 
             std::size_t count = gids.size();
             for (std::size_t i = 0; i < count; ++i) {
-                complement_addr<action_type>(addrs[i]);
+                complement_addr<Action>(addrs[i]);
 
                 destinations& dest = dests[addrs[i].locality_];
                 dest.gids_.push_back(gids[i]);
@@ -93,7 +89,7 @@ namespace hpx
             parcelset::parcelhandler& ph =
                 hpx::applier::get_applier().get_parcel_handler();
             actions::action_type act(
-                new hpx::actions::transfer_action<action_type>(
+                new typename Action::transfer_action_type(
                     priority, HPX_ENUM_FORWARD_ARGS(N, Arg, arg)));
 
             std::for_each(dests.begin(), dests.end(), send_parcel(ph, act));
@@ -106,11 +102,9 @@ namespace hpx
         apply_r_p_route(naming::address& addr, naming::id_type const& gid,
             threads::thread_priority priority, HPX_ENUM_FWD_ARGS(N, Arg, arg))
         {
-            typedef typename hpx::actions::extract_action<Action>::type action_type;
-
             // create parcel
-            parcelset::parcel p(gid.get_gid(), complement_addr<action_type>(addr),
-                new hpx::actions::transfer_action<action_type>(
+            parcelset::parcel p(gid.get_gid(), complement_addr<Action>(addr),
+                new typename Action::transfer_action_type(
                     priority, HPX_ENUM_FORWARD_ARGS(N, Arg, arg)));
 
             // send parcel to agas
@@ -142,13 +136,11 @@ namespace hpx
         apply_l_p(naming::address const& addr, threads::thread_priority priority,
             HPX_ENUM_FWD_ARGS(N, Arg, arg))
         {
-            typedef typename hpx::actions::extract_action<Action>::type action_type;
-
             BOOST_ASSERT(components::types_are_compatible(addr.type_,
                 components::get_component_type<
-                    typename action_type::component_type>()));
+                    typename Action::component_type>()));
 
-            apply_helper<action_type>::call(addr.address_, priority,
+            apply_helper<Action>::call(addr.address_, priority,
                 util::forward_as_tuple(HPX_ENUM_FORWARD_ARGS(N, Arg, arg)));
             return true;     // no parcel has been sent (dest is local)
         }
@@ -159,13 +151,11 @@ namespace hpx
         apply_l_p_val(naming::address const& addr, threads::thread_priority priority,
             BOOST_PP_ENUM_BINARY_PARAMS(N, Arg, arg))
         {
-            typedef typename hpx::actions::extract_action<Action>::type action_type;
-
             BOOST_ASSERT(components::types_are_compatible(addr.type_,
                 components::get_component_type<
-                    typename action_type::component_type>()));
+                    typename Action::component_type>()));
 
-            apply_helper<action_type>::call(addr.address_, priority,
+            apply_helper<Action>::call(addr.address_, priority,
                 util::forward_as_tuple(HPX_ENUM_MOVE_ARGS(N, arg)));
             return true;     // no parcel has been sent (dest is local)
         }
@@ -206,14 +196,15 @@ namespace hpx
             HPX_ENUM_FORWARD_ARGS(N, Arg, arg));
     }
 
-    template <typename Derived, BOOST_PP_ENUM_PARAMS(N, typename Arg)>
+    template <typename F, F funcptr, BOOST_PP_ENUM_PARAMS(N, typename Arg)>
     inline bool
     apply (
-        hpx::actions::action<Derived> /*act*/,
+        hpx::actions::action<F, funcptr> /*act*/,
         naming::id_type const& gid,
         HPX_ENUM_FWD_ARGS(N, Arg, arg))
     {
-        return apply_p<Derived>(gid, actions::action_priority<Derived>(),
+        return apply_p<hpx::actions::action<F, funcptr> >(
+            gid, actions::action_priority<hpx::actions::action<F, funcptr> >(),
             HPX_ENUM_FORWARD_ARGS(N, Arg, arg));
     }
 
@@ -269,14 +260,15 @@ namespace hpx
             HPX_ENUM_FORWARD_ARGS(N, Arg, arg));
     }
 
-    template <typename Derived, BOOST_PP_ENUM_PARAMS(N, typename Arg)>
+    template <typename F, F funcptr, BOOST_PP_ENUM_PARAMS(N, typename Arg)>
     inline bool
     apply (
-        hpx::actions::action<Derived> /*act*/,
+        hpx::actions::action<F, funcptr> /*act*/,
         std::vector<naming::id_type> const& gids,
         HPX_ENUM_FWD_ARGS(N, Arg, arg))
     {
-        return apply_p<Derived>(gids, actions::action_priority<Derived>(),
+        return apply_p<hpx::actions::action<F, funcptr> >(
+            gids, actions::action_priority<hpx::actions::action<F, funcptr> >(),
             HPX_ENUM_FORWARD_ARGS(N, Arg, arg));
     }
 
@@ -319,14 +311,12 @@ namespace hpx
             naming::id_type const& gid, threads::thread_priority priority,
             HPX_ENUM_FWD_ARGS(N, Arg, arg))
         {
-            typedef typename hpx::actions::extract_action<Action>::type action_type;
-
             actions::continuation_type cont(c);
 
             // If remote, create a new parcel to be sent to the destination
             // Create a new parcel with the gid, action, and arguments
-            parcelset::parcel p (gid.get_gid(), complement_addr<action_type>(addr),
-                new hpx::actions::transfer_action<action_type>(
+            parcelset::parcel p (gid.get_gid(), complement_addr<Action>(addr),
+                new typename Action::transfer_action_type(
                     priority, HPX_ENUM_FORWARD_ARGS(N, Arg, arg)), cont);
 
             // Send the parcel through the parcel handler
@@ -340,13 +330,11 @@ namespace hpx
             naming::id_type const& gid, threads::thread_priority priority,
             HPX_ENUM_FWD_ARGS(N, Arg, arg))
         {
-            typedef typename hpx::actions::extract_action<Action>::type action_type;
-
             actions::continuation_type cont(c);
 
             // Create a new parcel with the gid, action, and arguments
-            parcelset::parcel p (gid.get_gid(), complement_addr<action_type>(addr),
-                new hpx::actions::transfer_action<action_type>(
+            parcelset::parcel p (gid.get_gid(), complement_addr<Action>(addr),
+                new typename Action::transfer_action_type(
                     priority, HPX_ENUM_FORWARD_ARGS(N, Arg, arg)), cont);
 
             // Send the parcel to agas
@@ -378,14 +366,12 @@ namespace hpx
         apply_l_p(actions::continuation* c, naming::address const& addr,
             threads::thread_priority priority, HPX_ENUM_FWD_ARGS(N, Arg, arg))
         {
-            typedef typename hpx::actions::extract_action<Action>::type action_type;
-
             BOOST_ASSERT(components::types_are_compatible(addr.type_,
                 components::get_component_type<
-                    typename action_type::component_type>()));
+                    typename Action::component_type>()));
             actions::continuation_type cont(c);
 
-            apply_helper<action_type>::call(
+            apply_helper<Action>::call(
                 cont, addr.address_, priority,
                 util::forward_as_tuple(HPX_ENUM_FORWARD_ARGS(N, Arg, arg)));
             return true;     // no parcel has been sent (dest is local)
@@ -429,14 +415,15 @@ namespace hpx
             HPX_ENUM_FORWARD_ARGS(N, Arg, arg));
     }
 
-    template <typename Derived, BOOST_PP_ENUM_PARAMS(N, typename Arg)>
+    template <typename F, F funcptr, BOOST_PP_ENUM_PARAMS(N, typename Arg)>
     inline bool
     apply (actions::continuation* c,
-        hpx::actions::action<Derived> /*act*/,
+        hpx::actions::action<F, funcptr> /*act*/,
         naming::id_type const& gid,
         HPX_ENUM_FWD_ARGS(N, Arg, arg))
     {
-        return apply_p<Derived>(c, gid, actions::action_priority<Derived>(),
+        return apply_p<hpx::actions::action<F, funcptr> >(
+            c, gid, actions::action_priority<hpx::actions::action<F, funcptr> >(),
             HPX_ENUM_FORWARD_ARGS(N, Arg, arg));
     }
 
@@ -480,7 +467,7 @@ namespace hpx
             HPX_ENUM_FWD_ARGS(N, Arg, arg))
         {
             typedef
-                typename hpx::actions::extract_action<Action>::result_type
+                typename Action::result_type
                 result_type;
 
             return apply_r_p<Action>(addr,
@@ -495,7 +482,7 @@ namespace hpx
             HPX_ENUM_FWD_ARGS(N, Arg, arg))
         {
             typedef
-                typename hpx::actions::extract_action<Action>::result_type
+                typename Action::result_type
                 result_type;
 
             return apply_r_p_route<Action>(addr,
@@ -509,7 +496,7 @@ namespace hpx
             naming::id_type const& gid, HPX_ENUM_FWD_ARGS(N, Arg, arg))
         {
             typedef
-                typename hpx::actions::extract_action<Action>::result_type
+                typename Action::result_type
                 result_type;
 
             return apply_r_p<Action>(addr,
@@ -523,9 +510,7 @@ namespace hpx
         apply_c_route (naming::address& addr, naming::id_type const& contgid,
             naming::id_type const& gid, HPX_ENUM_FWD_ARGS(N, Arg, arg))
         {
-            typedef
-                typename hpx::actions::extract_action<Action>::result_type
-                result_type;
+            typedef typename Action::result_type result_type;
 
             return apply_r_p_route<Action>(addr,
                 new actions::base_lco_continuation<result_type>(contgid),
@@ -539,9 +524,7 @@ namespace hpx
     apply_c_p(naming::id_type const& contgid, naming::id_type const& gid,
         threads::thread_priority priority, HPX_ENUM_FWD_ARGS(N, Arg, arg))
     {
-        typedef
-            typename hpx::actions::extract_action<Action>::result_type
-            result_type;
+        typedef typename Action::result_type result_type;
 
         return apply_p<Action>(
             new actions::base_lco_continuation<result_type>(contgid),
@@ -553,9 +536,7 @@ namespace hpx
     apply_c (naming::id_type const& contgid, naming::id_type const& gid,
         HPX_ENUM_FWD_ARGS(N, Arg, arg))
     {
-        typedef
-            typename hpx::actions::extract_action<Action>::result_type
-            result_type;
+        typedef typename Action::result_type result_type;
 
         return apply_p<Action>(
             new actions::base_lco_continuation<result_type>(contgid),
@@ -570,9 +551,7 @@ namespace hpx
         apply_c_p_route(naming::id_type const& contgid, naming::id_type const& gid,
             threads::thread_priority priority, HPX_ENUM_FWD_ARGS(N, Arg, arg))
         {
-            typedef
-                typename hpx::actions::extract_action<Action>::result_type
-                result_type;
+            typedef typename Action::result_type result_type;
 
             return apply_route<Action>(
                 new actions::base_lco_continuation<result_type>(contgid),
@@ -584,9 +563,7 @@ namespace hpx
         apply_c_route (naming::id_type const& contgid, naming::id_type const& gid,
             HPX_ENUM_FWD_ARGS(N, Arg, arg))
         {
-            typedef
-                typename hpx::actions::extract_action<Action>::result_type
-                result_type;
+            typedef typename Action::result_type result_type;
 
             return apply_p_route<Action>(
                 new actions::base_lco_continuation<result_type>(contgid),

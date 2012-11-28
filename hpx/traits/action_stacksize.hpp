@@ -17,11 +17,6 @@ namespace hpx { namespace traits
     {
         enum { value = threads::thread_stacksize_default };
     };
-
-    template <typename Action>
-    struct action_stacksize<Action, typename Action::type>
-      : action_stacksize<typename Action::type>
-    {};
 }}
 
 #endif

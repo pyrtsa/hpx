@@ -243,10 +243,10 @@ namespace hpx { namespace components
 #define HPX_REGISTER_MINIMAL_COMPONENT_FACTORY_3(                             \
         ComponentType, componentname, state)                                  \
     HPX_REGISTER_COMPONENT_FACTORY(                                           \
-        hpx::components::component_factory<ComponentType>, componentname)     \
+        (hpx::components::component_factory<HPX_UTIL_STRIP(ComponentType)>), componentname)     \
     HPX_DEF_UNIQUE_COMPONENT_NAME(                                            \
-        hpx::components::component_factory<ComponentType>, componentname)     \
-    template struct hpx::components::component_factory<ComponentType>;        \
+        (hpx::components::component_factory<HPX_UTIL_STRIP(ComponentType)>), componentname)     \
+    template struct hpx::components::component_factory<HPX_UTIL_STRIP(ComponentType)>;        \
     HPX_REGISTER_MINIMAL_COMPONENT_REGISTRY_3(                                \
         ComponentType, componentname, state)                                  \
 /**/

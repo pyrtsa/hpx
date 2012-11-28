@@ -22,11 +22,6 @@ namespace hpx { namespace traits
     struct is_action
       : detail::has_action_tag<Action>
     {};
-
-    template <typename Action>
-    struct is_action<Action, typename Action::type>
-      : is_action<typename Action::type>
-    {};
 }}
 
 #endif

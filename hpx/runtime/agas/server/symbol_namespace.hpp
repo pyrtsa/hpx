@@ -198,20 +198,6 @@ struct HPX_EXPORT symbol_namespace :
       , error_code& ec = throws
         );
 
-    enum actions
-    { // {{{ action enum
-        // Actual actions
-        namespace_service            = symbol_ns_service
-      , namespace_bulk_service       = symbol_ns_bulk_service
-
-        // Pseudo-actions
-      , namespace_bind               = symbol_ns_bind
-      , namespace_resolve            = symbol_ns_resolve
-      , namespace_unbind             = symbol_ns_unbind
-      , namespace_iterate_names      = symbol_ns_iterate_names
-      , namespace_statistics_counter = symbol_ns_statistics_counter
-    }; // }}}
-
     HPX_DEFINE_COMPONENT_ACTION(symbol_namespace, remote_service, service_action);
     HPX_DEFINE_COMPONENT_ACTION(symbol_namespace, remote_bulk_service, bulk_service_action);
 

@@ -48,12 +48,16 @@ namespace hpx { namespace components { namespace server
     // serialization support instances
     template <typename Dummy = void>
     class console_logging_action
-      : public actions::plain_action1<messages_type const&,
-        console_logging, console_logging_action<Dummy> >
+      : public
+            HPX_MAKE_ACTION_DERIVED(
+                console_logging, console_logging_action<Dummy>
+            )::type
     {
     private:
-        typedef actions::plain_action1<
-            messages_type const&, console_logging, console_logging_action>
+        typedef typename
+            HPX_MAKE_ACTION_DERIVED(
+                console_logging, console_logging_action
+            )::type
         base_type;
 
     public:

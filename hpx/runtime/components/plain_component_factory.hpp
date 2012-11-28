@@ -208,22 +208,24 @@ namespace hpx { namespace components
         ::hpx::components::factory_check)                                     \
 /**/
 
-#define HPX_REGISTER_PLAIN_ACTION_3(action_type, plain_action_name, state)    \
-    BOOST_CLASS_EXPORT_KEY2(hpx::actions::transfer_action<action_type>,       \
-        BOOST_PP_STRINGIZE(plain_action_name))                                \
-    HPX_REGISTER_ACTION_2(action_type, plain_action_name)                     \
+#define HPX_REGISTER_PLAIN_ACTION_3(action, plain_action_name, state)         \
+    HPX_CLASS_EXPORT_KEY(                                                     \
+        (HPX_UTIL_STRIP(action)::, transfer_action_type),                     \
+        plain_action_name)                                                    \
+    HPX_REGISTER_ACTION_2(action, plain_action_name)                          \
     HPX_REGISTER_COMPONENT_FACTORY(                                           \
-        hpx::components::plain_component_factory<action_type>,                \
+        (hpx::components::plain_component_factory<HPX_UTIL_STRIP(action)>),   \
         plain_action_name)                                                    \
     HPX_DEF_UNIQUE_COMPONENT_NAME(                                            \
-        hpx::components::plain_component_factory<action_type>,                \
+        (hpx::components::plain_component_factory<HPX_UTIL_STRIP(action)>),   \
         plain_action_name)                                                    \
-    template struct hpx::components::plain_component_factory<action_type>;    \
+    template struct hpx::components::plain_component_factory<                 \
+            HPX_UTIL_STRIP(action)>;                                          \
     HPX_REGISTER_MINIMAL_COMPONENT_REGISTRY_3(                                \
-        hpx::components::server::plain_function<action_type>,                 \
+        (hpx::components::server::plain_function<HPX_UTIL_STRIP(action)>),    \
         plain_action_name, state)                                             \
     HPX_DEFINE_GET_COMPONENT_TYPE(                                            \
-        hpx::components::server::plain_function<action_type>)                 \
+        (hpx::components::server::plain_function<HPX_UTIL_STRIP(action)>))    \
 /**/
 
 /// \endcond

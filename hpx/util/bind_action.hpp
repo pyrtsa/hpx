@@ -122,7 +122,7 @@ namespace hpx { namespace util
         struct BOOST_PP_CAT(bound_action, N)
         {
             typedef typename traits::promise_local_result<
-                typename hpx::actions::extract_action<Action>::result_type
+                typename Action::result_type
             >::type result_type;
 
             // default constructor is needed for serialization
@@ -366,21 +366,21 @@ namespace hpx { namespace util
     }
 
     ///////////////////////////////////////////////////////////////////////////
-    template <typename Derived
+    template <typename F, F funcptr
       BOOST_PP_COMMA_IF(N) BOOST_PP_ENUM_PARAMS(N, typename A)
     >
     BOOST_PP_CAT(detail::bound_action, N)<
-        Derived
+      hpx::actions::action<F, funcptr>
       BOOST_PP_COMMA_IF(N) BOOST_PP_ENUM(N, HPX_UTIL_BIND_REMOVE_REFERENCE, A)
     >
     bind(
-        hpx::actions::action<Derived> /*act*/
+      hpx::actions::action<F, funcptr> /*act*/
       BOOST_PP_COMMA_IF(N) HPX_ENUM_FWD_ARGS(N, A, a)
     )
     {
         return
             BOOST_PP_CAT(detail::bound_action, N)<
-                Derived
+              hpx::actions::action<F, funcptr>
               BOOST_PP_COMMA_IF(N)
                   BOOST_PP_ENUM(N, HPX_UTIL_BIND_REMOVE_REFERENCE, A)
             > (HPX_ENUM_FORWARD_ARGS(N, A, a));

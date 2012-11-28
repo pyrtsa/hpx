@@ -93,14 +93,15 @@ namespace hpx { namespace components
 /**/
 #define HPX_REGISTER_MINIMAL_COMPONENT_REGISTRY_3(                            \
         ComponentType, componentname, state)                                  \
-    typedef hpx::components::component_registry<ComponentType, state>         \
+    typedef hpx::components::component_registry<                              \
+        HPX_UTIL_STRIP(ComponentType), state>                                 \
         componentname ## _component_registry_type;                            \
     HPX_REGISTER_COMPONENT_REGISTRY(                                          \
         componentname ## _component_registry_type, componentname)             \
     HPX_DEF_UNIQUE_COMPONENT_NAME(                                            \
         componentname ## _component_registry_type, componentname)             \
     template struct hpx::components::component_registry<                      \
-        ComponentType, state>;                                                \
+        HPX_UTIL_STRIP(ComponentType), state>;                                \
 /**/
 
 #endif

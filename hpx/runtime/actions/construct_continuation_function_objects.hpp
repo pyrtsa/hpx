@@ -23,10 +23,10 @@
 
 namespace detail
 {
-    template <typename Action, int N>
+    template <typename F, F funcptr, int N>
     struct construct_continuation_thread_function_voidN;
 
-    template <typename Action, int N>
+    template <typename F, F funcptr, int N>
     struct construct_continuation_thread_functionN;
 }
 
@@ -78,7 +78,7 @@ namespace detail
     /// original function (given by \a func), and afterwards triggers all
     /// continuations using the result value obtained from the execution
     /// of the original thread function.
-    template <typename Action>
+    template <typename F, F funcptr>
     struct BOOST_PP_CAT(continuation_thread_function_void_, N)
     {
         typedef threads::thread_state_enum result_type;
@@ -91,7 +91,7 @@ namespace detail
         {
             try {
                 LTM_(debug) << "Executing action("
-                    << detail::get_action_name<Action>()
+                    << detail::get_action_name<F, funcptr>()
                     << ") with continuation(" << cont->get_gid() << ")";
 
                 // The arguments are moved here. This function is called from a
@@ -112,8 +112,8 @@ namespace detail
     /// The \a construct_continuation_thread_function is a helper function
     /// for constructing the wrapped thread function needed for
     /// continuation support
-    template <typename Action>
-    struct construct_continuation_thread_function_voidN<Action, N>
+    template <typename F, F funcptr>
+    struct construct_continuation_thread_function_voidN<F, funcptr, N>
     {
         template <typename Func, typename Arguments>
         static HPX_STD_FUNCTION<threads::thread_function_type>
@@ -121,7 +121,7 @@ namespace detail
             BOOST_FWD_REF(Arguments) args)
         {
             return HPX_STD_BIND(
-                BOOST_PP_CAT(continuation_thread_function_void_, N)<Action>(),
+                BOOST_PP_CAT(continuation_thread_function_void_, N)<F, funcptr>(),
                 cont, boost::forward<Func>(func)
               BOOST_PP_COMMA_IF(N)
                     BOOST_PP_REPEAT(N, HPX_ACTION_DIRECT_ARGUMENT, args));
@@ -129,7 +129,7 @@ namespace detail
     };
 
     ///////////////////////////////////////////////////////////////////////////
-    template <typename Action>
+    template <typename F, F funcptr>
     struct BOOST_PP_CAT(continuation_thread_function_, N)
     {
         typedef threads::thread_state_enum result_type;
@@ -142,7 +142,7 @@ namespace detail
         {
             try {
                 LTM_(debug) << "Executing action("
-                    << detail::get_action_name<Action>()
+                    << detail::get_action_name<F, funcptr>()
                     << ") with continuation(" << cont->get_gid() << ")";
 
                 // The arguments are moved here. This function is called from a
@@ -161,8 +161,8 @@ namespace detail
         }
     };
 
-    template <typename Action>
-    struct construct_continuation_thread_functionN<Action, N>
+    template <typename F, F funcptr>
+    struct construct_continuation_thread_functionN<F, funcptr, N>
     {
         template <typename Func, typename Arguments>
         static HPX_STD_FUNCTION<threads::thread_function_type>
@@ -170,7 +170,7 @@ namespace detail
             BOOST_FWD_REF(Arguments) args)
         {
             return HPX_STD_BIND(
-                BOOST_PP_CAT(continuation_thread_function_, N)<Action>(),
+                BOOST_PP_CAT(continuation_thread_function_, N)<F, funcptr>(),
                 cont, boost::forward<Func>(func)
               BOOST_PP_COMMA_IF(N)
                     BOOST_PP_REPEAT(N, HPX_ACTION_DIRECT_ARGUMENT, args));

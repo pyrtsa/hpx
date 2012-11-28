@@ -55,11 +55,10 @@ namespace hpx { namespace lcos
     ///////////////////////////////////////////////////////////////////////////
     template <typename Action, typename Result>
     class packaged_action<Action, Result, boost::mpl::false_>
-      : public promise<Result,
-            typename hpx::actions::extract_action<Action>::result_type>
+      : public promise<Result, typename Action::result_type>
     {
     private:
-        typedef typename hpx::actions::extract_action<Action>::type action_type;
+        typedef Action action_type;
         typedef promise<Result, typename action_type::result_type> base_type;
         typedef typename base_type::completed_callback_type
             completed_callback_type;
@@ -74,7 +73,7 @@ namespace hpx { namespace lcos
           : apply_logger_("packaged_action")
         {
             LLCO_(info) << "packaged_action::packaged_action("
-                        << hpx::actions::detail::get_action_name<action_type>()
+                        << hpx::actions::detail::get_action_name<Action>()
                         << ") args(0)";
         }
 
@@ -83,7 +82,7 @@ namespace hpx { namespace lcos
             apply_logger_("packaged_action")
         {
             LLCO_(info) << "packaged_action::packaged_action("
-                        << hpx::actions::detail::get_action_name<action_type>()
+                        << hpx::actions::detail::get_action_name<Action>()
                         << ") args(0)";
         }
 
@@ -95,13 +94,13 @@ namespace hpx { namespace lcos
         void apply(naming::id_type const& gid)
         {
             util::block_profiler_wrapper<profiler_tag> bp(apply_logger_);
-            hpx::apply_c<action_type>(this->get_gid(), gid);
+            hpx::apply_c<Action>(this->get_gid(), gid);
         }
 
         void apply_p(naming::id_type const& gid, threads::thread_priority priority)
         {
             util::block_profiler_wrapper<profiler_tag> bp(apply_logger_);
-            hpx::apply_c_p<action_type>(this->get_gid(), gid, priority);
+            hpx::apply_c_p<Action>(this->get_gid(), gid, priority);
         }
 
         /// Construct a new \a packaged_action instance. The \a thread
@@ -123,7 +122,7 @@ namespace hpx { namespace lcos
           : apply_logger_("packaged_action::apply")
         {
             LLCO_(info) << "packaged_action::packaged_action("
-                        << hpx::actions::detail::get_action_name<action_type>()
+                        << hpx::actions::detail::get_action_name<Action>()
                         << ", "
                         << gid
                         << ") args(0)";
@@ -136,7 +135,7 @@ namespace hpx { namespace lcos
             apply_logger_("packaged_action::apply")
         {
             LLCO_(info) << "packaged_action::packaged_action("
-                        << hpx::actions::detail::get_action_name<action_type>()
+                        << hpx::actions::detail::get_action_name<Action>()
                         << ", "
                         << gid
                         << ") args(0)";
@@ -148,7 +147,7 @@ namespace hpx { namespace lcos
           : apply_logger_("packaged_action::apply")
         {
             LLCO_(info) << "packaged_action::packaged_action("
-                        << hpx::actions::detail::get_action_name<action_type>()
+                        << hpx::actions::detail::get_action_name<Action>()
                         << ", "
                         << gid
                         << ") args(0)";
@@ -162,7 +161,7 @@ namespace hpx { namespace lcos
             apply_logger_("packaged_action::apply")
         {
             LLCO_(info) << "packaged_action::packaged_action("
-                        << hpx::actions::detail::get_action_name<action_type>()
+                        << hpx::actions::detail::get_action_name<Action>()
                         << ", "
                         << gid
                         << ") args(0)";
@@ -180,7 +179,7 @@ namespace hpx { namespace lcos
         void apply(naming::id_type const& gid, BOOST_FWD_REF(Arg0) arg0)
         {
             util::block_profiler_wrapper<profiler_tag> bp(apply_logger_);
-            hpx::apply_c<action_type>(this->get_gid(), gid,
+            hpx::apply_c<Action>(this->get_gid(), gid,
                 boost::forward<Arg0>(arg0));
         }
 
@@ -189,7 +188,7 @@ namespace hpx { namespace lcos
             threads::thread_priority priority, BOOST_FWD_REF(Arg0) arg0)
         {
             util::block_profiler_wrapper<profiler_tag> bp(apply_logger_);
-            hpx::apply_c_p<action_type>(
+            hpx::apply_c_p<Action>(
                 this->get_gid(), gid, priority, boost::forward<Arg0>(arg0));
         }
 
@@ -216,7 +215,7 @@ namespace hpx { namespace lcos
           : apply_logger_("packaged_action::apply")
         {
             LLCO_(info) << "packaged_action::packaged_action("
-                        << hpx::actions::detail::get_action_name<action_type>()
+                        << hpx::actions::detail::get_action_name<Action>()
                         << ", "
                         << gid
                         << ") args(1)";
@@ -231,7 +230,7 @@ namespace hpx { namespace lcos
             apply_logger_("packaged_action::apply")
         {
             LLCO_(info) << "packaged_action::packaged_action("
-                        << hpx::actions::detail::get_action_name<action_type>()
+                        << hpx::actions::detail::get_action_name<Action>()
                         << ", "
                         << gid
                         << ") args(1)";
@@ -245,7 +244,7 @@ namespace hpx { namespace lcos
           : apply_logger_("packaged_action::apply")
         {
             LLCO_(info) << "packaged_action::packaged_action("
-                        << hpx::actions::detail::get_action_name<action_type>()
+                        << hpx::actions::detail::get_action_name<Action>()
                         << ", "
                         << gid
                         << ") args(1)";
@@ -261,7 +260,7 @@ namespace hpx { namespace lcos
             apply_logger_("packaged_action::apply")
         {
             LLCO_(info) << "packaged_action::packaged_action("
-                        << hpx::actions::detail::get_action_name<action_type>()
+                        << hpx::actions::detail::get_action_name<Action>()
                         << ", "
                         << gid
                         << ") args(1)";
@@ -277,11 +276,10 @@ namespace hpx { namespace lcos
     ///////////////////////////////////////////////////////////////////////////
     template <typename Action, typename Result>
     class packaged_action<Action, Result, boost::mpl::true_>
-      : public promise<Result,
-          typename hpx::actions::extract_action<Action>::result_type>
+      : public promise<Result, typename Action::result_type>
     {
     private:
-        typedef typename hpx::actions::extract_action<Action>::type action_type;
+        typedef Action action_type;
         typedef promise<Result, typename action_type::result_type> base_type;
         typedef typename base_type::completed_callback_type
             completed_callback_type;
@@ -296,7 +294,7 @@ namespace hpx { namespace lcos
           : apply_logger_("packaged_action_direct::apply")
         {
             LLCO_(info) << "packaged_action::packaged_action("
-                        << hpx::actions::detail::get_action_name<action_type>()
+                        << hpx::actions::detail::get_action_name<Action>()
                         << ") args(0)";
         }
 
@@ -305,7 +303,7 @@ namespace hpx { namespace lcos
             apply_logger_("packaged_action_direct::apply")
         {
             LLCO_(info) << "packaged_action::packaged_action("
-                        << hpx::actions::detail::get_action_name<action_type>()
+                        << hpx::actions::detail::get_action_name<Action>()
                         << ") args(0)";
         }
 
@@ -335,7 +333,7 @@ namespace hpx { namespace lcos
             }
             else {
                 // remote execution
-                hpx::applier::detail::apply_c<action_type>(addr,
+                hpx::applier::detail::apply_c<Action>(addr,
                     this->get_gid(), gid);
             }
         }
@@ -359,7 +357,7 @@ namespace hpx { namespace lcos
           : apply_logger_("packaged_action_direct::apply")
         {
             LLCO_(info) << "packaged_action::packaged_action("
-                        << hpx::actions::detail::get_action_name<action_type>()
+                        << hpx::actions::detail::get_action_name<Action>()
                         << ", "
                         << gid
                         << ") args(0)";
@@ -371,7 +369,7 @@ namespace hpx { namespace lcos
             apply_logger_("packaged_action_direct::apply")
         {
             LLCO_(info) << "packaged_action::packaged_action("
-                        << hpx::actions::detail::get_action_name<action_type>()
+                        << hpx::actions::detail::get_action_name<Action>()
                         << ", "
                         << gid
                         << ") args(0)";
@@ -404,7 +402,7 @@ namespace hpx { namespace lcos
             }
             else {
                 // remote execution
-                hpx::applier::detail::apply_c<action_type>(addr,
+                hpx::applier::detail::apply_c<Action>(addr,
                     this->get_gid(), gid, boost::forward<Arg0>(arg0));
             }
         }
@@ -432,7 +430,7 @@ namespace hpx { namespace lcos
           : apply_logger_("packaged_action_direct::apply")
         {
             LLCO_(info) << "packaged_action::packaged_action("
-                        << hpx::actions::detail::get_action_name<action_type>()
+                        << hpx::actions::detail::get_action_name<Action>()
                         << ", "
                         << gid
                         << ") args(1)";
@@ -446,7 +444,7 @@ namespace hpx { namespace lcos
             apply_logger_("packaged_action_direct::apply")
         {
             LLCO_(info) << "packaged_action::packaged_action("
-                        << hpx::actions::detail::get_action_name<action_type>()
+                        << hpx::actions::detail::get_action_name<Action>()
                         << ", "
                         << gid
                         << ") args(1)";
