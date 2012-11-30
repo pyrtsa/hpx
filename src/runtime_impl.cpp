@@ -23,6 +23,7 @@
 #include <hpx/runtime/components/console_error_sink.hpp>
 #include <hpx/runtime/components/server/console_error_sink.hpp>
 #include <hpx/runtime/components/runtime_support.hpp>
+#include <hpx/runtime/parcelset/tcp/parcelport.hpp>
 #include <hpx/runtime/parcelset/policies/global_parcelhandler_queue.hpp>
 #include <hpx/runtime/threads/threadmanager_impl.hpp>
 #include <hpx/include/performance_counters.hpp>
@@ -110,7 +111,7 @@ namespace hpx {
         timer_pool_(rtcfg.get_thread_pool_size("timer_pool"),
             boost::bind(&runtime_impl::init_tss, This(), "timer-thread", ::_1),
             boost::bind(&runtime_impl::deinit_tss, This()), "timer_pool"),
-        parcel_port_(boost::make_shared<parcelset::parcelport>(parcel_pool_, ini_)),
+        parcel_port_(boost::make_shared<parcelset::tcp::parcelport>(parcel_pool_, ini_)),
         scheduler_(init),
         notifier_(boost::bind(&runtime_impl::init_tss, This(), "worker-thread", ::_1),
             boost::bind(&runtime_impl::deinit_tss, This()),
@@ -178,12 +179,12 @@ namespace hpx {
 
         // Finish the bootstrap
         if (!hpx::pre_main(mode_)) {
-            LBT_(info) << "(3rd stage) runtime_impl::run_helper: bootstrap "
+            LBT_(info) << "runtime_impl::run_helper: bootstrap "
                           "aborted, bailing out";
             return threads::thread_state(threads::terminated);
         }
 
-        LBT_(info) << "(3rd stage) runtime_impl::run_helper: bootstrap complete";
+        LBT_(info) << "(4th stage) runtime_impl::run_helper: bootstrap complete";
         state_ = state_running;
 
         // Now, execute the user supplied thread function (hpx_main)
@@ -235,7 +236,7 @@ namespace hpx {
         LBT_(info) << "(1st stage) runtime_impl::start: started threadmanager";
         // }}}
 
-        // invoke the AGAS v2 notifications, waking up the other localities
+        // invoke the AGAS v2 notifications
         agas::get_big_boot_barrier().trigger();
 
         // {{{ launch main
