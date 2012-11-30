@@ -73,7 +73,7 @@ namespace hpx { namespace components
         }
 
         try {
-            hpx::apply<server::console_logging_action<> >(prefix, msgs);
+            hpx::apply<server::console_logging_action>(prefix, msgs);
         }
         catch (hpx::exception const& e) {
             // if this is not the console locality (or any other error occurs)

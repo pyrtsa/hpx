@@ -64,8 +64,8 @@ namespace hpx { namespace actions
     template <
         typename Result,
         BOOST_PP_ENUM_PARAMS(N, typename T),
-        void (*funcptr)(BOOST_PP_ENUM_PARAMS(N, T))>
-    class action_impl<Result (*)(BOOST_PP_ENUM_PARAMS(N, T)), funcptr>
+        Result (*funcptr)(BOOST_PP_ENUM_PARAMS(N, T))>
+    struct action_impl<Result (*)(BOOST_PP_ENUM_PARAMS(N, T)), funcptr>
     {
     public:
         typedef Result (*funcptr_type)(BOOST_PP_ENUM_PARAMS(N, T));
@@ -91,7 +91,7 @@ namespace hpx { namespace actions
             {
                 try {
                     LTM_(debug) << "Executing plain action("
-                                << detail::get_action_name<funcptr_type, funcptr>()
+                                << detail::get_action_name<action<funcptr_type, funcptr> >()
                                 << ").";
 
                     // The arguments are moved here. This function is called from a
@@ -106,7 +106,7 @@ namespace hpx { namespace actions
                     if (e.get_error() != hpx::thread_interrupted) {
                         LTM_(error)
                             << "Unhandled exception while executing plain action("
-                            << detail::get_action_name<funcptr_type, funcptr>()
+                            << detail::get_action_name<action<funcptr_type, funcptr> >()
                             << "): " << e.what();
 
                         // report this error to the console in any case
@@ -159,7 +159,7 @@ namespace hpx { namespace actions
             LTM_(debug)
                 << "plain_direct_result_action" << N
                 << "::execute_function name("
-                << detail::get_action_name<funcptr_type, funcptr>() << ")";
+                << detail::get_action_name<action<funcptr_type, funcptr> >() << ")";
 
             return funcptr(BOOST_PP_REPEAT(N, HPX_ACTION_DIRECT_ARGUMENT, args));
         }
@@ -170,7 +170,7 @@ namespace hpx { namespace actions
     template <
         BOOST_PP_ENUM_PARAMS(N, typename T),
         void (*funcptr)(BOOST_PP_ENUM_PARAMS(N, T))>
-    class action_impl<void (*)(BOOST_PP_ENUM_PARAMS(N, T)), funcptr>
+    struct action_impl<void (*)(BOOST_PP_ENUM_PARAMS(N, T)), funcptr>
     {
     public:
         typedef void (*funcptr_type)(BOOST_PP_ENUM_PARAMS(N, T));
@@ -196,7 +196,7 @@ namespace hpx { namespace actions
             {
                 try {
                     LTM_(debug) << "Executing plain action("
-                                << detail::get_action_name<funcptr_type, funcptr>()
+                                << detail::get_action_name<action<funcptr_type, funcptr> >()
                                 << ").";
 
                     // The arguments are moved here. This function is called from a
@@ -211,7 +211,7 @@ namespace hpx { namespace actions
                     if (e.get_error() != hpx::thread_interrupted) {
                         LTM_(error)
                             << "Unhandled exception while executing plain action("
-                            << detail::get_action_name<funcptr_type, funcptr>()
+                            << detail::get_action_name<action<funcptr_type, funcptr> >()
                             << "): " << e.what();
 
                         // report this error to the console in any case
@@ -264,7 +264,7 @@ namespace hpx { namespace actions
             LTM_(debug)
                 << "plain_direct_action" << N
                 << "::execute_function name("
-                << detail::get_action_name<funcptr_type, funcptr>() << ")";
+                << detail::get_action_name<action<funcptr_type, funcptr> >() << ")";
 
             funcptr(BOOST_PP_REPEAT(N, HPX_ACTION_DIRECT_ARGUMENT, args));
             return util::unused;

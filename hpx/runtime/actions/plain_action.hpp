@@ -44,7 +44,7 @@ namespace hpx { namespace actions
 
     // zero argument version
     template <typename Result, Result (*funcptr)()>
-    class action_impl<Result (*)(), funcptr>
+    struct action_impl<Result (*)(), funcptr>
     {
     public:
         typedef Result (*funcptr_type)();
@@ -136,7 +136,7 @@ namespace hpx { namespace actions
     ///////////////////////////////////////////////////////////////////////////
     //  zero parameter version, no result value
     template <void(*funcptr)()>
-    class action_impl<void (*)(), funcptr>
+    struct action_impl<void (*)(), funcptr>
     {
     public:
         typedef void (*funcptr_type)();
@@ -157,7 +157,7 @@ namespace hpx { namespace actions
         {
             try {
                 LTM_(debug) << "Executing plain action("
-                            << detail::get_action_name<funcptr_type, funcptr>()
+                            << detail::get_action_name<action<funcptr_type, funcptr> >()
                             << ").";
                 funcptr();      // call the function, ignoring the return value
             }
@@ -165,7 +165,7 @@ namespace hpx { namespace actions
                 if (e.get_error() != hpx::thread_interrupted) {
                     LTM_(error)
                         << "Unhandled exception while executing plain action("
-                        << detail::get_action_name<funcptr_type, funcptr>()
+                        << detail::get_action_name<action<funcptr_type, funcptr> >()
                         << "): " << e.what();
 
                     // report this error to the console in any case
@@ -218,8 +218,8 @@ namespace hpx { namespace actions
             BOOST_FWD_REF(Arguments) /*args*/)
         {
             LTM_(debug)
-                << "plain_direct_action0::execute_function: name("
-                << detail::get_action_name<funcptr_type, funcptr>()
+                << "action_impl::execute_function: name("
+                << detail::get_action_name<action<funcptr_type, funcptr> >()
                 << ")";
             funcptr();
             return util::unused;
@@ -316,7 +316,7 @@ namespace hpx { namespace traits
 /// the macro \a HPX_PLAIN_ACTION is recommend.
 ///
 #define HPX_DEFINE_PLAIN_ACTION(func, name)                                   \
-    typedef HPX_MAKE_ACTION((func)) name                                      \
+    typedef HPX_MAKE_ACTION(func) name                                        \
     /**/
 
 /// \def HPX_PLAIN_ACTION(func, name)
@@ -375,15 +375,16 @@ namespace hpx { namespace traits
 /**/
 #define HPX_PLAIN_ACTION_1(func)                                              \
     HPX_DEFINE_PLAIN_ACTION(func, BOOST_PP_CAT(func, _action));               \
-    HPX_REGISTER_PLAIN_ACTION_1(func, BOOST_PP_CAT(func, _action))            \
+    HPX_REGISTER_PLAIN_ACTION_2(                                              \
+        BOOST_PP_CAT(func, _action), BOOST_PP_CAT(func, _action))             \
 /**/
 #define HPX_PLAIN_ACTION_2(func, name)                                        \
     HPX_DEFINE_PLAIN_ACTION(func, name);                                      \
-    HPX_REGISTER_PLAIN_ACTION_1(func)                                         \
+    HPX_REGISTER_PLAIN_ACTION_2(name, name)                                   \
 /**/
 #define HPX_PLAIN_ACTION_3(func, name, state)                                 \
     HPX_DEFINE_PLAIN_ACTION(func, name);                                      \
-    HPX_REGISTER_PLAIN_ACTION_3(func, name, state)                            \
+    HPX_REGISTER_PLAIN_ACTION_3(name, name, state)                            \
 /**/
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -395,9 +396,7 @@ namespace hpx { namespace traits
     namespace hpx { namespace actions { namespace detail {                    \
         template <>                                                           \
         HPX_ALWAYS_EXPORT const char *                                        \
-        get_action_name<                                                      \
-            HPX_MAKE_FUNCTION_TYPE_1(f),                                      \
-            HPX_MAKE_FUNCTION_PTR_1(f)>();                                    \
+        get_action_name<HPX_UTIL_STRIP(plain_action)>();                      \
     }}}                                                                       \
 /**/
 

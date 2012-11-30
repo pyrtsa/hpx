@@ -42,10 +42,12 @@ namespace hpx { namespace components { namespace server
     ///////////////////////////////////////////////////////////////////////////
     // console logging happens here
     void console_logging(messages_type const&);
+    HPX_DEFINE_PLAIN_ACTION(console_logging, console_logging_action);
 
     ///////////////////////////////////////////////////////////////////////////
     // this type is a dummy template to avoid premature instantiation of the
     // serialization support instances
+#if 0
     template <typename Dummy = void>
     class console_logging_action
       : public
@@ -81,21 +83,6 @@ namespace hpx { namespace components { namespace server
         }
 
     public:
-        template <typename Arguments>
-        static util::unused_type
-        execute_function(naming::address::address_type lva,
-            BOOST_FWD_REF(Arguments) args)
-        {
-            try {
-                // call the function, ignoring the return value
-                console_logging(
-                    boost::move(boost::fusion::at_c<0>(args)));
-            }
-            catch (hpx::exception const& /*e*/) {
-                /**/;      // no logging!
-            }
-            return util::unused;
-        }
 
     private:
         // serialization support
@@ -107,39 +94,71 @@ namespace hpx { namespace components { namespace server
             ar & boost::serialization::base_object<base_type>(*this);
         }
     };
-}}}
-
-namespace hpx { namespace actions { namespace detail {
-    template <typename Dummy>
-    struct action_traits<hpx::components::server::console_logging_action<Dummy> >
-    {
-        typedef
-            hpx::components::server::console_logging_action<Dummy>
-            derived_type;
-        typedef
-            components::server::plain_function<derived_type>
-            component_type;
-            typedef hpx::util::unused_type result_type;
-            typedef
-                hpx::util::tuple1<hpx::components::messages_type>
-                arguments_type;
-            typedef action<derived_type> base_type;
-    };
+#endif
 }}}
 
 HPX_ACTION_DIRECT_EXECUTION(
-    hpx::components::server::console_logging_action<>
+    hpx::components::server::console_logging_action
 )
+
+namespace hpx { namespace actions {
+    template <>
+    struct action_impl<
+        HPX_MAKE_FUNCTION_TYPE(hpx::components::server::console_logging),
+        HPX_MAKE_FUNCTION_PTR(hpx::components::server::console_logging)
+    >
+    {
+        typedef void (*funcptr_type)(hpx::components::messages_type const &);
+        typedef hpx::util::unused_type result_type;
+        typedef
+            components::server::plain_function<hpx::components::server::console_logging_action>
+            component_type;
+        typedef hpx::util::tuple1<hpx::components::messages_type> arguments_type;
+
+        template <typename Arguments>
+        static util::unused_type
+        execute_function(naming::address::address_type lva,
+            BOOST_FWD_REF(Arguments) args)
+        {
+            try {
+                // call the function, ignoring the return value
+                hpx::components::server::console_logging(
+                    boost::move(boost::fusion::at_c<0>(args)));
+            }
+            catch (hpx::exception const& /*e*/) {
+                /**/;      // no logging!
+            }
+            return util::unused;
+        }
+        
+        template <typename Arguments>
+        static HPX_STD_FUNCTION<threads::thread_function_type>
+        construct_thread_function(naming::address::address_type lva,
+            BOOST_FWD_REF(Arguments) /*args*/)
+        {
+            BOOST_ASSERT(false);
+            return HPX_STD_FUNCTION<threads::thread_function_type>();
+        }
+        
+        template <typename Arguments>
+        static HPX_STD_FUNCTION<threads::thread_function_type>
+        construct_thread_function(continuation_type& cont,
+            naming::address::address_type lva, BOOST_FWD_REF(Arguments) args)
+        {
+            BOOST_ASSERT(false);
+            return HPX_STD_FUNCTION<threads::thread_function_type>();
+        }
+    };
+}}
+
 HPX_REGISTER_PLAIN_ACTION_DECLARATION(
-    hpx::components::server::console_logging_action<>
+    hpx::components::server::console_logging_action
 )
 
 namespace hpx { namespace traits
 {
-    template <typename Dummy>
-    struct needs_guid_initialization<
-            hpx::actions::transfer_action<
-                hpx::components::server::console_logging_action<Dummy> > >
+    template <>
+    struct needs_guid_initialization<hpx::components::server::console_logging_action::transfer_action_type >
       : boost::mpl::false_
     {};
 }}

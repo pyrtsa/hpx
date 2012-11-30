@@ -315,7 +315,7 @@ void register_console(registration_header const& header)
             static_cast<void*>(&agas_client.bootstrap->symbol_ns_server));
 
     actions::base_action* p =
-        new actions::transfer_action<notify_console_action>(
+        new notify_console_action::transfer_action_type(
             notification_header(
                 prefix, header.response_heap_address, header.response_heap_ptr,
                 heap_lower, heap_upper, parcel_lower, parcel_upper,
@@ -469,7 +469,7 @@ void register_worker(registration_header const& header)
             static_cast<void*>(&agas_client.bootstrap->symbol_ns_server));
 
     actions::base_action* p =
-        new actions::transfer_action<notify_console_action>(
+        new notify_console_action::transfer_action_type(
             notification_header(
                 prefix, header.response_heap_address, header.response_heap_ptr,
                 heap_lower, heap_upper, parcel_lower, parcel_upper,
@@ -620,7 +620,7 @@ void big_boot_barrier::wait()
             // be woken up by notify_console.
 
             apply(0, bootstrap_agas,
-                new actions::transfer_action<register_console_action>(
+                new register_console_action::transfer_action_type(
                     registration_header
                         (get_runtime().here(),
                          HPX_INITIAL_GID_RANGE,
@@ -640,7 +640,7 @@ void big_boot_barrier::wait()
             // for it to signal us.
 
             apply(0, bootstrap_agas,
-                new actions::transfer_action<register_worker_action>(
+                new register_worker_action::transfer_action_type(
                     registration_header
                         (get_runtime().here(),
                          HPX_INITIAL_GID_RANGE,

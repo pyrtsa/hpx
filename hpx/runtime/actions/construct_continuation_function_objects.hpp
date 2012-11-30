@@ -91,7 +91,7 @@ namespace detail
         {
             try {
                 LTM_(debug) << "Executing action("
-                    << detail::get_action_name<F, funcptr>()
+                    << detail::get_action_name<action<F, funcptr> >()
                     << ") with continuation(" << cont->get_gid() << ")";
 
                 // The arguments are moved here. This function is called from a
@@ -142,7 +142,7 @@ namespace detail
         {
             try {
                 LTM_(debug) << "Executing action("
-                    << detail::get_action_name<F, funcptr>()
+                    << detail::get_action_name<action<F, funcptr> >()
                     << ") with continuation(" << cont->get_gid() << ")";
 
                 // The arguments are moved here. This function is called from a

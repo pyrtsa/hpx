@@ -360,9 +360,9 @@ namespace hpx { namespace actions
 
 #define HPX_REGISTER_ACTION_2(action, actionname)                             \
     HPX_ACTION_EXPORT_IMPLEMENT(                                              \
-        (HPX_UTIL_STRIP(action)::, transfer_action_type))                     \
+        (HPX_UTIL_STRIP(action):: transfer_action_type))                      \
     HPX_REGISTER_BASE_HELPER(                                                 \
-        (HPX_UTIL_STRIP(action)::, transfer_action_type), actionname)         \
+        (HPX_UTIL_STRIP(action):: transfer_action_type), actionname)          \
     HPX_DEFINE_GET_ACTION_NAME_(action, actionname)                           \
 /**/
 
@@ -475,8 +475,8 @@ namespace hpx { namespace actions
 #define HPX_ACTION_USES_STACK(action, size)                                   \
     namespace hpx { namespace traits                                          \
     {                                                                         \
-        template <typename Enable>                                            \
-        struct action_stacksize<action, Enable>                               \
+        template <>                                                           \
+        struct action_stacksize<action>                                       \
         {                                                                     \
             enum { value = size };                                            \
         };                                                                    \
@@ -500,8 +500,8 @@ namespace hpx { namespace actions
 #define HPX_ACTION_HAS_PRIORITY(action, priority)                             \
     namespace hpx { namespace traits                                          \
     {                                                                         \
-        template <typename Enable>                                            \
-        struct action_priority<action, Enable>                                \
+        template <>                                                           \
+        struct action_priority<action>                                        \
         {                                                                     \
             enum { value = priority };                                        \
         };                                                                    \
@@ -522,8 +522,8 @@ namespace hpx { namespace actions
 #define HPX_ACTION_DIRECT_EXECUTION(action)                                   \
     namespace hpx { namespace traits                                          \
     {                                                                         \
-        template <typename Enable>                                            \
-        struct direct_action<action, Enable>                                  \
+        template <>                                                           \
+        struct direct_action<action>                                          \
             : boost::mpl::true_                                               \
         {};                                                                   \
     }}                                                                        \

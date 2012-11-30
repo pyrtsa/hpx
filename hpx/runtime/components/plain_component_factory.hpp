@@ -210,7 +210,7 @@ namespace hpx { namespace components
 
 #define HPX_REGISTER_PLAIN_ACTION_3(action, plain_action_name, state)         \
     HPX_CLASS_EXPORT_KEY(                                                     \
-        (HPX_UTIL_STRIP(action)::, transfer_action_type),                     \
+        (HPX_UTIL_STRIP(action):: transfer_action_type),                      \
         plain_action_name)                                                    \
     HPX_REGISTER_ACTION_2(action, plain_action_name)                          \
     HPX_REGISTER_COMPONENT_FACTORY(                                           \
