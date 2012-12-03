@@ -209,13 +209,103 @@ namespace hpx { namespace actions
         Result (Component::*funcptr)(BOOST_PP_ENUM_PARAMS(N, T)) const>
     struct action_impl<
         Result (Component::*)(BOOST_PP_ENUM_PARAMS(N, T)) const, funcptr>
-      : action_impl<Result (Component::*)(BOOST_PP_ENUM_PARAMS(N, T)), funcptr>
     {
         typedef Result (Component::*funcptr_type)(BOOST_PP_ENUM_PARAMS(N, T)) const;
         typedef Component const component_type;
         typedef Result result_type;
         typedef BOOST_PP_CAT(hpx::util::tuple, N)<
             BOOST_PP_REPEAT(N, HPX_REMOVE_QUALIFIERS, _)> arguments_type;
+
+    protected:
+        /// The \a thread_function will be registered as the thread
+        /// function of a thread. It encapsulates the execution of the
+        /// original function (given by \a func).
+        struct thread_function
+        {
+            typedef threads::thread_state_enum result_type;
+
+            template <BOOST_PP_ENUM_PARAMS(N, typename Arg)>
+            BOOST_FORCEINLINE result_type operator()(
+                naming::address::address_type lva,
+                HPX_ENUM_FWD_ARGS(N, Arg, arg)) const
+            {
+                try {
+                    LTM_(debug) << "Executing component action("
+                                << detail::get_action_name<action_type>()
+                                << ") lva(" << reinterpret_cast<void const*>
+                                    (get_lva<component_type>::call(lva)) << ")";
+                    // The arguments are moved here. This function is called from a
+                    // bound functor. In order to do true perfect forwarding in an
+                    // asynchronous operation. These bound variables must be moved
+                    // out of the bound object.
+                    (get_lva<component_type>::call(lva)->*funcptr)(
+                        HPX_ENUM_MOVE_ARGS(N, arg));
+                }
+                catch (hpx::exception const& e) {
+                    if (e.get_error() != hpx::thread_interrupted) {
+                        LTM_(error)
+                            << "Unhandled exception while executing component action("
+                            << detail::get_action_name<action_type>()
+                            << ") lva(" << reinterpret_cast<void const*>
+                                (get_lva<component_type>::call(lva)) << "): " << e.what();
+
+                        // report this error to the console in any case
+                        hpx::report_error(boost::current_exception());
+                    }
+                }
+
+                // Verify that there are no more registered locks for this
+                // OS-thread. This will throw if there are still any locks
+                // held.
+                util::force_error_on_lock();
+                return threads::terminated;
+            }
+        };
+
+    public:
+        // This static construct_thread_function allows to construct
+        // a proper thread function for a thread without having to
+        // instantiate the base_result_actionN type. This is used by the
+        // applier in case no continuation has been supplied.
+        template <typename Arguments>
+        static HPX_STD_FUNCTION<threads::thread_function_type>
+        construct_thread_function(naming::address::address_type lva,
+            BOOST_FWD_REF(Arguments) args)
+        {
+            return boost::move(decorate_action<funcptr_type, funcptr>::call(
+                HPX_STD_BIND(thread_function(),
+                    lva, BOOST_PP_REPEAT(N, HPX_ACTION_DIRECT_ARGUMENT, args)), lva));
+        }
+
+        // This static construct_thread_function allows to construct
+        // a proper thread function for a thread without having to
+        // instantiate the base_result_actionN type. This is used by the
+        // applier in case a continuation has been supplied
+        template <typename Arguments>
+        static HPX_STD_FUNCTION<threads::thread_function_type>
+        construct_thread_function(continuation_type& cont,
+            naming::address::address_type lva, BOOST_FWD_REF(Arguments) args)
+        {
+            return boost::move(decorate_action<funcptr_type, funcptr>::call(
+                    action<funcptr_type, funcptr>::construct_continuation_thread_object_function(
+                        cont, funcptr, get_lva<component_type>::call(lva),
+                        boost::forward<Arguments>(args)), lva));
+        }
+
+        template <typename Arguments>
+        BOOST_FORCEINLINE static result_type
+        execute_function(naming::address::address_type lva,
+            BOOST_FWD_REF(Arguments) args)
+        {
+            LTM_(debug)
+                << "action_impl::execute_function name("
+                << detail::get_action_name<action_type>()
+                << ") lva(" << reinterpret_cast<void const*>(
+                    get_lva<component_type>::call(lva)) << ")";
+
+            return (get_lva<component_type>::call(lva)->*funcptr)(
+                BOOST_PP_REPEAT(N, HPX_ACTION_DIRECT_ARGUMENT, args));
+        }
     };
 
     ///////////////////////////////////////////////////////////////////////////
@@ -330,13 +420,106 @@ namespace hpx { namespace actions
     template <typename Component, BOOST_PP_ENUM_PARAMS(N, typename T),
         void (Component::*funcptr)(BOOST_PP_ENUM_PARAMS(N, T)) const>
     struct action_impl<void (Component::*)(BOOST_PP_ENUM_PARAMS(N, T)) const, funcptr>
-      : action_impl<void (Component::*)(BOOST_PP_ENUM_PARAMS(N, T)), funcptr>
     {
         typedef void (Component::*funcptr_type)(BOOST_PP_ENUM_PARAMS(N, T)) const;
         typedef Component const component_type;
         typedef util::unused_type result_type;
         typedef BOOST_PP_CAT(hpx::util::tuple, N)<
             BOOST_PP_REPEAT(N, HPX_REMOVE_QUALIFIERS, _)> arguments_type;
+
+    protected:
+        /// The \a thread_function will be registered as the thread
+        /// function of a thread. It encapsulates the execution of the
+        /// original function (given by \a func).
+        struct thread_function
+        {
+            typedef threads::thread_state_enum result_type;
+
+            template <BOOST_PP_ENUM_PARAMS(N, typename Arg)>
+            BOOST_FORCEINLINE result_type operator()(
+                naming::address::address_type lva,
+                HPX_ENUM_FWD_ARGS(N, Arg, arg)) const
+            {
+                try {
+                    LTM_(debug) << "Executing component action("
+                                << detail::get_action_name<action_type>()
+                                << ") lva(" << reinterpret_cast<void const*>
+                                    (get_lva<component_type>::call(lva)) << ")";
+                    // The arguments are moved here. This function is called from a
+                    // bound functor. In order to do true perfect forwarding in an
+                    // asynchronous operation. These bound variables must be moved
+                    // out of the bound object.
+                    (get_lva<component_type>::call(lva)->*funcptr)(
+                        HPX_ENUM_MOVE_ARGS(N, arg));
+                }
+                catch (hpx::exception const& e) {
+                    if (e.get_error() != hpx::thread_interrupted) {
+                        LTM_(error)
+                            << "Unhandled exception while executing component action("
+                            << detail::get_action_name<action_type>()
+                            << ") lva(" << reinterpret_cast<void const*>
+                                (get_lva<component_type>::call(lva)) << "): " << e.what();
+
+                        // report this error to the console in any case
+                        hpx::report_error(boost::current_exception());
+                    }
+                }
+
+                // Verify that there are no more registered locks for this
+                // OS-thread. This will throw if there are still any locks
+                // held.
+                util::force_error_on_lock();
+                return threads::terminated;
+            }
+        };
+
+    public:
+        // This static construct_thread_function allows to construct
+        // a proper thread function for a thread without having to
+        // instantiate the base_actionN type. This is used by the applier in
+        // case no continuation has been supplied.
+        template <typename Arguments>
+        static HPX_STD_FUNCTION<threads::thread_function_type>
+        construct_thread_function(naming::address::address_type lva,
+            BOOST_FWD_REF(Arguments) args)
+        {
+            // we need to assign the address of the thread function to a
+            // variable to  help the compiler to deduce the function type
+            return boost::move(decorate_action<funcptr_type, funcptr>::call(
+                HPX_STD_BIND(thread_function(), lva,
+                    BOOST_PP_REPEAT(N, HPX_ACTION_DIRECT_ARGUMENT, args)), lva));
+        }
+
+        // This static construct_thread_function allows to construct
+        // a proper thread function for a thread without having to
+        // instantiate the base_actionN type. This is used by the applier in
+        // case a continuation has been supplied
+        template <typename Arguments>
+        static HPX_STD_FUNCTION<threads::thread_function_type>
+        construct_thread_function(continuation_type& cont,
+            naming::address::address_type lva, BOOST_FWD_REF(Arguments) args)
+        {
+            return boost::move(decorate_action<funcptr_type, funcptr>::call(
+                    action<funcptr_type, funcptr>::construct_continuation_thread_object_function_void(
+                        cont, funcptr, get_lva<component_type>::call(lva),
+                        boost::forward<Arguments>(args)), lva));
+        }
+
+        template <typename Arguments>
+        BOOST_FORCEINLINE static util::unused_type
+        execute_function(naming::address::address_type lva,
+            BOOST_FWD_REF(Arguments) args)
+        {
+            LTM_(debug)
+                << "action_impl::execute_function name("
+                << detail::get_action_name<action_type>()
+                << ") lva(" << reinterpret_cast<void const*>(
+                    get_lva<component_type>::call(lva)) << ")";
+
+            (get_lva<component_type>::call(lva)->*funcptr)(
+                BOOST_PP_REPEAT(N, HPX_ACTION_DIRECT_ARGUMENT, args));
+            return util::unused;
+        }
     };
     
 }}

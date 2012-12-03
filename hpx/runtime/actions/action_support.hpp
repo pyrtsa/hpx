@@ -266,9 +266,21 @@ namespace hpx { namespace actions
         )(__VA_ARGS__))                                                       \
     /**/
 
+    #define HPX_MAKE_CONST_FUNCTION_TYPE(...)                                 \
+        HPX_UTIL_EXPAND_(BOOST_PP_CAT(                                        \
+            HPX_MAKE_CONST_FUNCTION_TYPE_, HPX_UTIL_PP_NARG(__VA_ARGS__)      \
+        )(__VA_ARGS__))                                                       \
+    /**/
+
     #define HPX_MAKE_FUNCTION_TYPE_TPL(...)                                   \
         HPX_UTIL_EXPAND_(BOOST_PP_CAT(                                        \
             HPX_MAKE_FUNCTION_TYPE_TPL_, HPX_UTIL_PP_NARG(__VA_ARGS__)        \
+        )(__VA_ARGS__))                                                       \
+    /**/
+
+    #define HPX_MAKE_CONST_FUNCTION_TYPE_TPL(...)                             \
+        HPX_UTIL_EXPAND_(BOOST_PP_CAT(                                        \
+            HPX_MAKE_CONST_FUNCTION_TYPE_TPL_, HPX_UTIL_PP_NARG(__VA_ARGS__)  \
         )(__VA_ARGS__))                                                       \
     /**/
 

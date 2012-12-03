@@ -138,12 +138,93 @@ namespace hpx { namespace actions
     
     template <typename Result, typename Component, Result (Component::*funcptr)() const>
     struct action_impl<Result (Component::*)() const, funcptr>
-        : action_impl<Result (Component::*)(), funcptr>
     {
         typedef Result (Component::*funcptr_type)() const;
         typedef Result result_type;
         typedef Component const component_type;
         typedef hpx::util::tuple0<> arguments_type;
+
+    protected:
+        /// The \a continuation_thread_function will be registered as the thread
+        /// function of a thread. It encapsulates the execution of the
+        /// original function (given by \a func), while ignoring the return
+        /// value.
+        template <typename Address>   // dummy template parameter
+        BOOST_FORCEINLINE static threads::thread_state_enum
+        thread_function(Address lva)
+        {
+            try {
+                LTM_(debug) << "Executing component action("
+                            << detail::get_action_name<action_type>()
+                            << ") lva(" << reinterpret_cast<void const*>
+                                (get_lva<component_type>::call(lva)) << ")";
+                (get_lva<component_type>::call(lva)->*funcptr)();  // just call the function
+            }
+            catch (hpx::exception const& e) {
+                if (e.get_error() != hpx::thread_interrupted) {
+                    LTM_(error)
+                        << "Unhandled exception while executing component action("
+                        << detail::get_action_name<action_type>()
+                        << ") lva(" << reinterpret_cast<void const*>
+                            (get_lva<component_type>::call(lva)) << "): " << e.what();
+
+                    // report this error to the console in any case
+                    hpx::report_error(boost::current_exception());
+                }
+            }
+
+            // Verify that there are no more registered locks for this
+            // OS-thread. This will throw if there are still any locks
+            // held.
+            util::force_error_on_lock();
+            return threads::terminated;
+        }
+
+    public:
+        /// \brief This static \a construct_thread_function allows to construct
+        /// a proper thread function for a \a thread without having to
+        /// instantiate the \a base_result_action0 type. This is used by the \a
+        /// applier in case no continuation has been supplied.
+        template <typename Arguments>
+        static HPX_STD_FUNCTION<threads::thread_function_type>
+        construct_thread_function(naming::address::address_type lva,
+            BOOST_FWD_REF(Arguments) /*args*/)
+        {
+            threads::thread_state_enum (*f)(naming::address::address_type) =
+                &thread_function<naming::address::address_type>;
+
+            return boost::move(decorate_action<funcptr_type, funcptr>::call(
+                HPX_STD_BIND(f, lva), lva));
+        }
+
+        /// \brief This static \a construct_thread_function allows to construct
+        /// a proper thread function for a \a thread without having to
+        /// instantiate the \a base_result_action0 type. This is used by the \a
+        /// applier in case a continuation has been supplied
+        template <typename Arguments>
+        static HPX_STD_FUNCTION<threads::thread_function_type>
+        construct_thread_function(continuation_type& cont,
+            naming::address::address_type lva, BOOST_FWD_REF(Arguments) args)
+        {
+            return boost::move(decorate_action<funcptr_type, funcptr>::call(
+                    action<funcptr_type, funcptr>::construct_continuation_thread_object_function(
+                        cont, funcptr, get_lva<component_type>::call(lva),
+                        boost::forward<Arguments>(args)), lva));
+        }
+
+        template <typename Arguments>
+        BOOST_FORCEINLINE static result_type
+        execute_function(naming::address::address_type lva,
+            BOOST_FWD_REF(Arguments))
+        {
+            LTM_(debug)
+                << "action_impl::execute_function: name("
+                << detail::get_action_name<action_type>()
+                << ") lva(" << reinterpret_cast<void const*>(
+                    get_lva<component_type>::call(lva)) << ")";
+
+            return (get_lva<component_type>::call(lva)->*funcptr)();
+        }
     };
 
 #if BOOST_WORKAROUND(BOOST_MSVC, == 1600)
@@ -232,6 +313,98 @@ namespace hpx { namespace actions
                 HPX_STD_BIND(f, lva), lva));
         }
 
+
+        /// \brief This static \a construct_thread_function allows to construct
+        /// a proper thread function for a \a thread without having to
+        /// instantiate the base_action0 type. This is used by the \a applier in
+        /// case a continuation has been supplied
+        template <typename Arguments>
+        static HPX_STD_FUNCTION<threads::thread_function_type>
+        construct_thread_function(continuation_type& cont,
+            naming::address::address_type lva, BOOST_FWD_REF(Arguments) args)
+        {
+            return boost::move(decorate_action<funcptr_type, funcptr>::call(
+                    action<funcptr_type, funcptr>::construct_continuation_thread_object_function_void(
+                        cont, funcptr, get_lva<component_type>::call(lva),
+                        boost::forward<Arguments>(args)), lva));
+        }
+
+        template <typename Arguments>
+        BOOST_FORCEINLINE static util::unused_type
+        execute_function(naming::address::address_type lva,
+            BOOST_FWD_REF(Arguments))
+        {
+            LTM_(debug)
+                << "action_impl::execute_function: name("
+                << detail::get_action_name<action_type>()
+                << ") lva(" << reinterpret_cast<void const*>(
+                    get_lva<component_type>::call(lva)) << ")";
+            (get_lva<component_type>::call(lva)->*funcptr)();
+            return util::unused;
+        }
+    };
+    
+    template <typename Component, void (Component::*funcptr)() const>
+    struct action_impl<void (Component::*)() const, funcptr>
+    {
+        typedef void (Component::*funcptr_type)() const;
+        typedef hpx::util::unused_type result_type;
+        typedef Component const component_type;
+        typedef hpx::util::tuple0<> arguments_type;
+
+    protected:
+        /// The \a continuation_thread_function will be registered as the thread
+        /// function of a thread. It encapsulates the execution of the
+        /// original function (given by \a func), while ignoring the return
+        /// value.
+        template <typename Address>   // dummy template parameter
+        BOOST_FORCEINLINE static threads::thread_state_enum
+        thread_function(Address lva)
+        {
+            try {
+                LTM_(debug) << "Executing component action("
+                            << detail::get_action_name<action_type>()
+                            << ") lva(" << reinterpret_cast<void const*>
+                                (get_lva<component_type>::call(lva)) << ")";
+                (get_lva<component_type>::call(lva)->*funcptr)();  // just call the function
+            }
+            catch (hpx::exception const& e) {
+                if (e.get_error() != hpx::thread_interrupted) {
+                    LTM_(error)
+                        << "Unhandled exception while executing component action("
+                        << detail::get_action_name<action_type>()
+                        << ") lva(" << reinterpret_cast<void const*>
+                            (get_lva<component_type>::call(lva)) << "): " << e.what();
+
+                    // report this error to the console in any case
+                    hpx::report_error(boost::current_exception());
+                }
+            }
+
+            // Verify that there are no more registered locks for this
+            // OS-thread. This will throw if there are still any locks
+            // held.
+            util::force_error_on_lock();
+            return threads::terminated;
+        }
+
+    public:
+        /// \brief This static \a construct_thread_function allows to construct
+        /// a proper thread function for a \a thread without having to
+        /// instantiate the base_action0 type. This is used by the \a applier in
+        /// case no continuation has been supplied.
+        template <typename Arguments>
+        static HPX_STD_FUNCTION<threads::thread_function_type>
+        construct_thread_function(naming::address::address_type lva,
+            BOOST_FWD_REF(Arguments) /*args*/)
+        {
+            threads::thread_state_enum (*f)(naming::address::address_type) =
+                thread_function<naming::address::address_type>;
+
+            return boost::move(decorate_action<funcptr_type, funcptr>::call(
+                HPX_STD_BIND(f, lva), lva));
+        }
+
         /// \brief This static \a construct_thread_function allows to construct
         /// a proper thread function for a \a thread without having to
         /// instantiate the base_action0 type. This is used by the \a applier in
@@ -260,16 +433,6 @@ namespace hpx { namespace actions
             (get_lva<component_type>::call(lva)->*funcptr)();
             return util::unused;
         }
-    };
-    
-    template <typename Component, void (Component::*funcptr)() const>
-    struct action_impl<void (Component::*)() const, funcptr>
-        : action_impl<void (Component::*)(), funcptr>
-    {
-        typedef void (Component::*funcptr_type)() const;
-        typedef hpx::util::unused_type result_type;
-        typedef Component const component_type;
-        typedef hpx::util::tuple0<> arguments_type;
     };
 
     /// \endcond

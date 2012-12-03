@@ -86,8 +86,7 @@ namespace examples { namespace server
         // by deriving from the HPX facility make_action:
         template <typename T>
         struct add_action
-          : hpx::actions::make_action<void (template_function_accumulator::*)(T),
-                &template_function_accumulator::template add<T>, add_action<T> >
+          : HPX_MAKE_ACTION_TPL(template_function_accumulator, template add<T>)
         {};
 
     private:
@@ -112,7 +111,7 @@ HPX_REGISTER_ACTION_DECLARATION(
 // increases compilation time considerably.
 HPX_REGISTER_ACTION_DECLARATION_TEMPLATE(
     (template <typename T>),
-    (examples::server::template_function_accumulator::add_action<T>)
+    (examples::server::template_function_accumulator, add<T>)
 )
 
 #endif
