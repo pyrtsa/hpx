@@ -14,13 +14,13 @@ namespace hpx
     template <typename Action, typename Arg0>
     lcos::future<
         typename traits::promise_local_result<
-            typename hpx::actions::extract_action<Action>::result_type
+            typename Action::result_type
         >::type
     >
     async (BOOST_SCOPED_ENUM(launch) policy, naming::id_type const& gid,
         BOOST_FWD_REF(Arg0) arg0)
     {
-        typedef typename hpx::actions::extract_action<Action>::type action_type;
+        typedef Action action_type;
         typedef typename traits::promise_local_result<
             typename action_type::result_type
         >::type result_type;
@@ -34,7 +34,7 @@ namespace hpx
     template <typename Action, typename Arg0>
     lcos::future<
         typename traits::promise_local_result<
-            typename hpx::actions::extract_action<Action>::result_type
+            typename Action::result_type
         >::type
     >
     async (naming::id_type const& gid, BOOST_FWD_REF(Arg0) arg0)
@@ -43,41 +43,35 @@ namespace hpx
             boost::forward<Arg0>( arg0 ));
     }
     
-    template <typename Component, typename Result,
-        typename Arguments, typename Derived, typename Arg0>
-    lcos::future<typename traits::promise_local_result<Result>::type>
+    template <typename F, F funcptr, typename Arg0>
+    lcos::future<typename traits::promise_local_result<typename hpx::actions::action<F, funcptr>::result_type>::type>
     async (BOOST_SCOPED_ENUM(launch) policy,
-        hpx::actions::action<
-            Component, Result, Arguments, Derived
-        > , naming::id_type const& gid, BOOST_FWD_REF(Arg0) arg0)
+        hpx::actions::action<F, funcptr> , naming::id_type const& gid, BOOST_FWD_REF(Arg0) arg0)
     {
-        return async<Derived>(policy, gid,
+        return async<hpx::actions::action<F, funcptr> >(policy, gid,
             boost::forward<Arg0>( arg0 ));
     }
-    template <typename Component, typename Result,
-        typename Arguments, typename Derived, typename Arg0>
-    lcos::future<typename traits::promise_local_result<Result>::type>
+    template <typename F, F funcptr, typename Arg0>
+    lcos::future<typename traits::promise_local_result<typename hpx::actions::action<F, funcptr>::result_type>::type>
     async (
-        hpx::actions::action<
-            Component, Result, Arguments, Derived
-        > , naming::id_type const& gid, BOOST_FWD_REF(Arg0) arg0)
+        hpx::actions::action<F, funcptr> ,
+        naming::id_type const& gid, BOOST_FWD_REF(Arg0) arg0)
     {
-        return async<Derived>(launch::all, gid,
+        return async<hpx::actions::action<F, funcptr> >(launch::all, gid,
             boost::forward<Arg0>( arg0 ));
     }
     
     template <typename Action, typename F, typename Arg0>
     lcos::future<
         typename traits::promise_local_result<
-            typename hpx::actions::extract_action<Action>::result_type
+            typename Action::result_type
         >::type
     >
     async_callback (BOOST_SCOPED_ENUM(launch) policy,
-        
-BOOST_FWD_REF(F) data_sink, naming::id_type const& gid,
+        BOOST_FWD_REF(F) data_sink, naming::id_type const& gid,
         BOOST_FWD_REF(Arg0) arg0)
     {
-        typedef typename hpx::actions::extract_action<Action>::type action_type;
+        typedef Action action_type;
         typedef typename traits::promise_local_result<
             typename action_type::result_type
         >::type result_type;
@@ -91,48 +85,38 @@ BOOST_FWD_REF(F) data_sink, naming::id_type const& gid,
     template <typename Action, typename F, typename Arg0>
     lcos::future<
         typename traits::promise_local_result<
-            typename hpx::actions::extract_action<Action>::result_type
+            typename Action::result_type
         >::type
     >
     async_callback (
-        
-BOOST_FWD_REF(F) data_sink, naming::id_type const& gid,
+        BOOST_FWD_REF(F) data_sink, naming::id_type const& gid,
         BOOST_FWD_REF(Arg0) arg0)
     {
         return async_callback<Action>(launch::all, boost::forward<F>(data_sink), gid,
             boost::forward<Arg0>( arg0 ));
     }
     
-    template <typename Component, typename Result,
-        typename Arguments, typename Derived, typename F, 
+    template <typename F, F funcptr, typename FF,
         typename Arg0>
-    lcos::future<typename traits::promise_local_result<Result>::type>
+    lcos::future<typename traits::promise_local_result<typename hpx::actions::action<F, funcptr>::result_type>::type>
     async_callback (BOOST_SCOPED_ENUM(launch) policy,
-        hpx::actions::action<
-            Component, Result, Arguments, Derived
-        > ,
-        
-BOOST_FWD_REF(F) data_sink,
+        hpx::actions::action<F, funcptr> ,
+        BOOST_FWD_REF(FF) data_sink,
         naming::id_type const& gid,
         BOOST_FWD_REF(Arg0) arg0)
     {
-        return async_callback<Derived>(policy, boost::forward<F>(data_sink), gid,
+        return async_callback<hpx::actions::action<F, funcptr> >(policy, boost::forward<FF>(data_sink), gid,
             boost::forward<Arg0>( arg0 ));
     }
-    template <typename Component, typename Result,
-        typename Arguments, typename Derived, typename F, 
-        typename Arg0>
-    lcos::future<typename traits::promise_local_result<Result>::type>
+    template <typename F, F funcptr, typename FF, typename Arg0>
+    lcos::future<typename traits::promise_local_result<typename hpx::actions::action<F, funcptr>::result_type>::type>
     async_callback (
-        hpx::actions::action<
-            Component, Result, Arguments, Derived
-        > ,
-        
-BOOST_FWD_REF(F) data_sink,
+        hpx::actions::action<F, funcptr> ,
+        BOOST_FWD_REF(FF) data_sink,
         naming::id_type const& gid,
         BOOST_FWD_REF(Arg0) arg0)
     {
-        return async_callback<Derived>(launch::all, boost::forward<F>(data_sink), gid,
+        return async_callback<hpx::actions::action<F, funcptr> >(launch::all, boost::forward<FF>(data_sink), gid,
             boost::forward<Arg0>( arg0 ));
     }
 }
@@ -142,13 +126,13 @@ namespace hpx
     template <typename Action, typename Arg0 , typename Arg1>
     lcos::future<
         typename traits::promise_local_result<
-            typename hpx::actions::extract_action<Action>::result_type
+            typename Action::result_type
         >::type
     >
     async (BOOST_SCOPED_ENUM(launch) policy, naming::id_type const& gid,
         BOOST_FWD_REF(Arg0) arg0 , BOOST_FWD_REF(Arg1) arg1)
     {
-        typedef typename hpx::actions::extract_action<Action>::type action_type;
+        typedef Action action_type;
         typedef typename traits::promise_local_result<
             typename action_type::result_type
         >::type result_type;
@@ -162,7 +146,7 @@ namespace hpx
     template <typename Action, typename Arg0 , typename Arg1>
     lcos::future<
         typename traits::promise_local_result<
-            typename hpx::actions::extract_action<Action>::result_type
+            typename Action::result_type
         >::type
     >
     async (naming::id_type const& gid, BOOST_FWD_REF(Arg0) arg0 , BOOST_FWD_REF(Arg1) arg1)
@@ -171,41 +155,35 @@ namespace hpx
             boost::forward<Arg0>( arg0 ) , boost::forward<Arg1>( arg1 ));
     }
     
-    template <typename Component, typename Result,
-        typename Arguments, typename Derived, typename Arg0 , typename Arg1>
-    lcos::future<typename traits::promise_local_result<Result>::type>
+    template <typename F, F funcptr, typename Arg0 , typename Arg1>
+    lcos::future<typename traits::promise_local_result<typename hpx::actions::action<F, funcptr>::result_type>::type>
     async (BOOST_SCOPED_ENUM(launch) policy,
-        hpx::actions::action<
-            Component, Result, Arguments, Derived
-        > , naming::id_type const& gid, BOOST_FWD_REF(Arg0) arg0 , BOOST_FWD_REF(Arg1) arg1)
+        hpx::actions::action<F, funcptr> , naming::id_type const& gid, BOOST_FWD_REF(Arg0) arg0 , BOOST_FWD_REF(Arg1) arg1)
     {
-        return async<Derived>(policy, gid,
+        return async<hpx::actions::action<F, funcptr> >(policy, gid,
             boost::forward<Arg0>( arg0 ) , boost::forward<Arg1>( arg1 ));
     }
-    template <typename Component, typename Result,
-        typename Arguments, typename Derived, typename Arg0 , typename Arg1>
-    lcos::future<typename traits::promise_local_result<Result>::type>
+    template <typename F, F funcptr, typename Arg0 , typename Arg1>
+    lcos::future<typename traits::promise_local_result<typename hpx::actions::action<F, funcptr>::result_type>::type>
     async (
-        hpx::actions::action<
-            Component, Result, Arguments, Derived
-        > , naming::id_type const& gid, BOOST_FWD_REF(Arg0) arg0 , BOOST_FWD_REF(Arg1) arg1)
+        hpx::actions::action<F, funcptr> ,
+        naming::id_type const& gid, BOOST_FWD_REF(Arg0) arg0 , BOOST_FWD_REF(Arg1) arg1)
     {
-        return async<Derived>(launch::all, gid,
+        return async<hpx::actions::action<F, funcptr> >(launch::all, gid,
             boost::forward<Arg0>( arg0 ) , boost::forward<Arg1>( arg1 ));
     }
     
     template <typename Action, typename F, typename Arg0 , typename Arg1>
     lcos::future<
         typename traits::promise_local_result<
-            typename hpx::actions::extract_action<Action>::result_type
+            typename Action::result_type
         >::type
     >
     async_callback (BOOST_SCOPED_ENUM(launch) policy,
-        
-BOOST_FWD_REF(F) data_sink, naming::id_type const& gid,
+        BOOST_FWD_REF(F) data_sink, naming::id_type const& gid,
         BOOST_FWD_REF(Arg0) arg0 , BOOST_FWD_REF(Arg1) arg1)
     {
-        typedef typename hpx::actions::extract_action<Action>::type action_type;
+        typedef Action action_type;
         typedef typename traits::promise_local_result<
             typename action_type::result_type
         >::type result_type;
@@ -219,48 +197,38 @@ BOOST_FWD_REF(F) data_sink, naming::id_type const& gid,
     template <typename Action, typename F, typename Arg0 , typename Arg1>
     lcos::future<
         typename traits::promise_local_result<
-            typename hpx::actions::extract_action<Action>::result_type
+            typename Action::result_type
         >::type
     >
     async_callback (
-        
-BOOST_FWD_REF(F) data_sink, naming::id_type const& gid,
+        BOOST_FWD_REF(F) data_sink, naming::id_type const& gid,
         BOOST_FWD_REF(Arg0) arg0 , BOOST_FWD_REF(Arg1) arg1)
     {
         return async_callback<Action>(launch::all, boost::forward<F>(data_sink), gid,
             boost::forward<Arg0>( arg0 ) , boost::forward<Arg1>( arg1 ));
     }
     
-    template <typename Component, typename Result,
-        typename Arguments, typename Derived, typename F, 
+    template <typename F, F funcptr, typename FF,
         typename Arg0 , typename Arg1>
-    lcos::future<typename traits::promise_local_result<Result>::type>
+    lcos::future<typename traits::promise_local_result<typename hpx::actions::action<F, funcptr>::result_type>::type>
     async_callback (BOOST_SCOPED_ENUM(launch) policy,
-        hpx::actions::action<
-            Component, Result, Arguments, Derived
-        > ,
-        
-BOOST_FWD_REF(F) data_sink,
+        hpx::actions::action<F, funcptr> ,
+        BOOST_FWD_REF(FF) data_sink,
         naming::id_type const& gid,
         BOOST_FWD_REF(Arg0) arg0 , BOOST_FWD_REF(Arg1) arg1)
     {
-        return async_callback<Derived>(policy, boost::forward<F>(data_sink), gid,
+        return async_callback<hpx::actions::action<F, funcptr> >(policy, boost::forward<FF>(data_sink), gid,
             boost::forward<Arg0>( arg0 ) , boost::forward<Arg1>( arg1 ));
     }
-    template <typename Component, typename Result,
-        typename Arguments, typename Derived, typename F, 
-        typename Arg0 , typename Arg1>
-    lcos::future<typename traits::promise_local_result<Result>::type>
+    template <typename F, F funcptr, typename FF, typename Arg0 , typename Arg1>
+    lcos::future<typename traits::promise_local_result<typename hpx::actions::action<F, funcptr>::result_type>::type>
     async_callback (
-        hpx::actions::action<
-            Component, Result, Arguments, Derived
-        > ,
-        
-BOOST_FWD_REF(F) data_sink,
+        hpx::actions::action<F, funcptr> ,
+        BOOST_FWD_REF(FF) data_sink,
         naming::id_type const& gid,
         BOOST_FWD_REF(Arg0) arg0 , BOOST_FWD_REF(Arg1) arg1)
     {
-        return async_callback<Derived>(launch::all, boost::forward<F>(data_sink), gid,
+        return async_callback<hpx::actions::action<F, funcptr> >(launch::all, boost::forward<FF>(data_sink), gid,
             boost::forward<Arg0>( arg0 ) , boost::forward<Arg1>( arg1 ));
     }
 }
@@ -270,13 +238,13 @@ namespace hpx
     template <typename Action, typename Arg0 , typename Arg1 , typename Arg2>
     lcos::future<
         typename traits::promise_local_result<
-            typename hpx::actions::extract_action<Action>::result_type
+            typename Action::result_type
         >::type
     >
     async (BOOST_SCOPED_ENUM(launch) policy, naming::id_type const& gid,
         BOOST_FWD_REF(Arg0) arg0 , BOOST_FWD_REF(Arg1) arg1 , BOOST_FWD_REF(Arg2) arg2)
     {
-        typedef typename hpx::actions::extract_action<Action>::type action_type;
+        typedef Action action_type;
         typedef typename traits::promise_local_result<
             typename action_type::result_type
         >::type result_type;
@@ -290,7 +258,7 @@ namespace hpx
     template <typename Action, typename Arg0 , typename Arg1 , typename Arg2>
     lcos::future<
         typename traits::promise_local_result<
-            typename hpx::actions::extract_action<Action>::result_type
+            typename Action::result_type
         >::type
     >
     async (naming::id_type const& gid, BOOST_FWD_REF(Arg0) arg0 , BOOST_FWD_REF(Arg1) arg1 , BOOST_FWD_REF(Arg2) arg2)
@@ -299,41 +267,35 @@ namespace hpx
             boost::forward<Arg0>( arg0 ) , boost::forward<Arg1>( arg1 ) , boost::forward<Arg2>( arg2 ));
     }
     
-    template <typename Component, typename Result,
-        typename Arguments, typename Derived, typename Arg0 , typename Arg1 , typename Arg2>
-    lcos::future<typename traits::promise_local_result<Result>::type>
+    template <typename F, F funcptr, typename Arg0 , typename Arg1 , typename Arg2>
+    lcos::future<typename traits::promise_local_result<typename hpx::actions::action<F, funcptr>::result_type>::type>
     async (BOOST_SCOPED_ENUM(launch) policy,
-        hpx::actions::action<
-            Component, Result, Arguments, Derived
-        > , naming::id_type const& gid, BOOST_FWD_REF(Arg0) arg0 , BOOST_FWD_REF(Arg1) arg1 , BOOST_FWD_REF(Arg2) arg2)
+        hpx::actions::action<F, funcptr> , naming::id_type const& gid, BOOST_FWD_REF(Arg0) arg0 , BOOST_FWD_REF(Arg1) arg1 , BOOST_FWD_REF(Arg2) arg2)
     {
-        return async<Derived>(policy, gid,
+        return async<hpx::actions::action<F, funcptr> >(policy, gid,
             boost::forward<Arg0>( arg0 ) , boost::forward<Arg1>( arg1 ) , boost::forward<Arg2>( arg2 ));
     }
-    template <typename Component, typename Result,
-        typename Arguments, typename Derived, typename Arg0 , typename Arg1 , typename Arg2>
-    lcos::future<typename traits::promise_local_result<Result>::type>
+    template <typename F, F funcptr, typename Arg0 , typename Arg1 , typename Arg2>
+    lcos::future<typename traits::promise_local_result<typename hpx::actions::action<F, funcptr>::result_type>::type>
     async (
-        hpx::actions::action<
-            Component, Result, Arguments, Derived
-        > , naming::id_type const& gid, BOOST_FWD_REF(Arg0) arg0 , BOOST_FWD_REF(Arg1) arg1 , BOOST_FWD_REF(Arg2) arg2)
+        hpx::actions::action<F, funcptr> ,
+        naming::id_type const& gid, BOOST_FWD_REF(Arg0) arg0 , BOOST_FWD_REF(Arg1) arg1 , BOOST_FWD_REF(Arg2) arg2)
     {
-        return async<Derived>(launch::all, gid,
+        return async<hpx::actions::action<F, funcptr> >(launch::all, gid,
             boost::forward<Arg0>( arg0 ) , boost::forward<Arg1>( arg1 ) , boost::forward<Arg2>( arg2 ));
     }
     
     template <typename Action, typename F, typename Arg0 , typename Arg1 , typename Arg2>
     lcos::future<
         typename traits::promise_local_result<
-            typename hpx::actions::extract_action<Action>::result_type
+            typename Action::result_type
         >::type
     >
     async_callback (BOOST_SCOPED_ENUM(launch) policy,
-        
-BOOST_FWD_REF(F) data_sink, naming::id_type const& gid,
+        BOOST_FWD_REF(F) data_sink, naming::id_type const& gid,
         BOOST_FWD_REF(Arg0) arg0 , BOOST_FWD_REF(Arg1) arg1 , BOOST_FWD_REF(Arg2) arg2)
     {
-        typedef typename hpx::actions::extract_action<Action>::type action_type;
+        typedef Action action_type;
         typedef typename traits::promise_local_result<
             typename action_type::result_type
         >::type result_type;
@@ -347,48 +309,38 @@ BOOST_FWD_REF(F) data_sink, naming::id_type const& gid,
     template <typename Action, typename F, typename Arg0 , typename Arg1 , typename Arg2>
     lcos::future<
         typename traits::promise_local_result<
-            typename hpx::actions::extract_action<Action>::result_type
+            typename Action::result_type
         >::type
     >
     async_callback (
-        
-BOOST_FWD_REF(F) data_sink, naming::id_type const& gid,
+        BOOST_FWD_REF(F) data_sink, naming::id_type const& gid,
         BOOST_FWD_REF(Arg0) arg0 , BOOST_FWD_REF(Arg1) arg1 , BOOST_FWD_REF(Arg2) arg2)
     {
         return async_callback<Action>(launch::all, boost::forward<F>(data_sink), gid,
             boost::forward<Arg0>( arg0 ) , boost::forward<Arg1>( arg1 ) , boost::forward<Arg2>( arg2 ));
     }
     
-    template <typename Component, typename Result,
-        typename Arguments, typename Derived, typename F, 
+    template <typename F, F funcptr, typename FF,
         typename Arg0 , typename Arg1 , typename Arg2>
-    lcos::future<typename traits::promise_local_result<Result>::type>
+    lcos::future<typename traits::promise_local_result<typename hpx::actions::action<F, funcptr>::result_type>::type>
     async_callback (BOOST_SCOPED_ENUM(launch) policy,
-        hpx::actions::action<
-            Component, Result, Arguments, Derived
-        > ,
-        
-BOOST_FWD_REF(F) data_sink,
+        hpx::actions::action<F, funcptr> ,
+        BOOST_FWD_REF(FF) data_sink,
         naming::id_type const& gid,
         BOOST_FWD_REF(Arg0) arg0 , BOOST_FWD_REF(Arg1) arg1 , BOOST_FWD_REF(Arg2) arg2)
     {
-        return async_callback<Derived>(policy, boost::forward<F>(data_sink), gid,
+        return async_callback<hpx::actions::action<F, funcptr> >(policy, boost::forward<FF>(data_sink), gid,
             boost::forward<Arg0>( arg0 ) , boost::forward<Arg1>( arg1 ) , boost::forward<Arg2>( arg2 ));
     }
-    template <typename Component, typename Result,
-        typename Arguments, typename Derived, typename F, 
-        typename Arg0 , typename Arg1 , typename Arg2>
-    lcos::future<typename traits::promise_local_result<Result>::type>
+    template <typename F, F funcptr, typename FF, typename Arg0 , typename Arg1 , typename Arg2>
+    lcos::future<typename traits::promise_local_result<typename hpx::actions::action<F, funcptr>::result_type>::type>
     async_callback (
-        hpx::actions::action<
-            Component, Result, Arguments, Derived
-        > ,
-        
-BOOST_FWD_REF(F) data_sink,
+        hpx::actions::action<F, funcptr> ,
+        BOOST_FWD_REF(FF) data_sink,
         naming::id_type const& gid,
         BOOST_FWD_REF(Arg0) arg0 , BOOST_FWD_REF(Arg1) arg1 , BOOST_FWD_REF(Arg2) arg2)
     {
-        return async_callback<Derived>(launch::all, boost::forward<F>(data_sink), gid,
+        return async_callback<hpx::actions::action<F, funcptr> >(launch::all, boost::forward<FF>(data_sink), gid,
             boost::forward<Arg0>( arg0 ) , boost::forward<Arg1>( arg1 ) , boost::forward<Arg2>( arg2 ));
     }
 }
@@ -398,13 +350,13 @@ namespace hpx
     template <typename Action, typename Arg0 , typename Arg1 , typename Arg2 , typename Arg3>
     lcos::future<
         typename traits::promise_local_result<
-            typename hpx::actions::extract_action<Action>::result_type
+            typename Action::result_type
         >::type
     >
     async (BOOST_SCOPED_ENUM(launch) policy, naming::id_type const& gid,
         BOOST_FWD_REF(Arg0) arg0 , BOOST_FWD_REF(Arg1) arg1 , BOOST_FWD_REF(Arg2) arg2 , BOOST_FWD_REF(Arg3) arg3)
     {
-        typedef typename hpx::actions::extract_action<Action>::type action_type;
+        typedef Action action_type;
         typedef typename traits::promise_local_result<
             typename action_type::result_type
         >::type result_type;
@@ -418,7 +370,7 @@ namespace hpx
     template <typename Action, typename Arg0 , typename Arg1 , typename Arg2 , typename Arg3>
     lcos::future<
         typename traits::promise_local_result<
-            typename hpx::actions::extract_action<Action>::result_type
+            typename Action::result_type
         >::type
     >
     async (naming::id_type const& gid, BOOST_FWD_REF(Arg0) arg0 , BOOST_FWD_REF(Arg1) arg1 , BOOST_FWD_REF(Arg2) arg2 , BOOST_FWD_REF(Arg3) arg3)
@@ -427,41 +379,35 @@ namespace hpx
             boost::forward<Arg0>( arg0 ) , boost::forward<Arg1>( arg1 ) , boost::forward<Arg2>( arg2 ) , boost::forward<Arg3>( arg3 ));
     }
     
-    template <typename Component, typename Result,
-        typename Arguments, typename Derived, typename Arg0 , typename Arg1 , typename Arg2 , typename Arg3>
-    lcos::future<typename traits::promise_local_result<Result>::type>
+    template <typename F, F funcptr, typename Arg0 , typename Arg1 , typename Arg2 , typename Arg3>
+    lcos::future<typename traits::promise_local_result<typename hpx::actions::action<F, funcptr>::result_type>::type>
     async (BOOST_SCOPED_ENUM(launch) policy,
-        hpx::actions::action<
-            Component, Result, Arguments, Derived
-        > , naming::id_type const& gid, BOOST_FWD_REF(Arg0) arg0 , BOOST_FWD_REF(Arg1) arg1 , BOOST_FWD_REF(Arg2) arg2 , BOOST_FWD_REF(Arg3) arg3)
+        hpx::actions::action<F, funcptr> , naming::id_type const& gid, BOOST_FWD_REF(Arg0) arg0 , BOOST_FWD_REF(Arg1) arg1 , BOOST_FWD_REF(Arg2) arg2 , BOOST_FWD_REF(Arg3) arg3)
     {
-        return async<Derived>(policy, gid,
+        return async<hpx::actions::action<F, funcptr> >(policy, gid,
             boost::forward<Arg0>( arg0 ) , boost::forward<Arg1>( arg1 ) , boost::forward<Arg2>( arg2 ) , boost::forward<Arg3>( arg3 ));
     }
-    template <typename Component, typename Result,
-        typename Arguments, typename Derived, typename Arg0 , typename Arg1 , typename Arg2 , typename Arg3>
-    lcos::future<typename traits::promise_local_result<Result>::type>
+    template <typename F, F funcptr, typename Arg0 , typename Arg1 , typename Arg2 , typename Arg3>
+    lcos::future<typename traits::promise_local_result<typename hpx::actions::action<F, funcptr>::result_type>::type>
     async (
-        hpx::actions::action<
-            Component, Result, Arguments, Derived
-        > , naming::id_type const& gid, BOOST_FWD_REF(Arg0) arg0 , BOOST_FWD_REF(Arg1) arg1 , BOOST_FWD_REF(Arg2) arg2 , BOOST_FWD_REF(Arg3) arg3)
+        hpx::actions::action<F, funcptr> ,
+        naming::id_type const& gid, BOOST_FWD_REF(Arg0) arg0 , BOOST_FWD_REF(Arg1) arg1 , BOOST_FWD_REF(Arg2) arg2 , BOOST_FWD_REF(Arg3) arg3)
     {
-        return async<Derived>(launch::all, gid,
+        return async<hpx::actions::action<F, funcptr> >(launch::all, gid,
             boost::forward<Arg0>( arg0 ) , boost::forward<Arg1>( arg1 ) , boost::forward<Arg2>( arg2 ) , boost::forward<Arg3>( arg3 ));
     }
     
     template <typename Action, typename F, typename Arg0 , typename Arg1 , typename Arg2 , typename Arg3>
     lcos::future<
         typename traits::promise_local_result<
-            typename hpx::actions::extract_action<Action>::result_type
+            typename Action::result_type
         >::type
     >
     async_callback (BOOST_SCOPED_ENUM(launch) policy,
-        
-BOOST_FWD_REF(F) data_sink, naming::id_type const& gid,
+        BOOST_FWD_REF(F) data_sink, naming::id_type const& gid,
         BOOST_FWD_REF(Arg0) arg0 , BOOST_FWD_REF(Arg1) arg1 , BOOST_FWD_REF(Arg2) arg2 , BOOST_FWD_REF(Arg3) arg3)
     {
-        typedef typename hpx::actions::extract_action<Action>::type action_type;
+        typedef Action action_type;
         typedef typename traits::promise_local_result<
             typename action_type::result_type
         >::type result_type;
@@ -475,48 +421,38 @@ BOOST_FWD_REF(F) data_sink, naming::id_type const& gid,
     template <typename Action, typename F, typename Arg0 , typename Arg1 , typename Arg2 , typename Arg3>
     lcos::future<
         typename traits::promise_local_result<
-            typename hpx::actions::extract_action<Action>::result_type
+            typename Action::result_type
         >::type
     >
     async_callback (
-        
-BOOST_FWD_REF(F) data_sink, naming::id_type const& gid,
+        BOOST_FWD_REF(F) data_sink, naming::id_type const& gid,
         BOOST_FWD_REF(Arg0) arg0 , BOOST_FWD_REF(Arg1) arg1 , BOOST_FWD_REF(Arg2) arg2 , BOOST_FWD_REF(Arg3) arg3)
     {
         return async_callback<Action>(launch::all, boost::forward<F>(data_sink), gid,
             boost::forward<Arg0>( arg0 ) , boost::forward<Arg1>( arg1 ) , boost::forward<Arg2>( arg2 ) , boost::forward<Arg3>( arg3 ));
     }
     
-    template <typename Component, typename Result,
-        typename Arguments, typename Derived, typename F, 
+    template <typename F, F funcptr, typename FF,
         typename Arg0 , typename Arg1 , typename Arg2 , typename Arg3>
-    lcos::future<typename traits::promise_local_result<Result>::type>
+    lcos::future<typename traits::promise_local_result<typename hpx::actions::action<F, funcptr>::result_type>::type>
     async_callback (BOOST_SCOPED_ENUM(launch) policy,
-        hpx::actions::action<
-            Component, Result, Arguments, Derived
-        > ,
-        
-BOOST_FWD_REF(F) data_sink,
+        hpx::actions::action<F, funcptr> ,
+        BOOST_FWD_REF(FF) data_sink,
         naming::id_type const& gid,
         BOOST_FWD_REF(Arg0) arg0 , BOOST_FWD_REF(Arg1) arg1 , BOOST_FWD_REF(Arg2) arg2 , BOOST_FWD_REF(Arg3) arg3)
     {
-        return async_callback<Derived>(policy, boost::forward<F>(data_sink), gid,
+        return async_callback<hpx::actions::action<F, funcptr> >(policy, boost::forward<FF>(data_sink), gid,
             boost::forward<Arg0>( arg0 ) , boost::forward<Arg1>( arg1 ) , boost::forward<Arg2>( arg2 ) , boost::forward<Arg3>( arg3 ));
     }
-    template <typename Component, typename Result,
-        typename Arguments, typename Derived, typename F, 
-        typename Arg0 , typename Arg1 , typename Arg2 , typename Arg3>
-    lcos::future<typename traits::promise_local_result<Result>::type>
+    template <typename F, F funcptr, typename FF, typename Arg0 , typename Arg1 , typename Arg2 , typename Arg3>
+    lcos::future<typename traits::promise_local_result<typename hpx::actions::action<F, funcptr>::result_type>::type>
     async_callback (
-        hpx::actions::action<
-            Component, Result, Arguments, Derived
-        > ,
-        
-BOOST_FWD_REF(F) data_sink,
+        hpx::actions::action<F, funcptr> ,
+        BOOST_FWD_REF(FF) data_sink,
         naming::id_type const& gid,
         BOOST_FWD_REF(Arg0) arg0 , BOOST_FWD_REF(Arg1) arg1 , BOOST_FWD_REF(Arg2) arg2 , BOOST_FWD_REF(Arg3) arg3)
     {
-        return async_callback<Derived>(launch::all, boost::forward<F>(data_sink), gid,
+        return async_callback<hpx::actions::action<F, funcptr> >(launch::all, boost::forward<FF>(data_sink), gid,
             boost::forward<Arg0>( arg0 ) , boost::forward<Arg1>( arg1 ) , boost::forward<Arg2>( arg2 ) , boost::forward<Arg3>( arg3 ));
     }
 }
@@ -526,13 +462,13 @@ namespace hpx
     template <typename Action, typename Arg0 , typename Arg1 , typename Arg2 , typename Arg3 , typename Arg4>
     lcos::future<
         typename traits::promise_local_result<
-            typename hpx::actions::extract_action<Action>::result_type
+            typename Action::result_type
         >::type
     >
     async (BOOST_SCOPED_ENUM(launch) policy, naming::id_type const& gid,
         BOOST_FWD_REF(Arg0) arg0 , BOOST_FWD_REF(Arg1) arg1 , BOOST_FWD_REF(Arg2) arg2 , BOOST_FWD_REF(Arg3) arg3 , BOOST_FWD_REF(Arg4) arg4)
     {
-        typedef typename hpx::actions::extract_action<Action>::type action_type;
+        typedef Action action_type;
         typedef typename traits::promise_local_result<
             typename action_type::result_type
         >::type result_type;
@@ -546,7 +482,7 @@ namespace hpx
     template <typename Action, typename Arg0 , typename Arg1 , typename Arg2 , typename Arg3 , typename Arg4>
     lcos::future<
         typename traits::promise_local_result<
-            typename hpx::actions::extract_action<Action>::result_type
+            typename Action::result_type
         >::type
     >
     async (naming::id_type const& gid, BOOST_FWD_REF(Arg0) arg0 , BOOST_FWD_REF(Arg1) arg1 , BOOST_FWD_REF(Arg2) arg2 , BOOST_FWD_REF(Arg3) arg3 , BOOST_FWD_REF(Arg4) arg4)
@@ -555,41 +491,35 @@ namespace hpx
             boost::forward<Arg0>( arg0 ) , boost::forward<Arg1>( arg1 ) , boost::forward<Arg2>( arg2 ) , boost::forward<Arg3>( arg3 ) , boost::forward<Arg4>( arg4 ));
     }
     
-    template <typename Component, typename Result,
-        typename Arguments, typename Derived, typename Arg0 , typename Arg1 , typename Arg2 , typename Arg3 , typename Arg4>
-    lcos::future<typename traits::promise_local_result<Result>::type>
+    template <typename F, F funcptr, typename Arg0 , typename Arg1 , typename Arg2 , typename Arg3 , typename Arg4>
+    lcos::future<typename traits::promise_local_result<typename hpx::actions::action<F, funcptr>::result_type>::type>
     async (BOOST_SCOPED_ENUM(launch) policy,
-        hpx::actions::action<
-            Component, Result, Arguments, Derived
-        > , naming::id_type const& gid, BOOST_FWD_REF(Arg0) arg0 , BOOST_FWD_REF(Arg1) arg1 , BOOST_FWD_REF(Arg2) arg2 , BOOST_FWD_REF(Arg3) arg3 , BOOST_FWD_REF(Arg4) arg4)
+        hpx::actions::action<F, funcptr> , naming::id_type const& gid, BOOST_FWD_REF(Arg0) arg0 , BOOST_FWD_REF(Arg1) arg1 , BOOST_FWD_REF(Arg2) arg2 , BOOST_FWD_REF(Arg3) arg3 , BOOST_FWD_REF(Arg4) arg4)
     {
-        return async<Derived>(policy, gid,
+        return async<hpx::actions::action<F, funcptr> >(policy, gid,
             boost::forward<Arg0>( arg0 ) , boost::forward<Arg1>( arg1 ) , boost::forward<Arg2>( arg2 ) , boost::forward<Arg3>( arg3 ) , boost::forward<Arg4>( arg4 ));
     }
-    template <typename Component, typename Result,
-        typename Arguments, typename Derived, typename Arg0 , typename Arg1 , typename Arg2 , typename Arg3 , typename Arg4>
-    lcos::future<typename traits::promise_local_result<Result>::type>
+    template <typename F, F funcptr, typename Arg0 , typename Arg1 , typename Arg2 , typename Arg3 , typename Arg4>
+    lcos::future<typename traits::promise_local_result<typename hpx::actions::action<F, funcptr>::result_type>::type>
     async (
-        hpx::actions::action<
-            Component, Result, Arguments, Derived
-        > , naming::id_type const& gid, BOOST_FWD_REF(Arg0) arg0 , BOOST_FWD_REF(Arg1) arg1 , BOOST_FWD_REF(Arg2) arg2 , BOOST_FWD_REF(Arg3) arg3 , BOOST_FWD_REF(Arg4) arg4)
+        hpx::actions::action<F, funcptr> ,
+        naming::id_type const& gid, BOOST_FWD_REF(Arg0) arg0 , BOOST_FWD_REF(Arg1) arg1 , BOOST_FWD_REF(Arg2) arg2 , BOOST_FWD_REF(Arg3) arg3 , BOOST_FWD_REF(Arg4) arg4)
     {
-        return async<Derived>(launch::all, gid,
+        return async<hpx::actions::action<F, funcptr> >(launch::all, gid,
             boost::forward<Arg0>( arg0 ) , boost::forward<Arg1>( arg1 ) , boost::forward<Arg2>( arg2 ) , boost::forward<Arg3>( arg3 ) , boost::forward<Arg4>( arg4 ));
     }
     
     template <typename Action, typename F, typename Arg0 , typename Arg1 , typename Arg2 , typename Arg3 , typename Arg4>
     lcos::future<
         typename traits::promise_local_result<
-            typename hpx::actions::extract_action<Action>::result_type
+            typename Action::result_type
         >::type
     >
     async_callback (BOOST_SCOPED_ENUM(launch) policy,
-        
-BOOST_FWD_REF(F) data_sink, naming::id_type const& gid,
+        BOOST_FWD_REF(F) data_sink, naming::id_type const& gid,
         BOOST_FWD_REF(Arg0) arg0 , BOOST_FWD_REF(Arg1) arg1 , BOOST_FWD_REF(Arg2) arg2 , BOOST_FWD_REF(Arg3) arg3 , BOOST_FWD_REF(Arg4) arg4)
     {
-        typedef typename hpx::actions::extract_action<Action>::type action_type;
+        typedef Action action_type;
         typedef typename traits::promise_local_result<
             typename action_type::result_type
         >::type result_type;
@@ -603,48 +533,38 @@ BOOST_FWD_REF(F) data_sink, naming::id_type const& gid,
     template <typename Action, typename F, typename Arg0 , typename Arg1 , typename Arg2 , typename Arg3 , typename Arg4>
     lcos::future<
         typename traits::promise_local_result<
-            typename hpx::actions::extract_action<Action>::result_type
+            typename Action::result_type
         >::type
     >
     async_callback (
-        
-BOOST_FWD_REF(F) data_sink, naming::id_type const& gid,
+        BOOST_FWD_REF(F) data_sink, naming::id_type const& gid,
         BOOST_FWD_REF(Arg0) arg0 , BOOST_FWD_REF(Arg1) arg1 , BOOST_FWD_REF(Arg2) arg2 , BOOST_FWD_REF(Arg3) arg3 , BOOST_FWD_REF(Arg4) arg4)
     {
         return async_callback<Action>(launch::all, boost::forward<F>(data_sink), gid,
             boost::forward<Arg0>( arg0 ) , boost::forward<Arg1>( arg1 ) , boost::forward<Arg2>( arg2 ) , boost::forward<Arg3>( arg3 ) , boost::forward<Arg4>( arg4 ));
     }
     
-    template <typename Component, typename Result,
-        typename Arguments, typename Derived, typename F, 
+    template <typename F, F funcptr, typename FF,
         typename Arg0 , typename Arg1 , typename Arg2 , typename Arg3 , typename Arg4>
-    lcos::future<typename traits::promise_local_result<Result>::type>
+    lcos::future<typename traits::promise_local_result<typename hpx::actions::action<F, funcptr>::result_type>::type>
     async_callback (BOOST_SCOPED_ENUM(launch) policy,
-        hpx::actions::action<
-            Component, Result, Arguments, Derived
-        > ,
-        
-BOOST_FWD_REF(F) data_sink,
+        hpx::actions::action<F, funcptr> ,
+        BOOST_FWD_REF(FF) data_sink,
         naming::id_type const& gid,
         BOOST_FWD_REF(Arg0) arg0 , BOOST_FWD_REF(Arg1) arg1 , BOOST_FWD_REF(Arg2) arg2 , BOOST_FWD_REF(Arg3) arg3 , BOOST_FWD_REF(Arg4) arg4)
     {
-        return async_callback<Derived>(policy, boost::forward<F>(data_sink), gid,
+        return async_callback<hpx::actions::action<F, funcptr> >(policy, boost::forward<FF>(data_sink), gid,
             boost::forward<Arg0>( arg0 ) , boost::forward<Arg1>( arg1 ) , boost::forward<Arg2>( arg2 ) , boost::forward<Arg3>( arg3 ) , boost::forward<Arg4>( arg4 ));
     }
-    template <typename Component, typename Result,
-        typename Arguments, typename Derived, typename F, 
-        typename Arg0 , typename Arg1 , typename Arg2 , typename Arg3 , typename Arg4>
-    lcos::future<typename traits::promise_local_result<Result>::type>
+    template <typename F, F funcptr, typename FF, typename Arg0 , typename Arg1 , typename Arg2 , typename Arg3 , typename Arg4>
+    lcos::future<typename traits::promise_local_result<typename hpx::actions::action<F, funcptr>::result_type>::type>
     async_callback (
-        hpx::actions::action<
-            Component, Result, Arguments, Derived
-        > ,
-        
-BOOST_FWD_REF(F) data_sink,
+        hpx::actions::action<F, funcptr> ,
+        BOOST_FWD_REF(FF) data_sink,
         naming::id_type const& gid,
         BOOST_FWD_REF(Arg0) arg0 , BOOST_FWD_REF(Arg1) arg1 , BOOST_FWD_REF(Arg2) arg2 , BOOST_FWD_REF(Arg3) arg3 , BOOST_FWD_REF(Arg4) arg4)
     {
-        return async_callback<Derived>(launch::all, boost::forward<F>(data_sink), gid,
+        return async_callback<hpx::actions::action<F, funcptr> >(launch::all, boost::forward<FF>(data_sink), gid,
             boost::forward<Arg0>( arg0 ) , boost::forward<Arg1>( arg1 ) , boost::forward<Arg2>( arg2 ) , boost::forward<Arg3>( arg3 ) , boost::forward<Arg4>( arg4 ));
     }
 }

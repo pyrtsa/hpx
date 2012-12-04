@@ -94,7 +94,7 @@
         BOOST_FORCEINLINE result_type operator()(continuation_type cont,
             void (Object::* const func)(
                 BOOST_PP_ENUM_BINARY_PARAMS(N, FArg, arg)) const,
-            typename action_impl<F, funcptr>::component_type* obj
+            Object* obj
           BOOST_PP_COMMA_IF(N) HPX_ENUM_FWD_ARGS(N, Arg, arg)) const
         {
             try {
@@ -138,7 +138,7 @@
     construct_continuation_thread_object_function_void(
         continuation_type cont,
         void (Object::* const func)(BOOST_PP_ENUM_PARAMS(N, FArg)) const,
-        typename action_impl<F, funcptr>::component_type* obj, BOOST_FWD_REF(Arguments) args)
+        Object* obj, BOOST_FWD_REF(Arguments) args)
     {
         return HPX_STD_BIND(
             BOOST_PP_CAT(continuation_thread_object_function_void_, N)(),
@@ -152,12 +152,12 @@
     {
         typedef threads::thread_state_enum result_type;
 
-        template <typename Object
+        template <typename Result, typename Object
             BOOST_PP_COMMA_IF(N) BOOST_PP_ENUM_PARAMS(N, typename Arg)
             BOOST_PP_COMMA_IF(N) BOOST_PP_ENUM_PARAMS(N, typename FArg)>
         BOOST_FORCEINLINE result_type operator()(continuation_type cont,
-            typename action_impl<F, funcptr>::result_type (Object::* func)(BOOST_PP_ENUM_BINARY_PARAMS(N, FArg, arg)),
-            typename action_impl<F, funcptr>::component_type* obj
+            Result (Object::* func)(BOOST_PP_ENUM_BINARY_PARAMS(N, FArg, arg)),
+            Object* obj
           BOOST_PP_COMMA_IF(N) HPX_ENUM_FWD_ARGS(N, Arg, arg)) const
         {
             try {
@@ -180,13 +180,13 @@
             return threads::terminated;
         }
 
-        template <typename Object
+        template <typename Result, typename Object
             BOOST_PP_COMMA_IF(N) BOOST_PP_ENUM_PARAMS(N, typename Arg)
             BOOST_PP_COMMA_IF(N) BOOST_PP_ENUM_PARAMS(N, typename FArg)>
         BOOST_FORCEINLINE result_type operator()(continuation_type cont,
-            typename action_impl<F, funcptr>::result_type (Object::* const func)(
+            Result (Object::* const func)(
                 BOOST_PP_ENUM_BINARY_PARAMS(N, FArg, arg)) const,
-            typename action_impl<F, funcptr>::component_type* obj
+            Object* obj
           BOOST_PP_COMMA_IF(N) HPX_ENUM_FWD_ARGS(N, Arg, arg)) const
         {
             try {
@@ -210,13 +210,13 @@
         }
     };
 
-    template <typename Object, typename Arguments
+    template <typename Result, typename Object, typename Arguments
         BOOST_PP_COMMA_IF(N) BOOST_PP_ENUM_PARAMS(N, typename FArg)>
     static HPX_STD_FUNCTION<threads::thread_function_type>
     construct_continuation_thread_object_function(
         continuation_type cont,
-        typename action_impl<F, funcptr>::result_type (Object::* func)(BOOST_PP_ENUM_PARAMS(N, FArg)),
-        typename action_impl<F, funcptr>::component_type* obj,
+        Result (Object::* func)(BOOST_PP_ENUM_PARAMS(N, FArg)),
+        Object* obj,
         BOOST_FWD_REF(Arguments) args)
     {
         return HPX_STD_BIND(
@@ -226,13 +226,13 @@
                 BOOST_PP_REPEAT(N, HPX_ACTION_DIRECT_ARGUMENT, args));
     }
 
-    template <typename Object, typename Arguments
+    template <typename Result, typename Object, typename Arguments
         BOOST_PP_COMMA_IF(N) BOOST_PP_ENUM_PARAMS(N, typename FArg)>
     static HPX_STD_FUNCTION<threads::thread_function_type>
     construct_continuation_thread_object_function(
         continuation_type cont,
-        typename action_impl<F, funcptr>::result_type (Object::* const func)(BOOST_PP_ENUM_PARAMS(N, FArg)) const,
-        typename action_impl<F, funcptr>::component_type* obj, BOOST_FWD_REF(Arguments) args)
+        Result (Object::* const func)(BOOST_PP_ENUM_PARAMS(N, FArg)) const,
+        Object* obj, BOOST_FWD_REF(Arguments) args)
     {
         return HPX_STD_BIND(
             BOOST_PP_CAT(continuation_thread_object_function_, N)(),

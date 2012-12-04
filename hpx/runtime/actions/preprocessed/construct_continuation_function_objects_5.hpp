@@ -16,7 +16,7 @@ namespace detail
     
     
     
-    template <typename Action>
+    template <typename F, F funcptr>
     struct continuation_thread_function_void_0
     {
         typedef threads::thread_state_enum result_type;
@@ -28,7 +28,7 @@ namespace detail
         {
             try {
                 LTM_(debug) << "Executing action("
-                    << detail::get_action_name<Action>()
+                    << detail::get_action_name<action<F, funcptr> >()
                     << ") with continuation(" << cont->get_gid() << ")";
                 
                 
@@ -47,8 +47,8 @@ namespace detail
     
     
     
-    template <typename Action>
-    struct construct_continuation_thread_function_voidN<Action, 0>
+    template <typename F, F funcptr>
+    struct construct_continuation_thread_function_voidN<F, funcptr, 0>
     {
         template <typename Func, typename Arguments>
         static HPX_STD_FUNCTION<threads::thread_function_type>
@@ -56,14 +56,14 @@ namespace detail
             BOOST_FWD_REF(Arguments) args)
         {
             return HPX_STD_BIND(
-                continuation_thread_function_void_0<Action>(),
+                continuation_thread_function_void_0<F, funcptr>(),
                 cont, boost::forward<Func>(func)
               
                     );
         }
     };
     
-    template <typename Action>
+    template <typename F, F funcptr>
     struct continuation_thread_function_0
     {
         typedef threads::thread_state_enum result_type;
@@ -75,7 +75,7 @@ namespace detail
         {
             try {
                 LTM_(debug) << "Executing action("
-                    << detail::get_action_name<Action>()
+                    << detail::get_action_name<action<F, funcptr> >()
                     << ") with continuation(" << cont->get_gid() << ")";
                 
                 
@@ -92,8 +92,8 @@ namespace detail
             return threads::terminated;
         }
     };
-    template <typename Action>
-    struct construct_continuation_thread_functionN<Action, 0>
+    template <typename F, F funcptr>
+    struct construct_continuation_thread_functionN<F, funcptr, 0>
     {
         template <typename Func, typename Arguments>
         static HPX_STD_FUNCTION<threads::thread_function_type>
@@ -101,7 +101,7 @@ namespace detail
             BOOST_FWD_REF(Arguments) args)
         {
             return HPX_STD_BIND(
-                continuation_thread_function_0<Action>(),
+                continuation_thread_function_0<F, funcptr>(),
                 cont, boost::forward<Func>(func)
               
                     );
@@ -116,7 +116,7 @@ namespace detail
     
     
     
-    template <typename Action>
+    template <typename F, F funcptr>
     struct continuation_thread_function_void_1
     {
         typedef threads::thread_state_enum result_type;
@@ -128,7 +128,7 @@ namespace detail
         {
             try {
                 LTM_(debug) << "Executing action("
-                    << detail::get_action_name<Action>()
+                    << detail::get_action_name<action<F, funcptr> >()
                     << ") with continuation(" << cont->get_gid() << ")";
                 
                 
@@ -147,8 +147,8 @@ namespace detail
     
     
     
-    template <typename Action>
-    struct construct_continuation_thread_function_voidN<Action, 1>
+    template <typename F, F funcptr>
+    struct construct_continuation_thread_function_voidN<F, funcptr, 1>
     {
         template <typename Func, typename Arguments>
         static HPX_STD_FUNCTION<threads::thread_function_type>
@@ -156,14 +156,14 @@ namespace detail
             BOOST_FWD_REF(Arguments) args)
         {
             return HPX_STD_BIND(
-                continuation_thread_function_void_1<Action>(),
+                continuation_thread_function_void_1<F, funcptr>(),
                 cont, boost::forward<Func>(func)
               ,
                     util::detail::move_if_no_ref< typename util::detail::remove_reference<Arguments>::type:: member_type0>::call( args. a0));
         }
     };
     
-    template <typename Action>
+    template <typename F, F funcptr>
     struct continuation_thread_function_1
     {
         typedef threads::thread_state_enum result_type;
@@ -175,7 +175,7 @@ namespace detail
         {
             try {
                 LTM_(debug) << "Executing action("
-                    << detail::get_action_name<Action>()
+                    << detail::get_action_name<action<F, funcptr> >()
                     << ") with continuation(" << cont->get_gid() << ")";
                 
                 
@@ -192,8 +192,8 @@ namespace detail
             return threads::terminated;
         }
     };
-    template <typename Action>
-    struct construct_continuation_thread_functionN<Action, 1>
+    template <typename F, F funcptr>
+    struct construct_continuation_thread_functionN<F, funcptr, 1>
     {
         template <typename Func, typename Arguments>
         static HPX_STD_FUNCTION<threads::thread_function_type>
@@ -201,7 +201,7 @@ namespace detail
             BOOST_FWD_REF(Arguments) args)
         {
             return HPX_STD_BIND(
-                continuation_thread_function_1<Action>(),
+                continuation_thread_function_1<F, funcptr>(),
                 cont, boost::forward<Func>(func)
               ,
                     util::detail::move_if_no_ref< typename util::detail::remove_reference<Arguments>::type:: member_type0>::call( args. a0));
@@ -216,7 +216,7 @@ namespace detail
     
     
     
-    template <typename Action>
+    template <typename F, F funcptr>
     struct continuation_thread_function_void_2
     {
         typedef threads::thread_state_enum result_type;
@@ -228,7 +228,7 @@ namespace detail
         {
             try {
                 LTM_(debug) << "Executing action("
-                    << detail::get_action_name<Action>()
+                    << detail::get_action_name<action<F, funcptr> >()
                     << ") with continuation(" << cont->get_gid() << ")";
                 
                 
@@ -247,8 +247,8 @@ namespace detail
     
     
     
-    template <typename Action>
-    struct construct_continuation_thread_function_voidN<Action, 2>
+    template <typename F, F funcptr>
+    struct construct_continuation_thread_function_voidN<F, funcptr, 2>
     {
         template <typename Func, typename Arguments>
         static HPX_STD_FUNCTION<threads::thread_function_type>
@@ -256,14 +256,14 @@ namespace detail
             BOOST_FWD_REF(Arguments) args)
         {
             return HPX_STD_BIND(
-                continuation_thread_function_void_2<Action>(),
+                continuation_thread_function_void_2<F, funcptr>(),
                 cont, boost::forward<Func>(func)
               ,
                     util::detail::move_if_no_ref< typename util::detail::remove_reference<Arguments>::type:: member_type0>::call( args. a0) , util::detail::move_if_no_ref< typename util::detail::remove_reference<Arguments>::type:: member_type1>::call( args. a1));
         }
     };
     
-    template <typename Action>
+    template <typename F, F funcptr>
     struct continuation_thread_function_2
     {
         typedef threads::thread_state_enum result_type;
@@ -275,7 +275,7 @@ namespace detail
         {
             try {
                 LTM_(debug) << "Executing action("
-                    << detail::get_action_name<Action>()
+                    << detail::get_action_name<action<F, funcptr> >()
                     << ") with continuation(" << cont->get_gid() << ")";
                 
                 
@@ -292,8 +292,8 @@ namespace detail
             return threads::terminated;
         }
     };
-    template <typename Action>
-    struct construct_continuation_thread_functionN<Action, 2>
+    template <typename F, F funcptr>
+    struct construct_continuation_thread_functionN<F, funcptr, 2>
     {
         template <typename Func, typename Arguments>
         static HPX_STD_FUNCTION<threads::thread_function_type>
@@ -301,7 +301,7 @@ namespace detail
             BOOST_FWD_REF(Arguments) args)
         {
             return HPX_STD_BIND(
-                continuation_thread_function_2<Action>(),
+                continuation_thread_function_2<F, funcptr>(),
                 cont, boost::forward<Func>(func)
               ,
                     util::detail::move_if_no_ref< typename util::detail::remove_reference<Arguments>::type:: member_type0>::call( args. a0) , util::detail::move_if_no_ref< typename util::detail::remove_reference<Arguments>::type:: member_type1>::call( args. a1));
@@ -316,7 +316,7 @@ namespace detail
     
     
     
-    template <typename Action>
+    template <typename F, F funcptr>
     struct continuation_thread_function_void_3
     {
         typedef threads::thread_state_enum result_type;
@@ -328,7 +328,7 @@ namespace detail
         {
             try {
                 LTM_(debug) << "Executing action("
-                    << detail::get_action_name<Action>()
+                    << detail::get_action_name<action<F, funcptr> >()
                     << ") with continuation(" << cont->get_gid() << ")";
                 
                 
@@ -347,8 +347,8 @@ namespace detail
     
     
     
-    template <typename Action>
-    struct construct_continuation_thread_function_voidN<Action, 3>
+    template <typename F, F funcptr>
+    struct construct_continuation_thread_function_voidN<F, funcptr, 3>
     {
         template <typename Func, typename Arguments>
         static HPX_STD_FUNCTION<threads::thread_function_type>
@@ -356,14 +356,14 @@ namespace detail
             BOOST_FWD_REF(Arguments) args)
         {
             return HPX_STD_BIND(
-                continuation_thread_function_void_3<Action>(),
+                continuation_thread_function_void_3<F, funcptr>(),
                 cont, boost::forward<Func>(func)
               ,
                     util::detail::move_if_no_ref< typename util::detail::remove_reference<Arguments>::type:: member_type0>::call( args. a0) , util::detail::move_if_no_ref< typename util::detail::remove_reference<Arguments>::type:: member_type1>::call( args. a1) , util::detail::move_if_no_ref< typename util::detail::remove_reference<Arguments>::type:: member_type2>::call( args. a2));
         }
     };
     
-    template <typename Action>
+    template <typename F, F funcptr>
     struct continuation_thread_function_3
     {
         typedef threads::thread_state_enum result_type;
@@ -375,7 +375,7 @@ namespace detail
         {
             try {
                 LTM_(debug) << "Executing action("
-                    << detail::get_action_name<Action>()
+                    << detail::get_action_name<action<F, funcptr> >()
                     << ") with continuation(" << cont->get_gid() << ")";
                 
                 
@@ -392,8 +392,8 @@ namespace detail
             return threads::terminated;
         }
     };
-    template <typename Action>
-    struct construct_continuation_thread_functionN<Action, 3>
+    template <typename F, F funcptr>
+    struct construct_continuation_thread_functionN<F, funcptr, 3>
     {
         template <typename Func, typename Arguments>
         static HPX_STD_FUNCTION<threads::thread_function_type>
@@ -401,7 +401,7 @@ namespace detail
             BOOST_FWD_REF(Arguments) args)
         {
             return HPX_STD_BIND(
-                continuation_thread_function_3<Action>(),
+                continuation_thread_function_3<F, funcptr>(),
                 cont, boost::forward<Func>(func)
               ,
                     util::detail::move_if_no_ref< typename util::detail::remove_reference<Arguments>::type:: member_type0>::call( args. a0) , util::detail::move_if_no_ref< typename util::detail::remove_reference<Arguments>::type:: member_type1>::call( args. a1) , util::detail::move_if_no_ref< typename util::detail::remove_reference<Arguments>::type:: member_type2>::call( args. a2));
@@ -416,7 +416,7 @@ namespace detail
     
     
     
-    template <typename Action>
+    template <typename F, F funcptr>
     struct continuation_thread_function_void_4
     {
         typedef threads::thread_state_enum result_type;
@@ -428,7 +428,7 @@ namespace detail
         {
             try {
                 LTM_(debug) << "Executing action("
-                    << detail::get_action_name<Action>()
+                    << detail::get_action_name<action<F, funcptr> >()
                     << ") with continuation(" << cont->get_gid() << ")";
                 
                 
@@ -447,8 +447,8 @@ namespace detail
     
     
     
-    template <typename Action>
-    struct construct_continuation_thread_function_voidN<Action, 4>
+    template <typename F, F funcptr>
+    struct construct_continuation_thread_function_voidN<F, funcptr, 4>
     {
         template <typename Func, typename Arguments>
         static HPX_STD_FUNCTION<threads::thread_function_type>
@@ -456,14 +456,14 @@ namespace detail
             BOOST_FWD_REF(Arguments) args)
         {
             return HPX_STD_BIND(
-                continuation_thread_function_void_4<Action>(),
+                continuation_thread_function_void_4<F, funcptr>(),
                 cont, boost::forward<Func>(func)
               ,
                     util::detail::move_if_no_ref< typename util::detail::remove_reference<Arguments>::type:: member_type0>::call( args. a0) , util::detail::move_if_no_ref< typename util::detail::remove_reference<Arguments>::type:: member_type1>::call( args. a1) , util::detail::move_if_no_ref< typename util::detail::remove_reference<Arguments>::type:: member_type2>::call( args. a2) , util::detail::move_if_no_ref< typename util::detail::remove_reference<Arguments>::type:: member_type3>::call( args. a3));
         }
     };
     
-    template <typename Action>
+    template <typename F, F funcptr>
     struct continuation_thread_function_4
     {
         typedef threads::thread_state_enum result_type;
@@ -475,7 +475,7 @@ namespace detail
         {
             try {
                 LTM_(debug) << "Executing action("
-                    << detail::get_action_name<Action>()
+                    << detail::get_action_name<action<F, funcptr> >()
                     << ") with continuation(" << cont->get_gid() << ")";
                 
                 
@@ -492,8 +492,8 @@ namespace detail
             return threads::terminated;
         }
     };
-    template <typename Action>
-    struct construct_continuation_thread_functionN<Action, 4>
+    template <typename F, F funcptr>
+    struct construct_continuation_thread_functionN<F, funcptr, 4>
     {
         template <typename Func, typename Arguments>
         static HPX_STD_FUNCTION<threads::thread_function_type>
@@ -501,7 +501,7 @@ namespace detail
             BOOST_FWD_REF(Arguments) args)
         {
             return HPX_STD_BIND(
-                continuation_thread_function_4<Action>(),
+                continuation_thread_function_4<F, funcptr>(),
                 cont, boost::forward<Func>(func)
               ,
                     util::detail::move_if_no_ref< typename util::detail::remove_reference<Arguments>::type:: member_type0>::call( args. a0) , util::detail::move_if_no_ref< typename util::detail::remove_reference<Arguments>::type:: member_type1>::call( args. a1) , util::detail::move_if_no_ref< typename util::detail::remove_reference<Arguments>::type:: member_type2>::call( args. a2) , util::detail::move_if_no_ref< typename util::detail::remove_reference<Arguments>::type:: member_type3>::call( args. a3));
@@ -516,7 +516,7 @@ namespace detail
     
     
     
-    template <typename Action>
+    template <typename F, F funcptr>
     struct continuation_thread_function_void_5
     {
         typedef threads::thread_state_enum result_type;
@@ -528,7 +528,7 @@ namespace detail
         {
             try {
                 LTM_(debug) << "Executing action("
-                    << detail::get_action_name<Action>()
+                    << detail::get_action_name<action<F, funcptr> >()
                     << ") with continuation(" << cont->get_gid() << ")";
                 
                 
@@ -547,8 +547,8 @@ namespace detail
     
     
     
-    template <typename Action>
-    struct construct_continuation_thread_function_voidN<Action, 5>
+    template <typename F, F funcptr>
+    struct construct_continuation_thread_function_voidN<F, funcptr, 5>
     {
         template <typename Func, typename Arguments>
         static HPX_STD_FUNCTION<threads::thread_function_type>
@@ -556,14 +556,14 @@ namespace detail
             BOOST_FWD_REF(Arguments) args)
         {
             return HPX_STD_BIND(
-                continuation_thread_function_void_5<Action>(),
+                continuation_thread_function_void_5<F, funcptr>(),
                 cont, boost::forward<Func>(func)
               ,
                     util::detail::move_if_no_ref< typename util::detail::remove_reference<Arguments>::type:: member_type0>::call( args. a0) , util::detail::move_if_no_ref< typename util::detail::remove_reference<Arguments>::type:: member_type1>::call( args. a1) , util::detail::move_if_no_ref< typename util::detail::remove_reference<Arguments>::type:: member_type2>::call( args. a2) , util::detail::move_if_no_ref< typename util::detail::remove_reference<Arguments>::type:: member_type3>::call( args. a3) , util::detail::move_if_no_ref< typename util::detail::remove_reference<Arguments>::type:: member_type4>::call( args. a4));
         }
     };
     
-    template <typename Action>
+    template <typename F, F funcptr>
     struct continuation_thread_function_5
     {
         typedef threads::thread_state_enum result_type;
@@ -575,7 +575,7 @@ namespace detail
         {
             try {
                 LTM_(debug) << "Executing action("
-                    << detail::get_action_name<Action>()
+                    << detail::get_action_name<action<F, funcptr> >()
                     << ") with continuation(" << cont->get_gid() << ")";
                 
                 
@@ -592,8 +592,8 @@ namespace detail
             return threads::terminated;
         }
     };
-    template <typename Action>
-    struct construct_continuation_thread_functionN<Action, 5>
+    template <typename F, F funcptr>
+    struct construct_continuation_thread_functionN<F, funcptr, 5>
     {
         template <typename Func, typename Arguments>
         static HPX_STD_FUNCTION<threads::thread_function_type>
@@ -601,7 +601,7 @@ namespace detail
             BOOST_FWD_REF(Arguments) args)
         {
             return HPX_STD_BIND(
-                continuation_thread_function_5<Action>(),
+                continuation_thread_function_5<F, funcptr>(),
                 cont, boost::forward<Func>(func)
               ,
                     util::detail::move_if_no_ref< typename util::detail::remove_reference<Arguments>::type:: member_type0>::call( args. a0) , util::detail::move_if_no_ref< typename util::detail::remove_reference<Arguments>::type:: member_type1>::call( args. a1) , util::detail::move_if_no_ref< typename util::detail::remove_reference<Arguments>::type:: member_type2>::call( args. a2) , util::detail::move_if_no_ref< typename util::detail::remove_reference<Arguments>::type:: member_type3>::call( args. a3) , util::detail::move_if_no_ref< typename util::detail::remove_reference<Arguments>::type:: member_type4>::call( args. a4));

@@ -21,7 +21,7 @@ namespace hpx { namespace util
         struct bound_action1
         {
             typedef typename traits::promise_local_result<
-                typename hpx::actions::extract_action<Action>::result_type
+                typename Action::result_type
             >::type result_type;
             
             bound_action1()
@@ -667,24 +667,21 @@ namespace hpx { namespace util
             > (boost::forward<A0>( a0 ));
     }
     
-    template <typename Component, typename Result,
-        typename Arguments, typename Derived
+    template <typename F, F funcptr
       , typename A0
     >
     detail::bound_action1<
-        Derived
+      hpx::actions::action<F, funcptr>
       , typename boost::remove_const< typename detail::remove_reference<A0>::type>::type
     >
     bind(
-        hpx::actions::action<
-            Component, Result, Arguments, Derived
-        > 
+      hpx::actions::action<F, funcptr> 
       , BOOST_FWD_REF(A0) a0
     )
     {
         return
             detail::bound_action1<
-                Derived
+              hpx::actions::action<F, funcptr>
               ,
                   typename boost::remove_const< typename detail::remove_reference<A0>::type>::type
             > (boost::forward<A0>( a0 ));
@@ -733,7 +730,7 @@ namespace hpx { namespace util
         struct bound_action2
         {
             typedef typename traits::promise_local_result<
-                typename hpx::actions::extract_action<Action>::result_type
+                typename Action::result_type
             >::type result_type;
             
             bound_action2()
@@ -1379,24 +1376,21 @@ namespace hpx { namespace util
             > (boost::forward<A0>( a0 ) , boost::forward<A1>( a1 ));
     }
     
-    template <typename Component, typename Result,
-        typename Arguments, typename Derived
+    template <typename F, F funcptr
       , typename A0 , typename A1
     >
     detail::bound_action2<
-        Derived
+      hpx::actions::action<F, funcptr>
       , typename boost::remove_const< typename detail::remove_reference<A0>::type>::type , typename boost::remove_const< typename detail::remove_reference<A1>::type>::type
     >
     bind(
-        hpx::actions::action<
-            Component, Result, Arguments, Derived
-        > 
+      hpx::actions::action<F, funcptr> 
       , BOOST_FWD_REF(A0) a0 , BOOST_FWD_REF(A1) a1
     )
     {
         return
             detail::bound_action2<
-                Derived
+              hpx::actions::action<F, funcptr>
               ,
                   typename boost::remove_const< typename detail::remove_reference<A0>::type>::type , typename boost::remove_const< typename detail::remove_reference<A1>::type>::type
             > (boost::forward<A0>( a0 ) , boost::forward<A1>( a1 ));
@@ -1445,7 +1439,7 @@ namespace hpx { namespace util
         struct bound_action3
         {
             typedef typename traits::promise_local_result<
-                typename hpx::actions::extract_action<Action>::result_type
+                typename Action::result_type
             >::type result_type;
             
             bound_action3()
@@ -2091,24 +2085,21 @@ namespace hpx { namespace util
             > (boost::forward<A0>( a0 ) , boost::forward<A1>( a1 ) , boost::forward<A2>( a2 ));
     }
     
-    template <typename Component, typename Result,
-        typename Arguments, typename Derived
+    template <typename F, F funcptr
       , typename A0 , typename A1 , typename A2
     >
     detail::bound_action3<
-        Derived
+      hpx::actions::action<F, funcptr>
       , typename boost::remove_const< typename detail::remove_reference<A0>::type>::type , typename boost::remove_const< typename detail::remove_reference<A1>::type>::type , typename boost::remove_const< typename detail::remove_reference<A2>::type>::type
     >
     bind(
-        hpx::actions::action<
-            Component, Result, Arguments, Derived
-        > 
+      hpx::actions::action<F, funcptr> 
       , BOOST_FWD_REF(A0) a0 , BOOST_FWD_REF(A1) a1 , BOOST_FWD_REF(A2) a2
     )
     {
         return
             detail::bound_action3<
-                Derived
+              hpx::actions::action<F, funcptr>
               ,
                   typename boost::remove_const< typename detail::remove_reference<A0>::type>::type , typename boost::remove_const< typename detail::remove_reference<A1>::type>::type , typename boost::remove_const< typename detail::remove_reference<A2>::type>::type
             > (boost::forward<A0>( a0 ) , boost::forward<A1>( a1 ) , boost::forward<A2>( a2 ));
@@ -2157,7 +2148,7 @@ namespace hpx { namespace util
         struct bound_action4
         {
             typedef typename traits::promise_local_result<
-                typename hpx::actions::extract_action<Action>::result_type
+                typename Action::result_type
             >::type result_type;
             
             bound_action4()
@@ -2803,24 +2794,21 @@ namespace hpx { namespace util
             > (boost::forward<A0>( a0 ) , boost::forward<A1>( a1 ) , boost::forward<A2>( a2 ) , boost::forward<A3>( a3 ));
     }
     
-    template <typename Component, typename Result,
-        typename Arguments, typename Derived
+    template <typename F, F funcptr
       , typename A0 , typename A1 , typename A2 , typename A3
     >
     detail::bound_action4<
-        Derived
+      hpx::actions::action<F, funcptr>
       , typename boost::remove_const< typename detail::remove_reference<A0>::type>::type , typename boost::remove_const< typename detail::remove_reference<A1>::type>::type , typename boost::remove_const< typename detail::remove_reference<A2>::type>::type , typename boost::remove_const< typename detail::remove_reference<A3>::type>::type
     >
     bind(
-        hpx::actions::action<
-            Component, Result, Arguments, Derived
-        > 
+      hpx::actions::action<F, funcptr> 
       , BOOST_FWD_REF(A0) a0 , BOOST_FWD_REF(A1) a1 , BOOST_FWD_REF(A2) a2 , BOOST_FWD_REF(A3) a3
     )
     {
         return
             detail::bound_action4<
-                Derived
+              hpx::actions::action<F, funcptr>
               ,
                   typename boost::remove_const< typename detail::remove_reference<A0>::type>::type , typename boost::remove_const< typename detail::remove_reference<A1>::type>::type , typename boost::remove_const< typename detail::remove_reference<A2>::type>::type , typename boost::remove_const< typename detail::remove_reference<A3>::type>::type
             > (boost::forward<A0>( a0 ) , boost::forward<A1>( a1 ) , boost::forward<A2>( a2 ) , boost::forward<A3>( a3 ));
@@ -2869,7 +2857,7 @@ namespace hpx { namespace util
         struct bound_action5
         {
             typedef typename traits::promise_local_result<
-                typename hpx::actions::extract_action<Action>::result_type
+                typename Action::result_type
             >::type result_type;
             
             bound_action5()
@@ -3515,24 +3503,21 @@ namespace hpx { namespace util
             > (boost::forward<A0>( a0 ) , boost::forward<A1>( a1 ) , boost::forward<A2>( a2 ) , boost::forward<A3>( a3 ) , boost::forward<A4>( a4 ));
     }
     
-    template <typename Component, typename Result,
-        typename Arguments, typename Derived
+    template <typename F, F funcptr
       , typename A0 , typename A1 , typename A2 , typename A3 , typename A4
     >
     detail::bound_action5<
-        Derived
+      hpx::actions::action<F, funcptr>
       , typename boost::remove_const< typename detail::remove_reference<A0>::type>::type , typename boost::remove_const< typename detail::remove_reference<A1>::type>::type , typename boost::remove_const< typename detail::remove_reference<A2>::type>::type , typename boost::remove_const< typename detail::remove_reference<A3>::type>::type , typename boost::remove_const< typename detail::remove_reference<A4>::type>::type
     >
     bind(
-        hpx::actions::action<
-            Component, Result, Arguments, Derived
-        > 
+      hpx::actions::action<F, funcptr> 
       , BOOST_FWD_REF(A0) a0 , BOOST_FWD_REF(A1) a1 , BOOST_FWD_REF(A2) a2 , BOOST_FWD_REF(A3) a3 , BOOST_FWD_REF(A4) a4
     )
     {
         return
             detail::bound_action5<
-                Derived
+              hpx::actions::action<F, funcptr>
               ,
                   typename boost::remove_const< typename detail::remove_reference<A0>::type>::type , typename boost::remove_const< typename detail::remove_reference<A1>::type>::type , typename boost::remove_const< typename detail::remove_reference<A2>::type>::type , typename boost::remove_const< typename detail::remove_reference<A3>::type>::type , typename boost::remove_const< typename detail::remove_reference<A4>::type>::type
             > (boost::forward<A0>( a0 ) , boost::forward<A1>( a1 ) , boost::forward<A2>( a2 ) , boost::forward<A3>( a3 ) , boost::forward<A4>( a4 ));
@@ -3581,7 +3566,7 @@ namespace hpx { namespace util
         struct bound_action6
         {
             typedef typename traits::promise_local_result<
-                typename hpx::actions::extract_action<Action>::result_type
+                typename Action::result_type
             >::type result_type;
             
             bound_action6()
@@ -4227,24 +4212,21 @@ namespace hpx { namespace util
             > (boost::forward<A0>( a0 ) , boost::forward<A1>( a1 ) , boost::forward<A2>( a2 ) , boost::forward<A3>( a3 ) , boost::forward<A4>( a4 ) , boost::forward<A5>( a5 ));
     }
     
-    template <typename Component, typename Result,
-        typename Arguments, typename Derived
+    template <typename F, F funcptr
       , typename A0 , typename A1 , typename A2 , typename A3 , typename A4 , typename A5
     >
     detail::bound_action6<
-        Derived
+      hpx::actions::action<F, funcptr>
       , typename boost::remove_const< typename detail::remove_reference<A0>::type>::type , typename boost::remove_const< typename detail::remove_reference<A1>::type>::type , typename boost::remove_const< typename detail::remove_reference<A2>::type>::type , typename boost::remove_const< typename detail::remove_reference<A3>::type>::type , typename boost::remove_const< typename detail::remove_reference<A4>::type>::type , typename boost::remove_const< typename detail::remove_reference<A5>::type>::type
     >
     bind(
-        hpx::actions::action<
-            Component, Result, Arguments, Derived
-        > 
+      hpx::actions::action<F, funcptr> 
       , BOOST_FWD_REF(A0) a0 , BOOST_FWD_REF(A1) a1 , BOOST_FWD_REF(A2) a2 , BOOST_FWD_REF(A3) a3 , BOOST_FWD_REF(A4) a4 , BOOST_FWD_REF(A5) a5
     )
     {
         return
             detail::bound_action6<
-                Derived
+              hpx::actions::action<F, funcptr>
               ,
                   typename boost::remove_const< typename detail::remove_reference<A0>::type>::type , typename boost::remove_const< typename detail::remove_reference<A1>::type>::type , typename boost::remove_const< typename detail::remove_reference<A2>::type>::type , typename boost::remove_const< typename detail::remove_reference<A3>::type>::type , typename boost::remove_const< typename detail::remove_reference<A4>::type>::type , typename boost::remove_const< typename detail::remove_reference<A5>::type>::type
             > (boost::forward<A0>( a0 ) , boost::forward<A1>( a1 ) , boost::forward<A2>( a2 ) , boost::forward<A3>( a3 ) , boost::forward<A4>( a4 ) , boost::forward<A5>( a5 ));
@@ -4293,7 +4275,7 @@ namespace hpx { namespace util
         struct bound_action7
         {
             typedef typename traits::promise_local_result<
-                typename hpx::actions::extract_action<Action>::result_type
+                typename Action::result_type
             >::type result_type;
             
             bound_action7()
@@ -4939,24 +4921,21 @@ namespace hpx { namespace util
             > (boost::forward<A0>( a0 ) , boost::forward<A1>( a1 ) , boost::forward<A2>( a2 ) , boost::forward<A3>( a3 ) , boost::forward<A4>( a4 ) , boost::forward<A5>( a5 ) , boost::forward<A6>( a6 ));
     }
     
-    template <typename Component, typename Result,
-        typename Arguments, typename Derived
+    template <typename F, F funcptr
       , typename A0 , typename A1 , typename A2 , typename A3 , typename A4 , typename A5 , typename A6
     >
     detail::bound_action7<
-        Derived
+      hpx::actions::action<F, funcptr>
       , typename boost::remove_const< typename detail::remove_reference<A0>::type>::type , typename boost::remove_const< typename detail::remove_reference<A1>::type>::type , typename boost::remove_const< typename detail::remove_reference<A2>::type>::type , typename boost::remove_const< typename detail::remove_reference<A3>::type>::type , typename boost::remove_const< typename detail::remove_reference<A4>::type>::type , typename boost::remove_const< typename detail::remove_reference<A5>::type>::type , typename boost::remove_const< typename detail::remove_reference<A6>::type>::type
     >
     bind(
-        hpx::actions::action<
-            Component, Result, Arguments, Derived
-        > 
+      hpx::actions::action<F, funcptr> 
       , BOOST_FWD_REF(A0) a0 , BOOST_FWD_REF(A1) a1 , BOOST_FWD_REF(A2) a2 , BOOST_FWD_REF(A3) a3 , BOOST_FWD_REF(A4) a4 , BOOST_FWD_REF(A5) a5 , BOOST_FWD_REF(A6) a6
     )
     {
         return
             detail::bound_action7<
-                Derived
+              hpx::actions::action<F, funcptr>
               ,
                   typename boost::remove_const< typename detail::remove_reference<A0>::type>::type , typename boost::remove_const< typename detail::remove_reference<A1>::type>::type , typename boost::remove_const< typename detail::remove_reference<A2>::type>::type , typename boost::remove_const< typename detail::remove_reference<A3>::type>::type , typename boost::remove_const< typename detail::remove_reference<A4>::type>::type , typename boost::remove_const< typename detail::remove_reference<A5>::type>::type , typename boost::remove_const< typename detail::remove_reference<A6>::type>::type
             > (boost::forward<A0>( a0 ) , boost::forward<A1>( a1 ) , boost::forward<A2>( a2 ) , boost::forward<A3>( a3 ) , boost::forward<A4>( a4 ) , boost::forward<A5>( a5 ) , boost::forward<A6>( a6 ));
@@ -5005,7 +4984,7 @@ namespace hpx { namespace util
         struct bound_action8
         {
             typedef typename traits::promise_local_result<
-                typename hpx::actions::extract_action<Action>::result_type
+                typename Action::result_type
             >::type result_type;
             
             bound_action8()
@@ -5651,24 +5630,21 @@ namespace hpx { namespace util
             > (boost::forward<A0>( a0 ) , boost::forward<A1>( a1 ) , boost::forward<A2>( a2 ) , boost::forward<A3>( a3 ) , boost::forward<A4>( a4 ) , boost::forward<A5>( a5 ) , boost::forward<A6>( a6 ) , boost::forward<A7>( a7 ));
     }
     
-    template <typename Component, typename Result,
-        typename Arguments, typename Derived
+    template <typename F, F funcptr
       , typename A0 , typename A1 , typename A2 , typename A3 , typename A4 , typename A5 , typename A6 , typename A7
     >
     detail::bound_action8<
-        Derived
+      hpx::actions::action<F, funcptr>
       , typename boost::remove_const< typename detail::remove_reference<A0>::type>::type , typename boost::remove_const< typename detail::remove_reference<A1>::type>::type , typename boost::remove_const< typename detail::remove_reference<A2>::type>::type , typename boost::remove_const< typename detail::remove_reference<A3>::type>::type , typename boost::remove_const< typename detail::remove_reference<A4>::type>::type , typename boost::remove_const< typename detail::remove_reference<A5>::type>::type , typename boost::remove_const< typename detail::remove_reference<A6>::type>::type , typename boost::remove_const< typename detail::remove_reference<A7>::type>::type
     >
     bind(
-        hpx::actions::action<
-            Component, Result, Arguments, Derived
-        > 
+      hpx::actions::action<F, funcptr> 
       , BOOST_FWD_REF(A0) a0 , BOOST_FWD_REF(A1) a1 , BOOST_FWD_REF(A2) a2 , BOOST_FWD_REF(A3) a3 , BOOST_FWD_REF(A4) a4 , BOOST_FWD_REF(A5) a5 , BOOST_FWD_REF(A6) a6 , BOOST_FWD_REF(A7) a7
     )
     {
         return
             detail::bound_action8<
-                Derived
+              hpx::actions::action<F, funcptr>
               ,
                   typename boost::remove_const< typename detail::remove_reference<A0>::type>::type , typename boost::remove_const< typename detail::remove_reference<A1>::type>::type , typename boost::remove_const< typename detail::remove_reference<A2>::type>::type , typename boost::remove_const< typename detail::remove_reference<A3>::type>::type , typename boost::remove_const< typename detail::remove_reference<A4>::type>::type , typename boost::remove_const< typename detail::remove_reference<A5>::type>::type , typename boost::remove_const< typename detail::remove_reference<A6>::type>::type , typename boost::remove_const< typename detail::remove_reference<A7>::type>::type
             > (boost::forward<A0>( a0 ) , boost::forward<A1>( a1 ) , boost::forward<A2>( a2 ) , boost::forward<A3>( a3 ) , boost::forward<A4>( a4 ) , boost::forward<A5>( a5 ) , boost::forward<A6>( a6 ) , boost::forward<A7>( a7 ));
@@ -5717,7 +5693,7 @@ namespace hpx { namespace util
         struct bound_action9
         {
             typedef typename traits::promise_local_result<
-                typename hpx::actions::extract_action<Action>::result_type
+                typename Action::result_type
             >::type result_type;
             
             bound_action9()
@@ -6363,24 +6339,21 @@ namespace hpx { namespace util
             > (boost::forward<A0>( a0 ) , boost::forward<A1>( a1 ) , boost::forward<A2>( a2 ) , boost::forward<A3>( a3 ) , boost::forward<A4>( a4 ) , boost::forward<A5>( a5 ) , boost::forward<A6>( a6 ) , boost::forward<A7>( a7 ) , boost::forward<A8>( a8 ));
     }
     
-    template <typename Component, typename Result,
-        typename Arguments, typename Derived
+    template <typename F, F funcptr
       , typename A0 , typename A1 , typename A2 , typename A3 , typename A4 , typename A5 , typename A6 , typename A7 , typename A8
     >
     detail::bound_action9<
-        Derived
+      hpx::actions::action<F, funcptr>
       , typename boost::remove_const< typename detail::remove_reference<A0>::type>::type , typename boost::remove_const< typename detail::remove_reference<A1>::type>::type , typename boost::remove_const< typename detail::remove_reference<A2>::type>::type , typename boost::remove_const< typename detail::remove_reference<A3>::type>::type , typename boost::remove_const< typename detail::remove_reference<A4>::type>::type , typename boost::remove_const< typename detail::remove_reference<A5>::type>::type , typename boost::remove_const< typename detail::remove_reference<A6>::type>::type , typename boost::remove_const< typename detail::remove_reference<A7>::type>::type , typename boost::remove_const< typename detail::remove_reference<A8>::type>::type
     >
     bind(
-        hpx::actions::action<
-            Component, Result, Arguments, Derived
-        > 
+      hpx::actions::action<F, funcptr> 
       , BOOST_FWD_REF(A0) a0 , BOOST_FWD_REF(A1) a1 , BOOST_FWD_REF(A2) a2 , BOOST_FWD_REF(A3) a3 , BOOST_FWD_REF(A4) a4 , BOOST_FWD_REF(A5) a5 , BOOST_FWD_REF(A6) a6 , BOOST_FWD_REF(A7) a7 , BOOST_FWD_REF(A8) a8
     )
     {
         return
             detail::bound_action9<
-                Derived
+              hpx::actions::action<F, funcptr>
               ,
                   typename boost::remove_const< typename detail::remove_reference<A0>::type>::type , typename boost::remove_const< typename detail::remove_reference<A1>::type>::type , typename boost::remove_const< typename detail::remove_reference<A2>::type>::type , typename boost::remove_const< typename detail::remove_reference<A3>::type>::type , typename boost::remove_const< typename detail::remove_reference<A4>::type>::type , typename boost::remove_const< typename detail::remove_reference<A5>::type>::type , typename boost::remove_const< typename detail::remove_reference<A6>::type>::type , typename boost::remove_const< typename detail::remove_reference<A7>::type>::type , typename boost::remove_const< typename detail::remove_reference<A8>::type>::type
             > (boost::forward<A0>( a0 ) , boost::forward<A1>( a1 ) , boost::forward<A2>( a2 ) , boost::forward<A3>( a3 ) , boost::forward<A4>( a4 ) , boost::forward<A5>( a5 ) , boost::forward<A6>( a6 ) , boost::forward<A7>( a7 ) , boost::forward<A8>( a8 ));
@@ -6429,7 +6402,7 @@ namespace hpx { namespace util
         struct bound_action10
         {
             typedef typename traits::promise_local_result<
-                typename hpx::actions::extract_action<Action>::result_type
+                typename Action::result_type
             >::type result_type;
             
             bound_action10()
@@ -7075,24 +7048,21 @@ namespace hpx { namespace util
             > (boost::forward<A0>( a0 ) , boost::forward<A1>( a1 ) , boost::forward<A2>( a2 ) , boost::forward<A3>( a3 ) , boost::forward<A4>( a4 ) , boost::forward<A5>( a5 ) , boost::forward<A6>( a6 ) , boost::forward<A7>( a7 ) , boost::forward<A8>( a8 ) , boost::forward<A9>( a9 ));
     }
     
-    template <typename Component, typename Result,
-        typename Arguments, typename Derived
+    template <typename F, F funcptr
       , typename A0 , typename A1 , typename A2 , typename A3 , typename A4 , typename A5 , typename A6 , typename A7 , typename A8 , typename A9
     >
     detail::bound_action10<
-        Derived
+      hpx::actions::action<F, funcptr>
       , typename boost::remove_const< typename detail::remove_reference<A0>::type>::type , typename boost::remove_const< typename detail::remove_reference<A1>::type>::type , typename boost::remove_const< typename detail::remove_reference<A2>::type>::type , typename boost::remove_const< typename detail::remove_reference<A3>::type>::type , typename boost::remove_const< typename detail::remove_reference<A4>::type>::type , typename boost::remove_const< typename detail::remove_reference<A5>::type>::type , typename boost::remove_const< typename detail::remove_reference<A6>::type>::type , typename boost::remove_const< typename detail::remove_reference<A7>::type>::type , typename boost::remove_const< typename detail::remove_reference<A8>::type>::type , typename boost::remove_const< typename detail::remove_reference<A9>::type>::type
     >
     bind(
-        hpx::actions::action<
-            Component, Result, Arguments, Derived
-        > 
+      hpx::actions::action<F, funcptr> 
       , BOOST_FWD_REF(A0) a0 , BOOST_FWD_REF(A1) a1 , BOOST_FWD_REF(A2) a2 , BOOST_FWD_REF(A3) a3 , BOOST_FWD_REF(A4) a4 , BOOST_FWD_REF(A5) a5 , BOOST_FWD_REF(A6) a6 , BOOST_FWD_REF(A7) a7 , BOOST_FWD_REF(A8) a8 , BOOST_FWD_REF(A9) a9
     )
     {
         return
             detail::bound_action10<
-                Derived
+              hpx::actions::action<F, funcptr>
               ,
                   typename boost::remove_const< typename detail::remove_reference<A0>::type>::type , typename boost::remove_const< typename detail::remove_reference<A1>::type>::type , typename boost::remove_const< typename detail::remove_reference<A2>::type>::type , typename boost::remove_const< typename detail::remove_reference<A3>::type>::type , typename boost::remove_const< typename detail::remove_reference<A4>::type>::type , typename boost::remove_const< typename detail::remove_reference<A5>::type>::type , typename boost::remove_const< typename detail::remove_reference<A6>::type>::type , typename boost::remove_const< typename detail::remove_reference<A7>::type>::type , typename boost::remove_const< typename detail::remove_reference<A8>::type>::type , typename boost::remove_const< typename detail::remove_reference<A9>::type>::type
             > (boost::forward<A0>( a0 ) , boost::forward<A1>( a1 ) , boost::forward<A2>( a2 ) , boost::forward<A3>( a3 ) , boost::forward<A4>( a4 ) , boost::forward<A5>( a5 ) , boost::forward<A6>( a6 ) , boost::forward<A7>( a7 ) , boost::forward<A8>( a8 ) , boost::forward<A9>( a9 ));
@@ -7141,7 +7111,7 @@ namespace hpx { namespace util
         struct bound_action11
         {
             typedef typename traits::promise_local_result<
-                typename hpx::actions::extract_action<Action>::result_type
+                typename Action::result_type
             >::type result_type;
             
             bound_action11()
@@ -7787,24 +7757,21 @@ namespace hpx { namespace util
             > (boost::forward<A0>( a0 ) , boost::forward<A1>( a1 ) , boost::forward<A2>( a2 ) , boost::forward<A3>( a3 ) , boost::forward<A4>( a4 ) , boost::forward<A5>( a5 ) , boost::forward<A6>( a6 ) , boost::forward<A7>( a7 ) , boost::forward<A8>( a8 ) , boost::forward<A9>( a9 ) , boost::forward<A10>( a10 ));
     }
     
-    template <typename Component, typename Result,
-        typename Arguments, typename Derived
+    template <typename F, F funcptr
       , typename A0 , typename A1 , typename A2 , typename A3 , typename A4 , typename A5 , typename A6 , typename A7 , typename A8 , typename A9 , typename A10
     >
     detail::bound_action11<
-        Derived
+      hpx::actions::action<F, funcptr>
       , typename boost::remove_const< typename detail::remove_reference<A0>::type>::type , typename boost::remove_const< typename detail::remove_reference<A1>::type>::type , typename boost::remove_const< typename detail::remove_reference<A2>::type>::type , typename boost::remove_const< typename detail::remove_reference<A3>::type>::type , typename boost::remove_const< typename detail::remove_reference<A4>::type>::type , typename boost::remove_const< typename detail::remove_reference<A5>::type>::type , typename boost::remove_const< typename detail::remove_reference<A6>::type>::type , typename boost::remove_const< typename detail::remove_reference<A7>::type>::type , typename boost::remove_const< typename detail::remove_reference<A8>::type>::type , typename boost::remove_const< typename detail::remove_reference<A9>::type>::type , typename boost::remove_const< typename detail::remove_reference<A10>::type>::type
     >
     bind(
-        hpx::actions::action<
-            Component, Result, Arguments, Derived
-        > 
+      hpx::actions::action<F, funcptr> 
       , BOOST_FWD_REF(A0) a0 , BOOST_FWD_REF(A1) a1 , BOOST_FWD_REF(A2) a2 , BOOST_FWD_REF(A3) a3 , BOOST_FWD_REF(A4) a4 , BOOST_FWD_REF(A5) a5 , BOOST_FWD_REF(A6) a6 , BOOST_FWD_REF(A7) a7 , BOOST_FWD_REF(A8) a8 , BOOST_FWD_REF(A9) a9 , BOOST_FWD_REF(A10) a10
     )
     {
         return
             detail::bound_action11<
-                Derived
+              hpx::actions::action<F, funcptr>
               ,
                   typename boost::remove_const< typename detail::remove_reference<A0>::type>::type , typename boost::remove_const< typename detail::remove_reference<A1>::type>::type , typename boost::remove_const< typename detail::remove_reference<A2>::type>::type , typename boost::remove_const< typename detail::remove_reference<A3>::type>::type , typename boost::remove_const< typename detail::remove_reference<A4>::type>::type , typename boost::remove_const< typename detail::remove_reference<A5>::type>::type , typename boost::remove_const< typename detail::remove_reference<A6>::type>::type , typename boost::remove_const< typename detail::remove_reference<A7>::type>::type , typename boost::remove_const< typename detail::remove_reference<A8>::type>::type , typename boost::remove_const< typename detail::remove_reference<A9>::type>::type , typename boost::remove_const< typename detail::remove_reference<A10>::type>::type
             > (boost::forward<A0>( a0 ) , boost::forward<A1>( a1 ) , boost::forward<A2>( a2 ) , boost::forward<A3>( a3 ) , boost::forward<A4>( a4 ) , boost::forward<A5>( a5 ) , boost::forward<A6>( a6 ) , boost::forward<A7>( a7 ) , boost::forward<A8>( a8 ) , boost::forward<A9>( a9 ) , boost::forward<A10>( a10 ));
@@ -7853,7 +7820,7 @@ namespace hpx { namespace util
         struct bound_action12
         {
             typedef typename traits::promise_local_result<
-                typename hpx::actions::extract_action<Action>::result_type
+                typename Action::result_type
             >::type result_type;
             
             bound_action12()
@@ -8499,24 +8466,21 @@ namespace hpx { namespace util
             > (boost::forward<A0>( a0 ) , boost::forward<A1>( a1 ) , boost::forward<A2>( a2 ) , boost::forward<A3>( a3 ) , boost::forward<A4>( a4 ) , boost::forward<A5>( a5 ) , boost::forward<A6>( a6 ) , boost::forward<A7>( a7 ) , boost::forward<A8>( a8 ) , boost::forward<A9>( a9 ) , boost::forward<A10>( a10 ) , boost::forward<A11>( a11 ));
     }
     
-    template <typename Component, typename Result,
-        typename Arguments, typename Derived
+    template <typename F, F funcptr
       , typename A0 , typename A1 , typename A2 , typename A3 , typename A4 , typename A5 , typename A6 , typename A7 , typename A8 , typename A9 , typename A10 , typename A11
     >
     detail::bound_action12<
-        Derived
+      hpx::actions::action<F, funcptr>
       , typename boost::remove_const< typename detail::remove_reference<A0>::type>::type , typename boost::remove_const< typename detail::remove_reference<A1>::type>::type , typename boost::remove_const< typename detail::remove_reference<A2>::type>::type , typename boost::remove_const< typename detail::remove_reference<A3>::type>::type , typename boost::remove_const< typename detail::remove_reference<A4>::type>::type , typename boost::remove_const< typename detail::remove_reference<A5>::type>::type , typename boost::remove_const< typename detail::remove_reference<A6>::type>::type , typename boost::remove_const< typename detail::remove_reference<A7>::type>::type , typename boost::remove_const< typename detail::remove_reference<A8>::type>::type , typename boost::remove_const< typename detail::remove_reference<A9>::type>::type , typename boost::remove_const< typename detail::remove_reference<A10>::type>::type , typename boost::remove_const< typename detail::remove_reference<A11>::type>::type
     >
     bind(
-        hpx::actions::action<
-            Component, Result, Arguments, Derived
-        > 
+      hpx::actions::action<F, funcptr> 
       , BOOST_FWD_REF(A0) a0 , BOOST_FWD_REF(A1) a1 , BOOST_FWD_REF(A2) a2 , BOOST_FWD_REF(A3) a3 , BOOST_FWD_REF(A4) a4 , BOOST_FWD_REF(A5) a5 , BOOST_FWD_REF(A6) a6 , BOOST_FWD_REF(A7) a7 , BOOST_FWD_REF(A8) a8 , BOOST_FWD_REF(A9) a9 , BOOST_FWD_REF(A10) a10 , BOOST_FWD_REF(A11) a11
     )
     {
         return
             detail::bound_action12<
-                Derived
+              hpx::actions::action<F, funcptr>
               ,
                   typename boost::remove_const< typename detail::remove_reference<A0>::type>::type , typename boost::remove_const< typename detail::remove_reference<A1>::type>::type , typename boost::remove_const< typename detail::remove_reference<A2>::type>::type , typename boost::remove_const< typename detail::remove_reference<A3>::type>::type , typename boost::remove_const< typename detail::remove_reference<A4>::type>::type , typename boost::remove_const< typename detail::remove_reference<A5>::type>::type , typename boost::remove_const< typename detail::remove_reference<A6>::type>::type , typename boost::remove_const< typename detail::remove_reference<A7>::type>::type , typename boost::remove_const< typename detail::remove_reference<A8>::type>::type , typename boost::remove_const< typename detail::remove_reference<A9>::type>::type , typename boost::remove_const< typename detail::remove_reference<A10>::type>::type , typename boost::remove_const< typename detail::remove_reference<A11>::type>::type
             > (boost::forward<A0>( a0 ) , boost::forward<A1>( a1 ) , boost::forward<A2>( a2 ) , boost::forward<A3>( a3 ) , boost::forward<A4>( a4 ) , boost::forward<A5>( a5 ) , boost::forward<A6>( a6 ) , boost::forward<A7>( a7 ) , boost::forward<A8>( a8 ) , boost::forward<A9>( a9 ) , boost::forward<A10>( a10 ) , boost::forward<A11>( a11 ));
@@ -8565,7 +8529,7 @@ namespace hpx { namespace util
         struct bound_action13
         {
             typedef typename traits::promise_local_result<
-                typename hpx::actions::extract_action<Action>::result_type
+                typename Action::result_type
             >::type result_type;
             
             bound_action13()
@@ -9211,24 +9175,21 @@ namespace hpx { namespace util
             > (boost::forward<A0>( a0 ) , boost::forward<A1>( a1 ) , boost::forward<A2>( a2 ) , boost::forward<A3>( a3 ) , boost::forward<A4>( a4 ) , boost::forward<A5>( a5 ) , boost::forward<A6>( a6 ) , boost::forward<A7>( a7 ) , boost::forward<A8>( a8 ) , boost::forward<A9>( a9 ) , boost::forward<A10>( a10 ) , boost::forward<A11>( a11 ) , boost::forward<A12>( a12 ));
     }
     
-    template <typename Component, typename Result,
-        typename Arguments, typename Derived
+    template <typename F, F funcptr
       , typename A0 , typename A1 , typename A2 , typename A3 , typename A4 , typename A5 , typename A6 , typename A7 , typename A8 , typename A9 , typename A10 , typename A11 , typename A12
     >
     detail::bound_action13<
-        Derived
+      hpx::actions::action<F, funcptr>
       , typename boost::remove_const< typename detail::remove_reference<A0>::type>::type , typename boost::remove_const< typename detail::remove_reference<A1>::type>::type , typename boost::remove_const< typename detail::remove_reference<A2>::type>::type , typename boost::remove_const< typename detail::remove_reference<A3>::type>::type , typename boost::remove_const< typename detail::remove_reference<A4>::type>::type , typename boost::remove_const< typename detail::remove_reference<A5>::type>::type , typename boost::remove_const< typename detail::remove_reference<A6>::type>::type , typename boost::remove_const< typename detail::remove_reference<A7>::type>::type , typename boost::remove_const< typename detail::remove_reference<A8>::type>::type , typename boost::remove_const< typename detail::remove_reference<A9>::type>::type , typename boost::remove_const< typename detail::remove_reference<A10>::type>::type , typename boost::remove_const< typename detail::remove_reference<A11>::type>::type , typename boost::remove_const< typename detail::remove_reference<A12>::type>::type
     >
     bind(
-        hpx::actions::action<
-            Component, Result, Arguments, Derived
-        > 
+      hpx::actions::action<F, funcptr> 
       , BOOST_FWD_REF(A0) a0 , BOOST_FWD_REF(A1) a1 , BOOST_FWD_REF(A2) a2 , BOOST_FWD_REF(A3) a3 , BOOST_FWD_REF(A4) a4 , BOOST_FWD_REF(A5) a5 , BOOST_FWD_REF(A6) a6 , BOOST_FWD_REF(A7) a7 , BOOST_FWD_REF(A8) a8 , BOOST_FWD_REF(A9) a9 , BOOST_FWD_REF(A10) a10 , BOOST_FWD_REF(A11) a11 , BOOST_FWD_REF(A12) a12
     )
     {
         return
             detail::bound_action13<
-                Derived
+              hpx::actions::action<F, funcptr>
               ,
                   typename boost::remove_const< typename detail::remove_reference<A0>::type>::type , typename boost::remove_const< typename detail::remove_reference<A1>::type>::type , typename boost::remove_const< typename detail::remove_reference<A2>::type>::type , typename boost::remove_const< typename detail::remove_reference<A3>::type>::type , typename boost::remove_const< typename detail::remove_reference<A4>::type>::type , typename boost::remove_const< typename detail::remove_reference<A5>::type>::type , typename boost::remove_const< typename detail::remove_reference<A6>::type>::type , typename boost::remove_const< typename detail::remove_reference<A7>::type>::type , typename boost::remove_const< typename detail::remove_reference<A8>::type>::type , typename boost::remove_const< typename detail::remove_reference<A9>::type>::type , typename boost::remove_const< typename detail::remove_reference<A10>::type>::type , typename boost::remove_const< typename detail::remove_reference<A11>::type>::type , typename boost::remove_const< typename detail::remove_reference<A12>::type>::type
             > (boost::forward<A0>( a0 ) , boost::forward<A1>( a1 ) , boost::forward<A2>( a2 ) , boost::forward<A3>( a3 ) , boost::forward<A4>( a4 ) , boost::forward<A5>( a5 ) , boost::forward<A6>( a6 ) , boost::forward<A7>( a7 ) , boost::forward<A8>( a8 ) , boost::forward<A9>( a9 ) , boost::forward<A10>( a10 ) , boost::forward<A11>( a11 ) , boost::forward<A12>( a12 ));
@@ -9277,7 +9238,7 @@ namespace hpx { namespace util
         struct bound_action14
         {
             typedef typename traits::promise_local_result<
-                typename hpx::actions::extract_action<Action>::result_type
+                typename Action::result_type
             >::type result_type;
             
             bound_action14()
@@ -9923,24 +9884,21 @@ namespace hpx { namespace util
             > (boost::forward<A0>( a0 ) , boost::forward<A1>( a1 ) , boost::forward<A2>( a2 ) , boost::forward<A3>( a3 ) , boost::forward<A4>( a4 ) , boost::forward<A5>( a5 ) , boost::forward<A6>( a6 ) , boost::forward<A7>( a7 ) , boost::forward<A8>( a8 ) , boost::forward<A9>( a9 ) , boost::forward<A10>( a10 ) , boost::forward<A11>( a11 ) , boost::forward<A12>( a12 ) , boost::forward<A13>( a13 ));
     }
     
-    template <typename Component, typename Result,
-        typename Arguments, typename Derived
+    template <typename F, F funcptr
       , typename A0 , typename A1 , typename A2 , typename A3 , typename A4 , typename A5 , typename A6 , typename A7 , typename A8 , typename A9 , typename A10 , typename A11 , typename A12 , typename A13
     >
     detail::bound_action14<
-        Derived
+      hpx::actions::action<F, funcptr>
       , typename boost::remove_const< typename detail::remove_reference<A0>::type>::type , typename boost::remove_const< typename detail::remove_reference<A1>::type>::type , typename boost::remove_const< typename detail::remove_reference<A2>::type>::type , typename boost::remove_const< typename detail::remove_reference<A3>::type>::type , typename boost::remove_const< typename detail::remove_reference<A4>::type>::type , typename boost::remove_const< typename detail::remove_reference<A5>::type>::type , typename boost::remove_const< typename detail::remove_reference<A6>::type>::type , typename boost::remove_const< typename detail::remove_reference<A7>::type>::type , typename boost::remove_const< typename detail::remove_reference<A8>::type>::type , typename boost::remove_const< typename detail::remove_reference<A9>::type>::type , typename boost::remove_const< typename detail::remove_reference<A10>::type>::type , typename boost::remove_const< typename detail::remove_reference<A11>::type>::type , typename boost::remove_const< typename detail::remove_reference<A12>::type>::type , typename boost::remove_const< typename detail::remove_reference<A13>::type>::type
     >
     bind(
-        hpx::actions::action<
-            Component, Result, Arguments, Derived
-        > 
+      hpx::actions::action<F, funcptr> 
       , BOOST_FWD_REF(A0) a0 , BOOST_FWD_REF(A1) a1 , BOOST_FWD_REF(A2) a2 , BOOST_FWD_REF(A3) a3 , BOOST_FWD_REF(A4) a4 , BOOST_FWD_REF(A5) a5 , BOOST_FWD_REF(A6) a6 , BOOST_FWD_REF(A7) a7 , BOOST_FWD_REF(A8) a8 , BOOST_FWD_REF(A9) a9 , BOOST_FWD_REF(A10) a10 , BOOST_FWD_REF(A11) a11 , BOOST_FWD_REF(A12) a12 , BOOST_FWD_REF(A13) a13
     )
     {
         return
             detail::bound_action14<
-                Derived
+              hpx::actions::action<F, funcptr>
               ,
                   typename boost::remove_const< typename detail::remove_reference<A0>::type>::type , typename boost::remove_const< typename detail::remove_reference<A1>::type>::type , typename boost::remove_const< typename detail::remove_reference<A2>::type>::type , typename boost::remove_const< typename detail::remove_reference<A3>::type>::type , typename boost::remove_const< typename detail::remove_reference<A4>::type>::type , typename boost::remove_const< typename detail::remove_reference<A5>::type>::type , typename boost::remove_const< typename detail::remove_reference<A6>::type>::type , typename boost::remove_const< typename detail::remove_reference<A7>::type>::type , typename boost::remove_const< typename detail::remove_reference<A8>::type>::type , typename boost::remove_const< typename detail::remove_reference<A9>::type>::type , typename boost::remove_const< typename detail::remove_reference<A10>::type>::type , typename boost::remove_const< typename detail::remove_reference<A11>::type>::type , typename boost::remove_const< typename detail::remove_reference<A12>::type>::type , typename boost::remove_const< typename detail::remove_reference<A13>::type>::type
             > (boost::forward<A0>( a0 ) , boost::forward<A1>( a1 ) , boost::forward<A2>( a2 ) , boost::forward<A3>( a3 ) , boost::forward<A4>( a4 ) , boost::forward<A5>( a5 ) , boost::forward<A6>( a6 ) , boost::forward<A7>( a7 ) , boost::forward<A8>( a8 ) , boost::forward<A9>( a9 ) , boost::forward<A10>( a10 ) , boost::forward<A11>( a11 ) , boost::forward<A12>( a12 ) , boost::forward<A13>( a13 ));
@@ -9989,7 +9947,7 @@ namespace hpx { namespace util
         struct bound_action15
         {
             typedef typename traits::promise_local_result<
-                typename hpx::actions::extract_action<Action>::result_type
+                typename Action::result_type
             >::type result_type;
             
             bound_action15()
@@ -10635,24 +10593,21 @@ namespace hpx { namespace util
             > (boost::forward<A0>( a0 ) , boost::forward<A1>( a1 ) , boost::forward<A2>( a2 ) , boost::forward<A3>( a3 ) , boost::forward<A4>( a4 ) , boost::forward<A5>( a5 ) , boost::forward<A6>( a6 ) , boost::forward<A7>( a7 ) , boost::forward<A8>( a8 ) , boost::forward<A9>( a9 ) , boost::forward<A10>( a10 ) , boost::forward<A11>( a11 ) , boost::forward<A12>( a12 ) , boost::forward<A13>( a13 ) , boost::forward<A14>( a14 ));
     }
     
-    template <typename Component, typename Result,
-        typename Arguments, typename Derived
+    template <typename F, F funcptr
       , typename A0 , typename A1 , typename A2 , typename A3 , typename A4 , typename A5 , typename A6 , typename A7 , typename A8 , typename A9 , typename A10 , typename A11 , typename A12 , typename A13 , typename A14
     >
     detail::bound_action15<
-        Derived
+      hpx::actions::action<F, funcptr>
       , typename boost::remove_const< typename detail::remove_reference<A0>::type>::type , typename boost::remove_const< typename detail::remove_reference<A1>::type>::type , typename boost::remove_const< typename detail::remove_reference<A2>::type>::type , typename boost::remove_const< typename detail::remove_reference<A3>::type>::type , typename boost::remove_const< typename detail::remove_reference<A4>::type>::type , typename boost::remove_const< typename detail::remove_reference<A5>::type>::type , typename boost::remove_const< typename detail::remove_reference<A6>::type>::type , typename boost::remove_const< typename detail::remove_reference<A7>::type>::type , typename boost::remove_const< typename detail::remove_reference<A8>::type>::type , typename boost::remove_const< typename detail::remove_reference<A9>::type>::type , typename boost::remove_const< typename detail::remove_reference<A10>::type>::type , typename boost::remove_const< typename detail::remove_reference<A11>::type>::type , typename boost::remove_const< typename detail::remove_reference<A12>::type>::type , typename boost::remove_const< typename detail::remove_reference<A13>::type>::type , typename boost::remove_const< typename detail::remove_reference<A14>::type>::type
     >
     bind(
-        hpx::actions::action<
-            Component, Result, Arguments, Derived
-        > 
+      hpx::actions::action<F, funcptr> 
       , BOOST_FWD_REF(A0) a0 , BOOST_FWD_REF(A1) a1 , BOOST_FWD_REF(A2) a2 , BOOST_FWD_REF(A3) a3 , BOOST_FWD_REF(A4) a4 , BOOST_FWD_REF(A5) a5 , BOOST_FWD_REF(A6) a6 , BOOST_FWD_REF(A7) a7 , BOOST_FWD_REF(A8) a8 , BOOST_FWD_REF(A9) a9 , BOOST_FWD_REF(A10) a10 , BOOST_FWD_REF(A11) a11 , BOOST_FWD_REF(A12) a12 , BOOST_FWD_REF(A13) a13 , BOOST_FWD_REF(A14) a14
     )
     {
         return
             detail::bound_action15<
-                Derived
+              hpx::actions::action<F, funcptr>
               ,
                   typename boost::remove_const< typename detail::remove_reference<A0>::type>::type , typename boost::remove_const< typename detail::remove_reference<A1>::type>::type , typename boost::remove_const< typename detail::remove_reference<A2>::type>::type , typename boost::remove_const< typename detail::remove_reference<A3>::type>::type , typename boost::remove_const< typename detail::remove_reference<A4>::type>::type , typename boost::remove_const< typename detail::remove_reference<A5>::type>::type , typename boost::remove_const< typename detail::remove_reference<A6>::type>::type , typename boost::remove_const< typename detail::remove_reference<A7>::type>::type , typename boost::remove_const< typename detail::remove_reference<A8>::type>::type , typename boost::remove_const< typename detail::remove_reference<A9>::type>::type , typename boost::remove_const< typename detail::remove_reference<A10>::type>::type , typename boost::remove_const< typename detail::remove_reference<A11>::type>::type , typename boost::remove_const< typename detail::remove_reference<A12>::type>::type , typename boost::remove_const< typename detail::remove_reference<A13>::type>::type , typename boost::remove_const< typename detail::remove_reference<A14>::type>::type
             > (boost::forward<A0>( a0 ) , boost::forward<A1>( a1 ) , boost::forward<A2>( a2 ) , boost::forward<A3>( a3 ) , boost::forward<A4>( a4 ) , boost::forward<A5>( a5 ) , boost::forward<A6>( a6 ) , boost::forward<A7>( a7 ) , boost::forward<A8>( a8 ) , boost::forward<A9>( a9 ) , boost::forward<A10>( a10 ) , boost::forward<A11>( a11 ) , boost::forward<A12>( a12 ) , boost::forward<A13>( a13 ) , boost::forward<A14>( a14 ));
@@ -10701,7 +10656,7 @@ namespace hpx { namespace util
         struct bound_action16
         {
             typedef typename traits::promise_local_result<
-                typename hpx::actions::extract_action<Action>::result_type
+                typename Action::result_type
             >::type result_type;
             
             bound_action16()
@@ -11347,24 +11302,21 @@ namespace hpx { namespace util
             > (boost::forward<A0>( a0 ) , boost::forward<A1>( a1 ) , boost::forward<A2>( a2 ) , boost::forward<A3>( a3 ) , boost::forward<A4>( a4 ) , boost::forward<A5>( a5 ) , boost::forward<A6>( a6 ) , boost::forward<A7>( a7 ) , boost::forward<A8>( a8 ) , boost::forward<A9>( a9 ) , boost::forward<A10>( a10 ) , boost::forward<A11>( a11 ) , boost::forward<A12>( a12 ) , boost::forward<A13>( a13 ) , boost::forward<A14>( a14 ) , boost::forward<A15>( a15 ));
     }
     
-    template <typename Component, typename Result,
-        typename Arguments, typename Derived
+    template <typename F, F funcptr
       , typename A0 , typename A1 , typename A2 , typename A3 , typename A4 , typename A5 , typename A6 , typename A7 , typename A8 , typename A9 , typename A10 , typename A11 , typename A12 , typename A13 , typename A14 , typename A15
     >
     detail::bound_action16<
-        Derived
+      hpx::actions::action<F, funcptr>
       , typename boost::remove_const< typename detail::remove_reference<A0>::type>::type , typename boost::remove_const< typename detail::remove_reference<A1>::type>::type , typename boost::remove_const< typename detail::remove_reference<A2>::type>::type , typename boost::remove_const< typename detail::remove_reference<A3>::type>::type , typename boost::remove_const< typename detail::remove_reference<A4>::type>::type , typename boost::remove_const< typename detail::remove_reference<A5>::type>::type , typename boost::remove_const< typename detail::remove_reference<A6>::type>::type , typename boost::remove_const< typename detail::remove_reference<A7>::type>::type , typename boost::remove_const< typename detail::remove_reference<A8>::type>::type , typename boost::remove_const< typename detail::remove_reference<A9>::type>::type , typename boost::remove_const< typename detail::remove_reference<A10>::type>::type , typename boost::remove_const< typename detail::remove_reference<A11>::type>::type , typename boost::remove_const< typename detail::remove_reference<A12>::type>::type , typename boost::remove_const< typename detail::remove_reference<A13>::type>::type , typename boost::remove_const< typename detail::remove_reference<A14>::type>::type , typename boost::remove_const< typename detail::remove_reference<A15>::type>::type
     >
     bind(
-        hpx::actions::action<
-            Component, Result, Arguments, Derived
-        > 
+      hpx::actions::action<F, funcptr> 
       , BOOST_FWD_REF(A0) a0 , BOOST_FWD_REF(A1) a1 , BOOST_FWD_REF(A2) a2 , BOOST_FWD_REF(A3) a3 , BOOST_FWD_REF(A4) a4 , BOOST_FWD_REF(A5) a5 , BOOST_FWD_REF(A6) a6 , BOOST_FWD_REF(A7) a7 , BOOST_FWD_REF(A8) a8 , BOOST_FWD_REF(A9) a9 , BOOST_FWD_REF(A10) a10 , BOOST_FWD_REF(A11) a11 , BOOST_FWD_REF(A12) a12 , BOOST_FWD_REF(A13) a13 , BOOST_FWD_REF(A14) a14 , BOOST_FWD_REF(A15) a15
     )
     {
         return
             detail::bound_action16<
-                Derived
+              hpx::actions::action<F, funcptr>
               ,
                   typename boost::remove_const< typename detail::remove_reference<A0>::type>::type , typename boost::remove_const< typename detail::remove_reference<A1>::type>::type , typename boost::remove_const< typename detail::remove_reference<A2>::type>::type , typename boost::remove_const< typename detail::remove_reference<A3>::type>::type , typename boost::remove_const< typename detail::remove_reference<A4>::type>::type , typename boost::remove_const< typename detail::remove_reference<A5>::type>::type , typename boost::remove_const< typename detail::remove_reference<A6>::type>::type , typename boost::remove_const< typename detail::remove_reference<A7>::type>::type , typename boost::remove_const< typename detail::remove_reference<A8>::type>::type , typename boost::remove_const< typename detail::remove_reference<A9>::type>::type , typename boost::remove_const< typename detail::remove_reference<A10>::type>::type , typename boost::remove_const< typename detail::remove_reference<A11>::type>::type , typename boost::remove_const< typename detail::remove_reference<A12>::type>::type , typename boost::remove_const< typename detail::remove_reference<A13>::type>::type , typename boost::remove_const< typename detail::remove_reference<A14>::type>::type , typename boost::remove_const< typename detail::remove_reference<A15>::type>::type
             > (boost::forward<A0>( a0 ) , boost::forward<A1>( a1 ) , boost::forward<A2>( a2 ) , boost::forward<A3>( a3 ) , boost::forward<A4>( a4 ) , boost::forward<A5>( a5 ) , boost::forward<A6>( a6 ) , boost::forward<A7>( a7 ) , boost::forward<A8>( a8 ) , boost::forward<A9>( a9 ) , boost::forward<A10>( a10 ) , boost::forward<A11>( a11 ) , boost::forward<A12>( a12 ) , boost::forward<A13>( a13 ) , boost::forward<A14>( a14 ) , boost::forward<A15>( a15 ));
@@ -11413,7 +11365,7 @@ namespace hpx { namespace util
         struct bound_action17
         {
             typedef typename traits::promise_local_result<
-                typename hpx::actions::extract_action<Action>::result_type
+                typename Action::result_type
             >::type result_type;
             
             bound_action17()
@@ -12059,24 +12011,21 @@ namespace hpx { namespace util
             > (boost::forward<A0>( a0 ) , boost::forward<A1>( a1 ) , boost::forward<A2>( a2 ) , boost::forward<A3>( a3 ) , boost::forward<A4>( a4 ) , boost::forward<A5>( a5 ) , boost::forward<A6>( a6 ) , boost::forward<A7>( a7 ) , boost::forward<A8>( a8 ) , boost::forward<A9>( a9 ) , boost::forward<A10>( a10 ) , boost::forward<A11>( a11 ) , boost::forward<A12>( a12 ) , boost::forward<A13>( a13 ) , boost::forward<A14>( a14 ) , boost::forward<A15>( a15 ) , boost::forward<A16>( a16 ));
     }
     
-    template <typename Component, typename Result,
-        typename Arguments, typename Derived
+    template <typename F, F funcptr
       , typename A0 , typename A1 , typename A2 , typename A3 , typename A4 , typename A5 , typename A6 , typename A7 , typename A8 , typename A9 , typename A10 , typename A11 , typename A12 , typename A13 , typename A14 , typename A15 , typename A16
     >
     detail::bound_action17<
-        Derived
+      hpx::actions::action<F, funcptr>
       , typename boost::remove_const< typename detail::remove_reference<A0>::type>::type , typename boost::remove_const< typename detail::remove_reference<A1>::type>::type , typename boost::remove_const< typename detail::remove_reference<A2>::type>::type , typename boost::remove_const< typename detail::remove_reference<A3>::type>::type , typename boost::remove_const< typename detail::remove_reference<A4>::type>::type , typename boost::remove_const< typename detail::remove_reference<A5>::type>::type , typename boost::remove_const< typename detail::remove_reference<A6>::type>::type , typename boost::remove_const< typename detail::remove_reference<A7>::type>::type , typename boost::remove_const< typename detail::remove_reference<A8>::type>::type , typename boost::remove_const< typename detail::remove_reference<A9>::type>::type , typename boost::remove_const< typename detail::remove_reference<A10>::type>::type , typename boost::remove_const< typename detail::remove_reference<A11>::type>::type , typename boost::remove_const< typename detail::remove_reference<A12>::type>::type , typename boost::remove_const< typename detail::remove_reference<A13>::type>::type , typename boost::remove_const< typename detail::remove_reference<A14>::type>::type , typename boost::remove_const< typename detail::remove_reference<A15>::type>::type , typename boost::remove_const< typename detail::remove_reference<A16>::type>::type
     >
     bind(
-        hpx::actions::action<
-            Component, Result, Arguments, Derived
-        > 
+      hpx::actions::action<F, funcptr> 
       , BOOST_FWD_REF(A0) a0 , BOOST_FWD_REF(A1) a1 , BOOST_FWD_REF(A2) a2 , BOOST_FWD_REF(A3) a3 , BOOST_FWD_REF(A4) a4 , BOOST_FWD_REF(A5) a5 , BOOST_FWD_REF(A6) a6 , BOOST_FWD_REF(A7) a7 , BOOST_FWD_REF(A8) a8 , BOOST_FWD_REF(A9) a9 , BOOST_FWD_REF(A10) a10 , BOOST_FWD_REF(A11) a11 , BOOST_FWD_REF(A12) a12 , BOOST_FWD_REF(A13) a13 , BOOST_FWD_REF(A14) a14 , BOOST_FWD_REF(A15) a15 , BOOST_FWD_REF(A16) a16
     )
     {
         return
             detail::bound_action17<
-                Derived
+              hpx::actions::action<F, funcptr>
               ,
                   typename boost::remove_const< typename detail::remove_reference<A0>::type>::type , typename boost::remove_const< typename detail::remove_reference<A1>::type>::type , typename boost::remove_const< typename detail::remove_reference<A2>::type>::type , typename boost::remove_const< typename detail::remove_reference<A3>::type>::type , typename boost::remove_const< typename detail::remove_reference<A4>::type>::type , typename boost::remove_const< typename detail::remove_reference<A5>::type>::type , typename boost::remove_const< typename detail::remove_reference<A6>::type>::type , typename boost::remove_const< typename detail::remove_reference<A7>::type>::type , typename boost::remove_const< typename detail::remove_reference<A8>::type>::type , typename boost::remove_const< typename detail::remove_reference<A9>::type>::type , typename boost::remove_const< typename detail::remove_reference<A10>::type>::type , typename boost::remove_const< typename detail::remove_reference<A11>::type>::type , typename boost::remove_const< typename detail::remove_reference<A12>::type>::type , typename boost::remove_const< typename detail::remove_reference<A13>::type>::type , typename boost::remove_const< typename detail::remove_reference<A14>::type>::type , typename boost::remove_const< typename detail::remove_reference<A15>::type>::type , typename boost::remove_const< typename detail::remove_reference<A16>::type>::type
             > (boost::forward<A0>( a0 ) , boost::forward<A1>( a1 ) , boost::forward<A2>( a2 ) , boost::forward<A3>( a3 ) , boost::forward<A4>( a4 ) , boost::forward<A5>( a5 ) , boost::forward<A6>( a6 ) , boost::forward<A7>( a7 ) , boost::forward<A8>( a8 ) , boost::forward<A9>( a9 ) , boost::forward<A10>( a10 ) , boost::forward<A11>( a11 ) , boost::forward<A12>( a12 ) , boost::forward<A13>( a13 ) , boost::forward<A14>( a14 ) , boost::forward<A15>( a15 ) , boost::forward<A16>( a16 ));
@@ -12125,7 +12074,7 @@ namespace hpx { namespace util
         struct bound_action18
         {
             typedef typename traits::promise_local_result<
-                typename hpx::actions::extract_action<Action>::result_type
+                typename Action::result_type
             >::type result_type;
             
             bound_action18()
@@ -12771,24 +12720,21 @@ namespace hpx { namespace util
             > (boost::forward<A0>( a0 ) , boost::forward<A1>( a1 ) , boost::forward<A2>( a2 ) , boost::forward<A3>( a3 ) , boost::forward<A4>( a4 ) , boost::forward<A5>( a5 ) , boost::forward<A6>( a6 ) , boost::forward<A7>( a7 ) , boost::forward<A8>( a8 ) , boost::forward<A9>( a9 ) , boost::forward<A10>( a10 ) , boost::forward<A11>( a11 ) , boost::forward<A12>( a12 ) , boost::forward<A13>( a13 ) , boost::forward<A14>( a14 ) , boost::forward<A15>( a15 ) , boost::forward<A16>( a16 ) , boost::forward<A17>( a17 ));
     }
     
-    template <typename Component, typename Result,
-        typename Arguments, typename Derived
+    template <typename F, F funcptr
       , typename A0 , typename A1 , typename A2 , typename A3 , typename A4 , typename A5 , typename A6 , typename A7 , typename A8 , typename A9 , typename A10 , typename A11 , typename A12 , typename A13 , typename A14 , typename A15 , typename A16 , typename A17
     >
     detail::bound_action18<
-        Derived
+      hpx::actions::action<F, funcptr>
       , typename boost::remove_const< typename detail::remove_reference<A0>::type>::type , typename boost::remove_const< typename detail::remove_reference<A1>::type>::type , typename boost::remove_const< typename detail::remove_reference<A2>::type>::type , typename boost::remove_const< typename detail::remove_reference<A3>::type>::type , typename boost::remove_const< typename detail::remove_reference<A4>::type>::type , typename boost::remove_const< typename detail::remove_reference<A5>::type>::type , typename boost::remove_const< typename detail::remove_reference<A6>::type>::type , typename boost::remove_const< typename detail::remove_reference<A7>::type>::type , typename boost::remove_const< typename detail::remove_reference<A8>::type>::type , typename boost::remove_const< typename detail::remove_reference<A9>::type>::type , typename boost::remove_const< typename detail::remove_reference<A10>::type>::type , typename boost::remove_const< typename detail::remove_reference<A11>::type>::type , typename boost::remove_const< typename detail::remove_reference<A12>::type>::type , typename boost::remove_const< typename detail::remove_reference<A13>::type>::type , typename boost::remove_const< typename detail::remove_reference<A14>::type>::type , typename boost::remove_const< typename detail::remove_reference<A15>::type>::type , typename boost::remove_const< typename detail::remove_reference<A16>::type>::type , typename boost::remove_const< typename detail::remove_reference<A17>::type>::type
     >
     bind(
-        hpx::actions::action<
-            Component, Result, Arguments, Derived
-        > 
+      hpx::actions::action<F, funcptr> 
       , BOOST_FWD_REF(A0) a0 , BOOST_FWD_REF(A1) a1 , BOOST_FWD_REF(A2) a2 , BOOST_FWD_REF(A3) a3 , BOOST_FWD_REF(A4) a4 , BOOST_FWD_REF(A5) a5 , BOOST_FWD_REF(A6) a6 , BOOST_FWD_REF(A7) a7 , BOOST_FWD_REF(A8) a8 , BOOST_FWD_REF(A9) a9 , BOOST_FWD_REF(A10) a10 , BOOST_FWD_REF(A11) a11 , BOOST_FWD_REF(A12) a12 , BOOST_FWD_REF(A13) a13 , BOOST_FWD_REF(A14) a14 , BOOST_FWD_REF(A15) a15 , BOOST_FWD_REF(A16) a16 , BOOST_FWD_REF(A17) a17
     )
     {
         return
             detail::bound_action18<
-                Derived
+              hpx::actions::action<F, funcptr>
               ,
                   typename boost::remove_const< typename detail::remove_reference<A0>::type>::type , typename boost::remove_const< typename detail::remove_reference<A1>::type>::type , typename boost::remove_const< typename detail::remove_reference<A2>::type>::type , typename boost::remove_const< typename detail::remove_reference<A3>::type>::type , typename boost::remove_const< typename detail::remove_reference<A4>::type>::type , typename boost::remove_const< typename detail::remove_reference<A5>::type>::type , typename boost::remove_const< typename detail::remove_reference<A6>::type>::type , typename boost::remove_const< typename detail::remove_reference<A7>::type>::type , typename boost::remove_const< typename detail::remove_reference<A8>::type>::type , typename boost::remove_const< typename detail::remove_reference<A9>::type>::type , typename boost::remove_const< typename detail::remove_reference<A10>::type>::type , typename boost::remove_const< typename detail::remove_reference<A11>::type>::type , typename boost::remove_const< typename detail::remove_reference<A12>::type>::type , typename boost::remove_const< typename detail::remove_reference<A13>::type>::type , typename boost::remove_const< typename detail::remove_reference<A14>::type>::type , typename boost::remove_const< typename detail::remove_reference<A15>::type>::type , typename boost::remove_const< typename detail::remove_reference<A16>::type>::type , typename boost::remove_const< typename detail::remove_reference<A17>::type>::type
             > (boost::forward<A0>( a0 ) , boost::forward<A1>( a1 ) , boost::forward<A2>( a2 ) , boost::forward<A3>( a3 ) , boost::forward<A4>( a4 ) , boost::forward<A5>( a5 ) , boost::forward<A6>( a6 ) , boost::forward<A7>( a7 ) , boost::forward<A8>( a8 ) , boost::forward<A9>( a9 ) , boost::forward<A10>( a10 ) , boost::forward<A11>( a11 ) , boost::forward<A12>( a12 ) , boost::forward<A13>( a13 ) , boost::forward<A14>( a14 ) , boost::forward<A15>( a15 ) , boost::forward<A16>( a16 ) , boost::forward<A17>( a17 ));

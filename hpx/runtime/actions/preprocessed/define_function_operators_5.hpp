@@ -13,9 +13,13 @@
     BOOST_FORCEINLINE typename boost::enable_if<
         boost::mpl::and_<
             boost::mpl::bool_<
-                boost::fusion::result_of::size<arguments_type>::value == 1>,
+                boost::fusion::result_of::size<
+                    typename action_impl<F, funcptr>::arguments_type
+                >::value == 1>,
             boost::is_same<IdType, naming::id_type> >,
-        typename traits::promise_local_result<Result>::type
+        typename traits::promise_local_result<
+            typename action_impl<F, funcptr>::result_type
+        >::type
     >::type
     operator()(IdType const& id, BOOST_FWD_REF(Arg0) arg0,
         error_code& ec = throws) const
@@ -28,9 +32,13 @@
     BOOST_FORCEINLINE typename boost::enable_if<
         boost::mpl::and_<
             boost::mpl::bool_<
-                boost::fusion::result_of::size<arguments_type>::value == 2>,
+                boost::fusion::result_of::size<
+                    typename action_impl<F, funcptr>::arguments_type
+                >::value == 2>,
             boost::is_same<IdType, naming::id_type> >,
-        typename traits::promise_local_result<Result>::type
+        typename traits::promise_local_result<
+            typename action_impl<F, funcptr>::result_type
+        >::type
     >::type
     operator()(IdType const& id, BOOST_FWD_REF(Arg0) arg0 , BOOST_FWD_REF(Arg1) arg1,
         error_code& ec = throws) const
@@ -43,9 +51,13 @@
     BOOST_FORCEINLINE typename boost::enable_if<
         boost::mpl::and_<
             boost::mpl::bool_<
-                boost::fusion::result_of::size<arguments_type>::value == 3>,
+                boost::fusion::result_of::size<
+                    typename action_impl<F, funcptr>::arguments_type
+                >::value == 3>,
             boost::is_same<IdType, naming::id_type> >,
-        typename traits::promise_local_result<Result>::type
+        typename traits::promise_local_result<
+            typename action_impl<F, funcptr>::result_type
+        >::type
     >::type
     operator()(IdType const& id, BOOST_FWD_REF(Arg0) arg0 , BOOST_FWD_REF(Arg1) arg1 , BOOST_FWD_REF(Arg2) arg2,
         error_code& ec = throws) const
@@ -58,9 +70,13 @@
     BOOST_FORCEINLINE typename boost::enable_if<
         boost::mpl::and_<
             boost::mpl::bool_<
-                boost::fusion::result_of::size<arguments_type>::value == 4>,
+                boost::fusion::result_of::size<
+                    typename action_impl<F, funcptr>::arguments_type
+                >::value == 4>,
             boost::is_same<IdType, naming::id_type> >,
-        typename traits::promise_local_result<Result>::type
+        typename traits::promise_local_result<
+            typename action_impl<F, funcptr>::result_type
+        >::type
     >::type
     operator()(IdType const& id, BOOST_FWD_REF(Arg0) arg0 , BOOST_FWD_REF(Arg1) arg1 , BOOST_FWD_REF(Arg2) arg2 , BOOST_FWD_REF(Arg3) arg3,
         error_code& ec = throws) const
@@ -73,9 +89,13 @@
     BOOST_FORCEINLINE typename boost::enable_if<
         boost::mpl::and_<
             boost::mpl::bool_<
-                boost::fusion::result_of::size<arguments_type>::value == 5>,
+                boost::fusion::result_of::size<
+                    typename action_impl<F, funcptr>::arguments_type
+                >::value == 5>,
             boost::is_same<IdType, naming::id_type> >,
-        typename traits::promise_local_result<Result>::type
+        typename traits::promise_local_result<
+            typename action_impl<F, funcptr>::result_type
+        >::type
     >::type
     operator()(IdType const& id, BOOST_FWD_REF(Arg0) arg0 , BOOST_FWD_REF(Arg1) arg1 , BOOST_FWD_REF(Arg2) arg2 , BOOST_FWD_REF(Arg3) arg3 , BOOST_FWD_REF(Arg4) arg4,
         error_code& ec = throws) const
