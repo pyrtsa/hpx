@@ -9,6 +9,8 @@
 #if !defined(HPX_HPX_FWD_MAR_24_2008_1119AM)
 #define HPX_HPX_FWD_MAR_24_2008_1119AM
 
+#define BOOST_RESULT_OF_USE_TR1
+
 #include <cstdlib>
 #include <vector>
 

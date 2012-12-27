@@ -833,7 +833,7 @@ else()
 
   # No return statement in a non-void function can lead to garbage return values
   # in GCC.
-  hpx_use_flag_if_available(-Werror=return-type LANGUAGES CXX C)
+  #hpx_use_flag_if_available(-Werror=return-type LANGUAGES CXX C)
 
   # Show the flags that toggle each warning
   hpx_use_flag_if_available(-fdiagnostics-show-option LANGUAGES CXX C Fortran)
@@ -970,7 +970,7 @@ else()
   ##############################################################################
   # System libraries
   ##############################################################################
-  set(hpx_RUNTIME_LIBRARIES ${hpx_RUNTIME_LIBRARIES} dl rt)
+  set(hpx_RUNTIME_LIBRARIES ${hpx_RUNTIME_LIBRARIES} dl)
 
   hpx_check_for_pthread_affinity_np(HPX_PTHREAD_AFFINITY_NP
     DEFINITIONS HPX_HAVE_PTHREAD_AFFINITY_NP)

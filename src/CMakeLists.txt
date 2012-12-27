@@ -40,7 +40,7 @@ if(UNIX)
     hpx_use_flag_if_available(-Werror=trampolines)
     hpx_use_flag_if_available(-Werror=parentheses)
     hpx_use_flag_if_available(-Werror=reorder)
-    hpx_use_flag_if_available(-Werror=return-type)
+    #hpx_use_flag_if_available(-Werror=return-type)
     hpx_use_flag_if_available(-Werror=sequence-point)
   
     if(040600 LESS ${GCC_VERSION} OR 040600 EQUAL ${GCC_VERSION})
